@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ar" dir="rtl" data-motion="off">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#124e3e">
+  <meta name="description" content="متابعات شعبة ورشة الديزل: الأولويات والإجراءات وآخر التحديثات المؤكدة.">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./motion.css">
+  <title>متابعات شعبة ورشة الديزل</title>
+  <script src="./translations-en.js" defer></script>
+  <script src="./i18n.js" defer></script>
+  <script src="./record-time.js" defer></script>
+  <script src="./motion.js" defer></script>
+  <script src="./procurement-model.js" defer></script>
+  <script src="./procurement.js" defer></script>
+  <script src="./sheets.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="ambient-background" aria-hidden="true"><div class="ambient-art"></div></div>
+  <a href="#records" class="skip-link">الانتقال إلى المتابعات</a>
+  <header class="masthead">
+    <div class="masthead-inner">
+      <div class="identity"><span class="identity-mark" aria-hidden="true" translate="no">د</span><div><div class="institution">بلدية مدينة الشارقة · إدارة الصرف الصحي</div><h1>شعبة ورشة الديزل</h1></div></div>
+      <div class="header-end"><div class="language-switch" role="group" aria-label="Language / اللغة" translate="no"><button type="button" data-language="ar" lang="ar" aria-pressed="true">العربية</button><button type="button" data-language="en" lang="en" aria-pressed="false">English</button></div><span class="privacy-label">عرض عام</span><time id="today"></time></div>
+    </div>
+  </header>
+  <main id="app">
+    <aside class="trial-banner" role="status"><strong>سجل المتابعات — Google Sheets</strong><p id="sheet-status">جارٍ التحقق من الاتصال بملف Google Sheets.</p><div class="trial-links"><a href="https://docs.google.com/spreadsheets/d/1f8rYNHHe6KjvgQgThMXRi3cOrHGLJWmvLYURqzdbh_0/edit?usp=drivesdk" target="_blank" rel="noopener noreferrer">فتح ملف المتابعات في Google Sheets</a><a href="https://diesel-workshop-followups.abo0od-2448.chatgpt.site" target="_blank" rel="noopener">فتح الموقع الأساسي</a></div></aside>
+    <section class="page-heading" aria-label="مقدمة المتابعات">
+      <div><div class="eyebrow">سجل العمل</div><h2>المتابعات</h2><p id="scope">جارٍ تحميل السجل…</p></div>
+      <div class="page-actions">
+        <button class="refresh-button" id="refresh" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6.1 7a7 7 0 0 1 11.6-1L20 9M4 15l2.3 3A7 7 0 0 0 17.9 17"/></svg><span>تحديث العرض</span></button>
+        <button class="motion-toggle" id="motion-toggle" type="button" aria-pressed="false" aria-label="تشغيل الحركة" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path class="motion-pause" d="M9 5v14M15 5v14"/><path class="motion-play" d="m9 5 10 7-10 7Z"/></svg><span id="motion-label">الحركة متوقفة</span></button>
+      </div>
+    </section>
+    <div id="notice" role="status" aria-live="polite" class="notice" hidden></div>
+    <p class="record-updated" title="وقت التعديل هو وقت حفظ بيانات البند في السجل، وليس تاريخ المعلومة أو وقت تحديث الصفحة."><span>آخر تحديث للسجل</span>: <time id="record-updated-time" translate="no"></time> <span>بتوقيت الإمارات</span></p>
+    <section class="sync-band" aria-label="حالة التحديث">
+      <div class="sync-main"><span id="connection-dot" class="connection-dot pending" aria-hidden="true"></span><strong id="connection-label">جارٍ الاتصال بالسجل</strong><span id="fetch-time"></span></div>
+      <details class="sync-details"><summary id="sync-summary">كيف يتم التحديث؟</summary><div class="sync-explanation"><p id="sync-explanation">تتجدد البيانات المعروضة كل 30 ثانية أثناء فتح الشاشة.</p><p id="review-time"></p><p>تاريخ كل بند هو تاريخ آخر معلومة مؤيدة عنه. إرسال رسالة أو إعداد مسودة لا يعني اكتمال الإجراء.</p></div></details>
+    </section>
+    <div class="view-tabs" role="tablist" aria-label="عرض السجل">
+      <button type="button" id="overview-tab" role="tab" aria-controls="overview-panel" aria-selected="true" data-view="overview">جميع المتابعات <span id="overview-tab-count">—</span></button>
+      <button type="button" id="non-purchase-tab" role="tab" aria-controls="overview-panel" aria-selected="false" data-view="non-purchase">متابعات غير شرائية <span id="non-purchase-tab-count">—</span></button>
+      <button type="button" id="procurement-tab" role="tab" aria-controls="procurement-panel" aria-selected="false" data-view="procurement">طلبات الشراء <span id="procurement-tab-count">—</span></button>
+      <button type="button" id="closed-tab" role="tab" aria-controls="overview-panel" aria-selected="false" data-view="closed">المتابعات المغلقة <span id="closed-tab-count">—</span></button>
+    </div>
+    <div id="overview-panel" role="tabpanel" aria-labelledby="overview-tab">
+    <section class="metrics" aria-label="ملخص السجل">
+      <div class="metric metric-main"><span class="metric-label">إجمالي المتابعات</span><strong id="total">—</strong><span id="composition" class="metric-note">يشمل كامل السجل</span></div>
+      <div class="metric"><span class="metric-label">أولوية عالية</span><strong id="high">—</strong><span class="metric-note">تظهر أولاً في القائمة</span></div>
+      <div class="metric"><span class="metric-label">بانتظار العروض</span><strong id="quotes">—</strong><span class="metric-note">متابعة العقود والمشتريات</span></div>
+      <div class="metric"><span class="metric-label">معلومات من سبتمبر</span><strong id="recent">—</strong><span class="metric-note">آخر معلومة مسجلة لكل بند</span></div>
+    </section>
+    <section class="records-section" id="records" aria-labelledby="records-title">
+      <div class="records-heading"><h3 id="records-title">جميع المتابعات <span id="shown-count"></span></h3><span class="sort-hint">الأولوية الأعلى أولاً</span></div>
+      <div class="toolbar"><div class="group-filters" id="groups" role="group" aria-label="تصنيف المتابعات"></div><label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="search" type="search" autocomplete="off" placeholder="ابحث بالموضوع أو رقم الطلب" aria-label="البحث في المتابعات"></label></div>
+      <div class="table-wrap"><table class="records-table"><caption class="sr-only">المتابعات مرتبة بالأولوية، مع الحالة والإجراء والمسؤول وتاريخ آخر معلومة.</caption><thead><tr><th class="number-col" scope="col">#</th><th scope="col">الموضوع والمرجع</th><th scope="col">الأولوية والحالة</th><th scope="col">الإجراء المطلوب</th><th scope="col">آخر معلومة</th><th class="expand-col" scope="col"><span class="sr-only">التفاصيل</span></th></tr></thead><tbody id="rows"><tr><td colspan="6" class="loading-cell">جارٍ تحميل المتابعات…</td></tr></tbody></table></div>
+      <div class="empty-state" id="empty" hidden><h4 id="empty-title">لا توجد متابعات مطابقة</h4><p id="empty-description">جرّب رقماً أو كلمة أخرى، أو ارجع إلى جميع المتابعات.</p><button class="refresh-button" id="clear-filters" type="button">عرض جميع المتابعات</button></div>
+    </section>
+    </div>
+    <section id="procurement-panel" role="tabpanel" aria-labelledby="procurement-tab" hidden>
+      <div class="purchase-summary" aria-label="ملخص طلبات الشراء"><div><strong id="pr-numbered">—</strong><span>طلبات مرقمة قائمة</span></div><div><strong id="pr-unnumbered">—</strong><span>طلبات لم تُرقّم</span></div><div><strong id="pr-quotes">—</strong><span>بانتظار العروض</span></div><div><strong id="pr-received">—</strong><span>تحت التقييم</span></div></div>
+      <div class="records-section purchase-section">
+        <div class="records-heading"><h3>طلبات الشراء <span id="pr-count"></span></h3><span class="sort-hint">حسب الحالة ثم الأولوية</span></div>
+        <div class="toolbar"><div id="pr-filters" class="group-filters" role="group" aria-label="حالة طلب الشراء"></div><label class="search-field"><input id="pr-search" type="search" aria-label="البحث في طلبات الشراء" placeholder="رقم PR أو LPO أو موضوع الطلب"></label></div>
+        <p class="purchase-note">القيمة والبند يظهران حسب المستند المتاح. «غير مسجل» تعني أن المعلومة لم تتوفر؛ البنود الفنية الفرعية تظهر مع طلبها.</p>
+        <div id="pr-records" class="purchase-records" aria-live="polite"><p class="loading-cell">جارٍ تحميل طلبات الشراء…</p></div>
+        <div class="secondary-statuses"><span>حالات أخرى</span><div id="pr-secondary-filters" class="group-filters" role="group" aria-label="حالات أخرى"></div></div>
+        <div id="pr-empty" class="empty-state" hidden><h4>لا توجد طلبات مطابقة</h4><button type="button" id="pr-clear" class="refresh-button">عرض جميع الطلبات</button></div>
+      </div>
+    </section>
+    <footer><p>السجل الأساسي: 27 أغسطس 2026. الحالات التي لم يرد لها تحديث أحدث تبقى موضحة بتاريخها.</p><p>شعبة ورشة الديزل</p></footer>
+  </main>
+  <noscript><p class="noscript">يلزم تفعيل JavaScript لعرض السجل والتحديثات التلقائية.</p></noscript>
+</body>
+</html>

@@ -1,0 +1,79 @@
+'use strict';
+(() => {
+  const I=window.WorkshopI18n;
+  const model=globalThis.WorkshopProcurement;
+  const $=id=>document.getElementById(id);
+  const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const normal=value=>String(value??'').toLowerCase().replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/[\u064B-\u065F]/g,'').trim();
+  const number=new Intl.NumberFormat('en-AE',{maximumFractionDigits:2});
+  const date=value=>String(value||'').split('-').reverse().join(' / ');
+  let rows=[],stage='all',query='',feed=null;
+  let selectedView=null;
+  const expanded=new Set();
+  function selectView(view,updateHash=true){
+    const purchase=view==='procurement';
+    const changed=selectedView!==view;
+    selectedView=view;
+    $('overview-panel').hidden=purchase;$('procurement-panel').hidden=!purchase;
+    for(const tab of tabs){const active=tab.dataset.view===view;tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;}
+    $('overview-panel').setAttribute('aria-labelledby',purchase?'overview-tab':view+'-tab');
+    if(updateHash)history.replaceState(null,'',purchase?'#purchase-orders':'#'+view);
+    window.dispatchEvent(new CustomEvent('workshop-view',{detail:view}));
+    if(changed)window.WorkshopMotion?.reveal($(purchase?'procurement-panel':'overview-panel'));
+  }
+  const tabs=[...document.querySelectorAll('.view-tabs [data-view]')];
+  for(const tab of tabs){
+    tab.addEventListener('click',()=>selectView(tab.dataset.view));
+    tab.addEventListener('keydown',event=>{
+      if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+      event.preventDefault();let i=tabs.indexOf(tab);i=event.key==='Home'?0:event.key==='End'?tabs.length-1:((event.key==='ArrowLeft')===(document.documentElement.dir==='rtl'))?(i+1)%tabs.length:(i+tabs.length-1)%tabs.length;
+      selectView(tabs[i].dataset.view);tabs[i].focus();
+    });
+  }
+  function requestReference(meta){
+    if(meta.prNumber)return `${escape(meta.numberType||'PR')} <bdi>${escape(meta.prNumber)}</bdi>`;
+    if(meta.lpoNumber)return `LPO <bdi>${escape(meta.lpoNumber)}</bdi>`;
+    return meta.kind==='planning'?'احتياج مستقبلي':'رقم PR لم يصدر';
+  }
+  function detailRow(row){
+    const {item,meta,linked}=row;
+    const sources=item.sources.map(s=>`<li><span class="source-title">${escape(s.title)}</span><span class="source-locator">${escape(s.locator)} · <bdi>${escape(date(s.date))}</bdi></span></li>`).join('');
+    return `<tr id="pr-detail-${escape(item.id)}" class="purchase-detail" ${expanded.has(item.id)?'':'hidden'}><td colspan="6"><div class="detail-grid"><div><h4>الحالة المسجلة</h4><p>${escape(item.status)}</p></div><div><h4>جهة المتابعة</h4><p>${escape(item.followUpWith)}</p>${meta.lpoNumber?`<p class="detail-meta">أمر الشراء: <bdi>${escape(meta.lpoNumber)}</bdi></p>`:''}</div>${item.notes?`<div class="detail-full"><h4>الملاحظات</h4><p>${escape(item.notes)}</p></div>`:''}${linked.length?`<div class="detail-full"><h4>بنود فنية مرتبطة بنفس الطلب</h4>${linked.map(x=>`<p>${escape(x.title)} — ${escape(x.action)}</p>`).join('')}</div>`:''}<div class="detail-full"><h4>المراجع</h4><ul class="sources">${sources}</ul></div></div></td></tr>`;
+  }
+  function renderRows(){
+    if(!feed)return;
+    const visible=rows.filter(x=>(stage==='all'||model.displayStage(x.meta.stage)===stage)&&(!query||normal(I.search([x.item.title,x.meta.prNumber,x.meta.lpoNumber,x.meta.budgetCode,x.item.status,x.item.owner,x.item.action])).includes(normal(query))));
+    $('pr-count').textContent=visible.length+' / '+rows.length;
+    $('pr-empty').hidden=visible.length!==0;$('pr-records').hidden=visible.length===0;
+    const sections=model.stages.filter(([id])=>id!=='all').map(([id,label])=>{
+      const group=visible.filter(x=>model.displayStage(x.meta.stage)===id);if(!group.length)return '';
+      const body=group.map(row=>{
+        const {item,meta}=row;
+        const amount=typeof meta.amountAed==='number'?`<bdi>${number.format(meta.amountAed)}</bdi><span class="purchase-sub">${meta.amountBasis==='estimated'?'قيمة تقديرية':meta.amountBasis==='quoted'?'قيمة العرض':'قيمة مسجلة'}</span>`:'<span class="missing-value">غير مسجل</span>';
+        return `<tr class="purchase-row"><td class="purchase-number">${rows.indexOf(row)+1}</td><td class="purchase-topic"><span class="purchase-reference">${requestReference(meta)}</span><h4>${escape(item.title)}</h4>${meta.lpoNumber&&meta.prNumber?`<span class="purchase-sub">LPO <bdi>${escape(meta.lpoNumber)}</bdi></span>`:''}</td><td class="purchase-amount" data-label="القيمة بالدرهم">${amount}${meta.amountNote?`<span class="purchase-sub">${escape(meta.amountNote)}</span>`:''}</td><td class="purchase-budget" data-label="بند الموازنة"><bdi>${escape(meta.budgetCode||'غير مسجل')}</bdi></td><td class="purchase-action"><span class="stage stage-${escape(item.stage)}">${escape(model.stageLabels[meta.stage])}</span><p>${escape(item.action)}</p><span class="purchase-sub">${escape(item.owner)} · آخر معلومة <bdi>${escape(date(item.informationDate))}</bdi></span><span class="purchase-sub record-edit-time"><span>آخر تعديل للبند</span>: <time translate="no" datetime="${escape(item.updatedAt || '')}">${escape(window.WorkshopRecordTime(item.updatedAt))}</time> <span>بتوقيت الإمارات</span></span></td><td class="purchase-toggle"><button class="expand-button" type="button" data-pr-item="${escape(item.id)}" aria-label="تفاصيل ${escape(item.title)}" aria-expanded="${expanded.has(item.id)}" aria-controls="pr-detail-${escape(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></td></tr>${detailRow(row)}`;
+      }).join('');
+      return `<section class="purchase-stage-group" aria-label="${escape(label)}"><h4 class="purchase-stage-heading">${escape(label)} <span>${group.length}</span></h4><table class="purchase-table"><thead><tr><th scope="col">#</th><th scope="col">رقم الطلب والموضوع</th><th scope="col">القيمة — درهم</th><th scope="col">الموازنة</th><th scope="col">الحالة والإجراء المطلوب</th><th scope="col"><span class="sr-only">التفاصيل</span></th></tr></thead><tbody>${body}</tbody></table></section>`;
+    }).join('');
+    $('pr-records').innerHTML=sections;
+  }
+  function renderFilters(){
+    const buttons=stages=>stages.map(([id,label])=>`<button type="button" data-pr-stage="${id}" class="filter-button ${stage===id?'active':''}" aria-pressed="${stage===id}">${escape(label)}<span class="filter-count">${id==='all'?rows.length:rows.filter(x=>model.displayStage(x.meta.stage)===id).length}</span></button>`).join('');
+    $('pr-filters').innerHTML=buttons(model.primaryStages);
+    $('pr-secondary-filters').innerHTML=buttons(model.secondaryStages);
+  }
+  window.addEventListener('workshop-data',event=>{
+    feed=event.detail;rows=model.getRows(feed);const stats=model.metrics(rows);
+    $('overview-tab-count').textContent=feed.items.length;$('procurement-tab-count').textContent=rows.length;
+    $('non-purchase-tab-count').textContent=feed.items.filter(item=>!model.isPurchaseRelated(item)).length;
+    $('closed-tab-count').textContent=feed.items.filter(model.isClosed).length;
+    $('pr-numbered').textContent=stats.numbered;$('pr-unnumbered').textContent=stats.unnumbered;$('pr-quotes').textContent=stats.quotes;$('pr-received').textContent=stats.received;
+    renderFilters();renderRows();
+  });
+  for(const id of ['pr-filters','pr-secondary-filters'])$(id).addEventListener('click',event=>{const button=event.target.closest('[data-pr-stage]');if(!button)return;stage=button.dataset.prStage;renderFilters();renderRows();window.WorkshopMotion?.reveal($('pr-records'));});
+  $('pr-search').addEventListener('input',event=>{query=event.target.value;renderRows();});
+  $('pr-clear').addEventListener('click',()=>{stage='all';query='';$('pr-search').value='';renderFilters();renderRows();});
+  $('pr-records').addEventListener('click',event=>{const button=event.target.closest('[data-pr-item]');if(!button)return;const id=button.dataset.prItem,open=!expanded.has(id);if(open)expanded.add(id);else expanded.delete(id);button.setAttribute('aria-expanded',String(open));$('pr-detail-'+id).hidden=!open;if(open)window.WorkshopMotion?.reveal($('pr-detail-'+id).querySelector('.detail-grid'),'detail');});
+  const viewFromHash=()=>location.hash==='#purchase-orders'?'procurement':location.hash==='#non-purchase'?'non-purchase':location.hash==='#closed'?'closed':'overview';
+  window.addEventListener('hashchange',()=>selectView(viewFromHash(),false));
+  selectView(viewFromHash(),false);
+})();

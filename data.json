@@ -1,0 +1,2668 @@
+{
+  "schemaVersion": 1,
+  "title": "شعبة ورشة الديزل",
+  "subtitle": "بلدية مدينة الشارقة · إدارة الصرف الصحي",
+  "revision": "record-times-2026-09-14T15:06:35.129Z",
+  "updatedAt": "2026-09-14T12:59:32.000Z",
+  "compiledAt": "2026-09-14T12:59:31.987286+00:00",
+  "baselineDate": "2026-08-27",
+  "latestInformationDate": "2026-09-14",
+  "sourceBaselineCount": 36,
+  "displayBaselineCount": 35,
+  "sync": {
+    "mode": "paused",
+    "checkEverySeconds": 30,
+    "reviewEveryMinutes": 60,
+    "lastReviewAt": "2026-09-14T12:59:31.987286+00:00",
+    "message": "مراجعة المحادثات متوقفة لحين استعادة الوصول للمحادثات الأحدث."
+  },
+  "groups": [
+    {
+      "id": "all",
+      "label": "جميع المتابعات"
+    },
+    {
+      "id": "purchase-action",
+      "label": "طلبات تحتاج إجراء"
+    },
+    {
+      "id": "quotes",
+      "label": "بانتظار العروض"
+    },
+    {
+      "id": "coordination",
+      "label": "التنسيق والجاهزية"
+    },
+    {
+      "id": "vehicles",
+      "label": "المركبات"
+    },
+    {
+      "id": "future",
+      "label": "خطط مستقبلية"
+    }
+  ],
+  "scopeNote": "يشمل 35 متابعة من السجل المعتمد بعد دمج بندَي المركبات، إضافة إلى المتابعات الأحدث. تبقى كل حالة بتاريخ آخر معلومة مؤيدة.",
+  "items": [
+    {
+      "id": "base-1",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [
+        1
+      ],
+      "kind": "baseline",
+      "title": "مروحة تبريد متنقلة — SMRF-05",
+      "stage": "action",
+      "status": "استُكملت موافقات SMRF؛ تأكيد تسجيل المروحة كأصل ما زال مطلوباً.",
+      "action": "تأكيد متطلبات تسجيل الأصل مع م. منير، ثم استكمال الشراء بالنثرية.",
+      "owner": "أحمد دسوقي",
+      "followUpWith": "م. منير / تسجيل الأصول",
+      "notes": "مروحة واحدة، بقيمة 800 درهم.",
+      "reference": "SMRF-05 / AED 800",
+      "priority": "high",
+      "group": "purchase-action",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 1",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "1",
+        "category": "Approvals & Petty Cash",
+        "title": "SMRF-05 - Air Cooler Fan",
+        "reference": "SMRF-05 / AED 800",
+        "owner": "Ahmed Desouki",
+        "followUpWith": "Eng. Muneer / Asset Registration",
+        "status": "SMRF fully approved; asset-registration requirement is pending confirmation.",
+        "action": "Confirm whether the fan must be registered as an asset, then complete the Petty Cash purchase.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": "Qty: 1 portable air cooler fan."
+      },
+      "procurement": {
+        "kind": "unregistered",
+        "stage": "approvals",
+        "prNumber": null,
+        "numberType": null,
+        "lpoNumber": null,
+        "budgetCode": null,
+        "amountAed": 800,
+        "amountBasis": "recorded",
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "base-2",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [
+        2
+      ],
+      "kind": "baseline",
+      "title": "مواد تنظيف الرديتر والغسيل",
+      "stage": "action",
+      "status": "أُلغي الطلب المباشر لعدم تسجيل المورد في نظام البلدية.",
+      "action": "استكمال الاحتياج عن طريق النثرية (Petty Cash).",
+      "owner": "مصطفى",
+      "followUpWith": "النثرية / المالية",
+      "notes": "المسار السابق DPR20002319 ملغى؛ لا يُتابع كطلب شراء قائم.",
+      "reference": "DPR20002319",
+      "priority": "medium",
+      "group": "purchase-action",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 2",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "2",
+        "category": "Approvals & Petty Cash",
+        "title": "Radiator & Washing Chemicals",
+        "reference": "DPR20002319",
+        "owner": "Mustafa",
+        "followUpWith": "Petty Cash / Finance",
+        "status": "DPR cancelled because the supplier is not registered in the Municipality system.",
+        "action": "Raise and complete the requirement through Petty Cash.",
+        "priority": "Medium",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Not Started",
+        "updateDate": "",
+        "remarks": "Previous DPR route is cancelled."
+      },
+      "procurement": {
+        "kind": "cancelled",
+        "stage": "cancelled",
+        "prNumber": "20002319",
+        "numberType": "DPR",
+        "lpoNumber": null,
+        "budgetCode": null,
+        "amountAed": 8400,
+        "amountBasis": "recorded",
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "base-3",
+      "updatedAt": "2026-09-14T12:59:32.000Z",
+      "baseIds": [
+        3
+      ],
+      "kind": "baseline",
+      "title": "أنابيب وخراطيم وقود Kirloskar HA394",
+      "stage": "warehouse_approval",
+      "status": "بانتظار موافقات المستودع على PR10013957. دُمج سجل انتظار رقم طلب الشراء مع السجل المرقم بتوجيه المستخدم؛ لم تُؤكد الموافقة النهائية بعد.",
+      "action": "متابعة موافقة المستودع على PR10013957 واستكمال التفاصيل الفنية والمستندات الداعمة والتبرير المطلوب مع مصطفى.",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "المستودع / مصطفى",
+      "notes": "السجل موحد لطلب أنابيب وخراطيم Kirloskar HA394 رقم PR10013957. بند الموازنة 221601، والقيمة التقديرية السابقة 2,750 درهماً. الحفاظ على أرقام القطع الدقيقة وتوريد البند الثالث كمجموعات كاملة. الورشة تصون 10 مضخات 6 بوصات و6 مضخات 8 بوصات؛ الاستبدال حسب الحالة والفحص وقد يصل إلى مرتين سنوياً. أُرسل بريد إلى مصطفى بتاريخ 10 سبتمبر لاستكمال معلومات موافقة المستودع. حُفظت الحالات والمراجع السابقة؛ انتظار إصدار رقم PR ومطابقة هوية السجلين لم يعودا إجراءين مفتوحين بعد تأكيد الدمج.",
+      "reference": "PR10013957",
+      "priority": "high",
+      "group": "purchase-action",
+      "informationDate": "2026-09-14",
+      "dueDate": null,
+      "evidence": "user-confirmed",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 3",
+          "date": "2026-08-27",
+          "type": "file"
+        },
+        {
+          "title": "تحديثات الصورة المطلوبة",
+          "locator": "تحديث المستخدم: تم الاعتماد وإعداد الفورم؛ بانتظار إدخال SAP",
+          "date": "2026-09-08",
+          "type": "conversation"
+        },
+        {
+          "title": "صياغة رد استفسار الطلب — أكد المستخدم إرسال البريد",
+          "locator": "PR10013957",
+          "date": "2026-09-10",
+          "type": "conversation"
+        },
+        {
+          "title": "توجيه المستخدم — دمج سجلَي Kirloskar",
+          "locator": "14/09/2026: أكد المستخدم دمج سجل انتظار إدخال SAP لأنابيب Kirloskar HA394 مع PR10013957.",
+          "date": "2026-09-14",
+          "type": "conversation"
+        }
+      ],
+      "history": [
+        {
+          "date": "2026-08-27",
+          "status": "أُرسل الطلب للاعتماد الداخلي؛ لم يكن له رقم SAP في السجل الأساسي.",
+          "source": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx"
+        },
+        {
+          "date": "2026-09-08",
+          "status": "اعتُمد النموذج وأُعد؛ بانتظار فريق طلبات الشراء لإدخاله في SAP وإصدار رقم الطلب.",
+          "source": "سجل أنابيب Kirloskar HA394 قبل الدمج"
+        },
+        {
+          "date": "2026-09-10",
+          "status": "أُرسل البريد إلى مصطفى بتاريخ 10 سبتمبر لاستكمال معلومات موافقة المستودع؛ الاعتماد النهائي غير مؤكد.",
+          "source": "سجل PR10013957 قبل الدمج"
+        }
+      ],
+      "original": {
+        "id": "3",
+        "category": "Approvals & Petty Cash",
+        "title": "Fuel Pipes for Kirloskar HA394 Engines",
+        "reference": "Budget 221601 / Est. AED 2,750",
+        "owner": "Abdulla / Mustafa",
+        "followUpWith": "Internal Approvals / PR Team",
+        "status": "Purchase request sent for internal approval; no SAP PR number yet.",
+        "action": "After approvals, send to the PR Team to create the SAP PR number.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": "Technical acceptance must retain exact part numbers and Item 3 as complete sets."
+      },
+      "procurement": {
+        "kind": "pr",
+        "stage": "warehouse_approval",
+        "prNumber": "10013957",
+        "numberType": "PR",
+        "lpoNumber": null,
+        "budgetCode": "221601",
+        "amountAed": 2750,
+        "amountBasis": "estimated",
+        "linkedItemIds": []
+      },
+      "mergedRecordIds": [
+        "new-kirloskar"
+      ],
+      "mergeArchive": [
+        {
+          "mergedAt": "2026-09-14T12:59:31.987231+00:00",
+          "records": [
+            {
+              "id": "base-3",
+              "baseIds": [
+                3
+              ],
+              "kind": "baseline",
+              "title": "أنابيب وقود محركات Kirloskar HA394",
+              "stage": "action",
+              "status": "اعتُمد النموذج وأُعد؛ بانتظار فريق طلبات الشراء لإدخاله في SAP وإصدار رقم الطلب.",
+              "action": "تأكيد إدخال SAP وتسجيل رقم طلب الشراء؛ مطابقة علاقته بـPR10013957 قبل دمج السجلين.",
+              "owner": "عبدالله / مصطفى",
+              "followUpWith": "الاعتمادات الداخلية / فريق طلبات الشراء",
+              "notes": "بند الموازنة 221601؛ قيمة تقديرية 2,750 درهماً. الحفاظ على أرقام القطع الدقيقة وتوريد البند الثالث كمجموعات كاملة.",
+              "reference": "Budget 221601 / Est. AED 2,750",
+              "priority": "high",
+              "group": "purchase-action",
+              "informationDate": "2026-09-08",
+              "dueDate": null,
+              "evidence": "user-confirmed",
+              "sources": [
+                {
+                  "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+                  "locator": "Handover Tracker — بند 3",
+                  "date": "2026-08-27",
+                  "type": "file"
+                },
+                {
+                  "title": "تحديثات الصورة المطلوبة",
+                  "locator": "تحديث المستخدم: تم الاعتماد وإعداد الفورم؛ بانتظار إدخال SAP",
+                  "date": "2026-09-08",
+                  "type": "conversation"
+                }
+              ],
+              "history": [
+                {
+                  "date": "2026-08-27",
+                  "status": "أُرسل الطلب للاعتماد الداخلي؛ لم يكن له رقم SAP في السجل الأساسي.",
+                  "source": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx"
+                }
+              ],
+              "original": {
+                "id": "3",
+                "category": "Approvals & Petty Cash",
+                "title": "Fuel Pipes for Kirloskar HA394 Engines",
+                "reference": "Budget 221601 / Est. AED 2,750",
+                "owner": "Abdulla / Mustafa",
+                "followUpWith": "Internal Approvals / PR Team",
+                "status": "Purchase request sent for internal approval; no SAP PR number yet.",
+                "action": "After approvals, send to the PR Team to create the SAP PR number.",
+                "priority": "High",
+                "baselineDate": "2026-08-27 00:00:00",
+                "ahmedUpdate": "Waiting",
+                "updateDate": "",
+                "remarks": "Technical acceptance must retain exact part numbers and Item 3 as complete sets."
+              },
+              "procurement": {
+                "kind": "unregistered",
+                "stage": "number_pending",
+                "prNumber": null,
+                "numberType": null,
+                "lpoNumber": null,
+                "budgetCode": "221601",
+                "amountAed": 2750,
+                "amountBasis": "estimated",
+                "linkedItemIds": []
+              }
+            },
+            {
+              "id": "new-kirloskar",
+              "baseIds": [],
+              "kind": "new",
+              "title": "خراطيم Kirloskar — استكمال تبرير المستودع",
+              "stage": "action",
+              "status": "أُرسل البريد إلى مصطفى بتاريخ 10 سبتمبر لاستكمال معلومات موافقة المستودع؛ الاعتماد النهائي غير مؤكد.",
+              "action": "استلام التفاصيل الفنية والمستندات الداعمة واستكمال موافقة المستودع على الطلب.",
+              "notes": "الورشة تصون 10 مضخات 6 بوصات و6 مضخات 8 بوصات؛ الاستبدال حسب الحالة والفحص وقد يصل إلى مرتين سنوياً. يبقى منفصلاً عن طلب أنابيب HA394 لحين تأكيد التطابق.",
+              "reference": "PR10013957",
+              "informationDate": "2026-09-10",
+              "group": "purchase-action",
+              "owner": "عبدالله / مصطفى",
+              "followUpWith": "بحسب الإجراء الموضح",
+              "priority": "high",
+              "dueDate": null,
+              "evidence": "user-update",
+              "sources": [
+                {
+                  "title": "صياغة رد استفسار الطلب — أكد المستخدم إرسال البريد",
+                  "locator": "PR10013957",
+                  "date": "2026-09-10",
+                  "type": "conversation"
+                }
+              ],
+              "history": [],
+              "procurement": {
+                "kind": "pr",
+                "stage": "warehouse_approval",
+                "prNumber": "10013957",
+                "numberType": "PR",
+                "lpoNumber": null,
+                "budgetCode": null,
+                "amountAed": null,
+                "amountBasis": null,
+                "linkedItemIds": []
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "base-4",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [
+        4
+      ],
+      "kind": "baseline",
+      "title": "قطع غيار مضخات Action",
+      "stage": "quotes",
+      "status": "بانتظار عروض الموردين أو نماذج التقييم.",
+      "action": "متابعة العروض، ومراجعة المطابقة، وإعداد التقييم الفني.",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "العقود والمشتريات CPD",
+      "notes": "مرجع البريد: Pending Quotations and Evaluation Sheets - AUTO Workshop PRs.",
+      "reference": "PR10013764",
+      "priority": "high",
+      "group": "quotes",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 4",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "4",
+        "category": "Contracts / CPD",
+        "title": "Action Pump Spare Parts",
+        "reference": "PR10013764",
+        "owner": "Abdulla / Mustafa",
+        "followUpWith": "Contracts / CPD",
+        "status": "Awaiting supplier quotations or evaluation sheets.",
+        "action": "Obtain offers, review compliance, and prepare the technical evaluation.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": "Follow-up email: Pending Quotations and Evaluation Sheets - AUTO Workshop PRs."
+      },
+      "procurement": {
+        "kind": "pr",
+        "stage": "quotes",
+        "prNumber": "10013764",
+        "numberType": "PR",
+        "lpoNumber": null,
+        "budgetCode": null,
+        "amountAed": null,
+        "amountBasis": null,
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "base-5",
+      "updatedAt": "2026-09-14T12:45:19.000Z",
+      "baseIds": [
+        5
+      ],
+      "kind": "baseline",
+      "title": "قطع غيار Cornell — السد وPS-2",
+      "stage": "evaluation",
+      "status": "تحت التقييم. ورد طلب اعتماد العرض الفني عبر تراسل بتاريخ 14/09/2026، المرجع 104/4272/2026، وأكد المستخدم نقل الطلب إلى التقييم. لم يُعتمد العرض نهائياً بعد.",
+      "action": "استكمال التقييم الفني لعرض المثابرة لتجارة المعدات، ومطابقة أرقام القطع والكميات والخامات مع مضخات Cornell لشاحنات السد ومحطة PS-2، ثم إعداد الرد باستخدام نموذج اعتماد وتحليل العرض الفني عبر تراسل.",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "العقود والمشتريات / المثابرة لتجارة المعدات",
+      "notes": "عرض واحد من المثابرة لتجارة المعدات (الوكيل)، رقم ATQT-2609-161 بتاريخ 09/09/2026. محضر فتح المظاريف بتاريخ 10/09/2026 يسجل 670,066 درهماً؛ العرض يوضح أنها قبل ضريبة القيمة المضافة، و703,569.30 درهماً شاملة الضريبة. هذه قيمة عرض وليست قيمة شراء معتمدة. تشمل المراجعة مطابقة القطع الأصلية والخامات ومحتويات الأطقم لتجنب التداخل، ومدة التوريد وشروط العرض. يذكر المورد اختلاف خامة Wear Ring المطلوبة عن الخامة الأصلية حسب الرقم التسلسلي. سجل تراسل يوضح وصول المعاملة إلى عبدالله بتاريخ 14/09/2026؛ لا يمثل اعتماد المراسلة الإداري اعتماداً فنياً نهائياً للعرض.",
+      "reference": "PR10013832",
+      "priority": "high",
+      "group": "purchase-action",
+      "informationDate": "2026-09-14",
+      "dueDate": null,
+      "evidence": "user-confirmed",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 5",
+          "date": "2026-08-27",
+          "type": "file"
+        },
+        {
+          "title": "تحديث المستخدم — PR10013832 تحت التقييم",
+          "locator": "14/09/2026: طلب المستخدم نقل Cornell Spare Parts for Al Sad Truck Pumps and PS-2 إلى تحت التقييم.",
+          "date": "2026-09-14",
+          "type": "conversation"
+        },
+        {
+          "title": "file0(2).pdf",
+          "locator": "طلب اعتماد العرض الفني بتاريخ 14/09/2026، المرجع 104/4272/2026؛ مطلوب الرد بنموذج التحليل الفني عبر تراسل.",
+          "date": "2026-09-14",
+          "type": "file"
+        },
+        {
+          "title": "10013832 ready.pdf",
+          "locator": "محضر فتح المظاريف بتاريخ 10/09/2026: عرض واحد بقيمة 670,066 درهماً؛ عرض ATQT-2609-161 بتاريخ 09/09/2026 يبين الضريبة وشروط التوريد.",
+          "date": "2026-09-10",
+          "type": "file"
+        },
+        {
+          "title": "1789362442428_history.html",
+          "locator": "سجل تراسل 14/09/2026: تحويل إلى عبدالله الساعة 09:04 ومكان وجود الكتاب عنده الساعة 09:06.",
+          "date": "2026-09-14",
+          "type": "file"
+        }
+      ],
+      "history": [
+        {
+          "date": "2026-08-27",
+          "status": "بانتظار عروض الموردين أو نماذج التقييم.",
+          "source": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx"
+        }
+      ],
+      "original": {
+        "id": "5",
+        "category": "Contracts / CPD",
+        "title": "Cornell Spare Parts - Al Sad Truck Pumps and PS-2",
+        "reference": "PR10013832",
+        "owner": "Abdulla / Mustafa",
+        "followUpWith": "Contracts / CPD",
+        "status": "Awaiting supplier quotations or evaluation sheets.",
+        "action": "Obtain offers and prepare the technical evaluation.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": "Confirm genuine Cornell OEM compatibility."
+      },
+      "procurement": {
+        "kind": "pr",
+        "stage": "evaluation",
+        "prNumber": "10013832",
+        "numberType": "PR",
+        "lpoNumber": null,
+        "budgetCode": null,
+        "amountAed": 670066,
+        "amountBasis": "quoted",
+        "linkedItemIds": [],
+        "amountNote": "عرض سعر قبل الضريبة؛ غير معتمد بعد"
+      }
+    },
+    {
+      "id": "base-6",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [
+        6
+      ],
+      "kind": "baseline",
+      "title": "17 مضخة ديزل جديدة — 6 بوصات",
+      "stage": "quotes",
+      "status": "بانتظار عروض الموردين أو نماذج التقييم.",
+      "action": "مراجعة المواصفات وإعداد التقييم الفني عند وصول العروض.",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "العقود والمشتريات CPD",
+      "notes": "بديل للمضخات المشطوبة؛ البند 231507.",
+      "reference": "PR10013857 / Item 231507",
+      "priority": "high",
+      "group": "quotes",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 6",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "6",
+        "category": "Contracts / CPD",
+        "title": "17 New 6-inch Diesel Pumps",
+        "reference": "PR10013857 / Item 231507",
+        "owner": "Abdulla / Mustafa",
+        "followUpWith": "Contracts / CPD",
+        "status": "Awaiting supplier quotations or evaluation sheets.",
+        "action": "Review specifications and prepare the technical evaluation.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": "Replacement for scrapped pumps."
+      },
+      "procurement": {
+        "kind": "pr",
+        "stage": "quotes",
+        "prNumber": "10013857",
+        "numberType": "PR",
+        "lpoNumber": null,
+        "budgetCode": "231507",
+        "amountAed": null,
+        "amountBasis": null,
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "base-7",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [
+        7
+      ],
+      "kind": "baseline",
+      "title": "قطع غيار Cornell CRDP — 10 بوصات",
+      "stage": "quotes",
+      "status": "عُدّل الطلب على بند الموازنة الجديد؛ بانتظار العروض أو نماذج التقييم.",
+      "action": "الحصول على العروض وإعداد التقييم الفني.",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "العقود والمشتريات CPD",
+      "notes": "8 مضخات، 34 بنداً، قيمة تقديرية 247,627 درهماً. الطلب PR10013862 قائم ومعدّل على 221601.",
+      "reference": "PR10013862 / Budget 221601",
+      "priority": "high",
+      "group": "quotes",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 7",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "7",
+        "category": "Contracts / CPD",
+        "title": "Cornell 10-inch CRDP Pump Spare Parts",
+        "reference": "PR10013862 / Budget 221601",
+        "owner": "Abdulla / Mustafa",
+        "followUpWith": "Contracts / CPD",
+        "status": "PR modified under the revised budget code; awaiting quotations or evaluation sheets.",
+        "action": "Obtain offers and prepare the technical evaluation.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": "8 pumps; 34 items; estimated value AED 247,627."
+      },
+      "procurement": {
+        "kind": "pr",
+        "stage": "quotes",
+        "prNumber": "10013862",
+        "numberType": "PR",
+        "lpoNumber": null,
+        "budgetCode": "221601",
+        "amountAed": 247627,
+        "amountBasis": "estimated",
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "base-8",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [
+        8
+      ],
+      "kind": "baseline",
+      "title": "شاحن بطاريات وأدوات ورافعة هيدروليكية وجهاز فحص",
+      "stage": "quotes",
+      "status": "بانتظار عروض الموردين أو نماذج التقييم.",
+      "action": "مراجعة المعدات المعروضة وإعداد التقييم الفني.",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "العقود والمشتريات CPD",
+      "notes": "استلمت الورشة 3 مجموعات أدوات وطلبت 3 مجموعات إضافية.",
+      "reference": "PR10013813",
+      "priority": "medium",
+      "group": "quotes",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 8",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "8",
+        "category": "Contracts / CPD",
+        "title": "Battery Charger, Workshop Tools, Hydraulic Crane & Battery Tester",
+        "reference": "PR10013813",
+        "owner": "Abdulla / Mustafa",
+        "followUpWith": "Contracts / CPD",
+        "status": "Awaiting supplier quotations or evaluation sheets.",
+        "action": "Review the offered equipment and prepare the technical evaluation.",
+        "priority": "Medium",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": "Diesel Workshop received 3 toolkits and requested 3 additional sets."
+      },
+      "procurement": {
+        "kind": "pr",
+        "stage": "quotes",
+        "prNumber": "10013813",
+        "numberType": "PR",
+        "lpoNumber": null,
+        "budgetCode": null,
+        "amountAed": null,
+        "amountBasis": null,
+        "linkedItemIds": [
+          "base-9"
+        ]
+      }
+    },
+    {
+      "id": "base-9",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [
+        9
+      ],
+      "kind": "baseline",
+      "title": "تدقيق طقم اللقم ومفتاح الصدمات",
+      "stage": "quotes",
+      "status": "تدقيق فني فرعي مرتبط بالطلب PR10013813.",
+      "action": "تأكيد نوع اللقم وملاءمتها للاستخدام اليدوي أو بمفتاح الصدمات أثناء التقييم.",
+      "owner": "مصطفى",
+      "followUpWith": "العقود والمشتريات CPD",
+      "notes": "ليس طلب شراء مستقلاً؛ يبقى بند متابعة فنية ضمن PR10013813.",
+      "reference": "Within PR10013813",
+      "priority": "medium",
+      "group": "quotes",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 9",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "9",
+        "category": "Contracts / CPD",
+        "title": "Socket Set and Impact Wrench - Technical Check",
+        "reference": "Within PR10013813",
+        "owner": "Mustafa",
+        "followUpWith": "Contracts / CPD",
+        "status": "Linked technical check under PR10013813.",
+        "action": "Confirm the Socket Set type and suitability for hand or impact use during evaluation.",
+        "priority": "Medium",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": "Technical sub-item; not a separate PR."
+      },
+      "procurement": {
+        "kind": "linked",
+        "parentItemId": "base-8",
+        "prNumber": "10013813",
+        "stage": "quotes"
+      }
+    },
+    {
+      "id": "base-10",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [
+        10
+      ],
+      "kind": "baseline",
+      "title": "ستارترات ودينمات ومفاتيح كهربائية",
+      "stage": "quotes",
+      "status": "بانتظار عروض الموردين أو نماذج التقييم.",
+      "action": "متابعة العروض وإعداد التقييم الفني.",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "العقود والمشتريات CPD",
+      "notes": "",
+      "reference": "PR10013735",
+      "priority": "high",
+      "group": "quotes",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 10",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "10",
+        "category": "Contracts / CPD",
+        "title": "Starters, Alternators and Electrical Switches",
+        "reference": "PR10013735",
+        "owner": "Abdulla / Mustafa",
+        "followUpWith": "Contracts / CPD",
+        "status": "Awaiting supplier quotations or evaluation sheets.",
+        "action": "Obtain offers and prepare the technical evaluation.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": ""
+      },
+      "procurement": {
+        "kind": "pr",
+        "stage": "quotes",
+        "prNumber": "10013735",
+        "numberType": "PR",
+        "lpoNumber": null,
+        "budgetCode": null,
+        "amountAed": null,
+        "amountBasis": null,
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "base-11",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [
+        11
+      ],
+      "kind": "baseline",
+      "title": "فلاتر مضخات الديزل والمولدات",
+      "stage": "quotes",
+      "status": "بانتظار عروض الموردين أو نماذج التقييم.",
+      "action": "مراجعة الأنواع والكميات وإعداد التقييم الفني.",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "العقود والمشتريات CPD",
+      "notes": "مطلوبة للصيانة الوقائية للمضخات والمولدات.",
+      "reference": "PR10013741",
+      "priority": "high",
+      "group": "quotes",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 11",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "11",
+        "category": "Contracts / CPD",
+        "title": "Filters for Diesel Pumps and Generators",
+        "reference": "PR10013741",
+        "owner": "Abdulla / Mustafa",
+        "followUpWith": "Contracts / CPD",
+        "status": "Awaiting supplier quotations or evaluation sheets.",
+        "action": "Review types and quantities and prepare the technical evaluation.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": "PM requirement for pumps and generators."
+      },
+      "procurement": {
+        "kind": "pr",
+        "stage": "quotes",
+        "prNumber": "10013741",
+        "numberType": "PR",
+        "lpoNumber": null,
+        "budgetCode": null,
+        "amountAed": null,
+        "amountBasis": null,
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "base-12",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [
+        12
+      ],
+      "kind": "baseline",
+      "title": "خراطيم الوقود والزيت — Sykes وLister Petter",
+      "stage": "quotes",
+      "status": "بانتظار عروض الموردين أو نماذج التقييم.",
+      "action": "الحصول على العروض وتأكيد تطابق المواصفات وإعداد التقييم.",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "العقود والمشتريات CPD",
+      "notes": "",
+      "reference": "PR10013802",
+      "priority": "high",
+      "group": "quotes",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 12",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "12",
+        "category": "Contracts / CPD",
+        "title": "Fuel and Oil Hoses - Sykes Pumps and Lister Petter Engines",
+        "reference": "PR10013802",
+        "owner": "Abdulla / Mustafa",
+        "followUpWith": "Contracts / CPD",
+        "status": "Awaiting supplier quotations or evaluation sheets.",
+        "action": "Obtain offers, confirm matching specifications, and prepare the evaluation.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": ""
+      },
+      "procurement": {
+        "kind": "pr",
+        "stage": "quotes",
+        "prNumber": "10013802",
+        "numberType": "PR",
+        "lpoNumber": null,
+        "budgetCode": null,
+        "amountAed": null,
+        "amountBasis": null,
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "base-13",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [
+        13
+      ],
+      "kind": "baseline",
+      "title": "قطع غيار مضخات Sykes",
+      "stage": "quotes",
+      "status": "بانتظار عروض الموردين أو نماذج التقييم.",
+      "action": "متابعة العروض وإعداد التقييم الفني.",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "العقود والمشتريات CPD",
+      "notes": "",
+      "reference": "PR10013701",
+      "priority": "high",
+      "group": "quotes",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 13",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "13",
+        "category": "Contracts / CPD",
+        "title": "Sykes Pump Spare Parts",
+        "reference": "PR10013701",
+        "owner": "Abdulla / Mustafa",
+        "followUpWith": "Contracts / CPD",
+        "status": "Awaiting supplier quotations or evaluation sheets.",
+        "action": "Obtain offers and prepare the technical evaluation.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": ""
+      },
+      "procurement": {
+        "kind": "pr",
+        "stage": "quotes",
+        "prNumber": "10013701",
+        "numberType": "PR",
+        "lpoNumber": null,
+        "budgetCode": null,
+        "amountAed": null,
+        "amountBasis": null,
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "base-14",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [
+        14
+      ],
+      "kind": "baseline",
+      "title": "قطع غيار Lister Petter — الحزمة الأولى",
+      "stage": "quotes",
+      "status": "بانتظار عروض الموردين أو نماذج التقييم.",
+      "action": "متابعة العروض وإعداد التقييم الفني.",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "العقود والمشتريات CPD",
+      "notes": "",
+      "reference": "PR10013518",
+      "priority": "high",
+      "group": "quotes",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 14",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "14",
+        "category": "Contracts / CPD",
+        "title": "Lister Petter Spare Parts - Package 1",
+        "reference": "PR10013518",
+        "owner": "Abdulla / Mustafa",
+        "followUpWith": "Contracts / CPD",
+        "status": "Awaiting supplier quotations or evaluation sheets.",
+        "action": "Obtain offers and prepare the technical evaluation.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": ""
+      },
+      "procurement": {
+        "kind": "pr",
+        "stage": "quotes",
+        "prNumber": "10013518",
+        "numberType": "PR",
+        "lpoNumber": null,
+        "budgetCode": null,
+        "amountAed": null,
+        "amountBasis": null,
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "base-15",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [
+        15
+      ],
+      "kind": "baseline",
+      "title": "قطع غيار Lister Petter",
+      "stage": "quotes",
+      "status": "بانتظار عروض الموردين أو نماذج التقييم.",
+      "action": "متابعة العروض وإعداد التقييم الفني.",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "العقود والمشتريات CPD",
+      "notes": "",
+      "reference": "PR10013700",
+      "priority": "high",
+      "group": "quotes",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 15",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "15",
+        "category": "Contracts / CPD",
+        "title": "Lister Petter Spare Parts",
+        "reference": "PR10013700",
+        "owner": "Abdulla / Mustafa",
+        "followUpWith": "Contracts / CPD",
+        "status": "Awaiting supplier quotations or evaluation sheets.",
+        "action": "Obtain offers and prepare the technical evaluation.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": ""
+      },
+      "procurement": {
+        "kind": "pr",
+        "stage": "quotes",
+        "prNumber": "10013700",
+        "numberType": "PR",
+        "lpoNumber": null,
+        "budgetCode": null,
+        "amountAed": null,
+        "amountBasis": null,
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "base-16",
+      "updatedAt": "2026-09-14T12:17:53.000Z",
+      "baseIds": [
+        16
+      ],
+      "kind": "baseline",
+      "title": "قطع غيار مضخات Torishima",
+      "stage": "quotes",
+      "status": "بانتظار عروض الأسعار. أكد المستخدم عدم استلام عروض للتقييم عبر تراسل؛ المراسلات الحالية عبر البريد الإلكتروني لاستيضاح بعض النقاط الفنية فقط، ولم يبدأ التقييم الفني للعروض.",
+      "action": "متابعة استلام عروض الأسعار الرسمية عبر تراسل مع هشام ومصطفى. استكمال جدول مطابقة بنود الطلب مع REV03 وتأكيد المورد، وحسم وصف البند 30 (25b)، وتوضيح الحاجة لأرقام مضخات 4 و12 بوصة التسلسلية، وتعريف فلنجة F-80. يبدأ تقييم العروض بعد استلامها رسمياً.",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "هشام — العقود والمشتريات / مصطفى / المورد Torishima",
+      "notes": "PR10013102 يضم 52 بنداً. بتاريخ 14/09/2026 الساعة 15:03 أرسل مصطفى لهشام تحديد القطع بالألوان وطلب التسعير بنفس كميات PR؛ هذه مراسلة استيضاح وليست استلام عرض سعر. أرقام PN القديمة تتضمن مواضع رسم وتحتاج ربطاً بأرقام قطع REV03 دون افتراض المطابقة. البند 30 موصوف Hose، بينما 25b في REV03 موصوف Adaptor, Hydraulic Hose؛ يلزم التأكيد. البند 32: Tyre Coupling Flange F-80، كميته 6؛ عدم وجوده في الكتالوج لا يعني حذفه. طلب المورد أرقام مضخات 4 و12 بوصة التسلسلية؛ يلزم تحديد البنود المعنية. الكميات المطلوبة تبقى حسب PR وليست كميات تجميع الكتالوج. استكمال هذه الإجراءات مطلوب؛ لا يوجد تأكيد إرسال توجيه جديد للفريق أو إنجاز المطابقة.",
+      "reference": "PR10013102",
+      "priority": "medium",
+      "group": "quotes",
+      "informationDate": "2026-09-14",
+      "dueDate": null,
+      "evidence": "user-confirmed",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 16",
+          "date": "2026-08-27",
+          "type": "file"
+        },
+        {
+          "title": "توضيح المستخدم — PR10013102 بانتظار عروض الأسعار",
+          "locator": "14/09/2026: لم تُستلم عروض للتقييم عبر تراسل؛ البريد الإلكتروني لاستيضاح النقاط فقط.",
+          "date": "2026-09-14",
+          "type": "conversation"
+        },
+        {
+          "title": "تم لصق markdown(10).md",
+          "locator": "بريد مصطفى إلى هشام 14/09/2026 الساعة 15:03؛ وطلب المورد المؤرخ 11/09/2026 لاستكمال أرقام القطع والأرقام التسلسلية.",
+          "date": "2026-09-14",
+          "type": "file"
+        },
+        {
+          "title": "تم لصق markdown (2).md",
+          "locator": "بريد مصطفى 08/09/2026 الساعة 10:33: ربط مراجع SAP والكتالوج القديم بأرقام القطع المحدّثة.",
+          "date": "2026-09-08",
+          "type": "file"
+        },
+        {
+          "title": "PR-  Torishima  pump spare parts (6'' D-P) 10013102(1).pdf",
+          "locator": "الصفحات 2–6: 52 بنداً وكميات PR؛ الصفحة 3 البند 30؛ الصفحة 4 فلنجة F-80 بكمية 6. روجعت بتاريخ 14/09/2026.",
+          "date": "2026-09-14",
+          "type": "file"
+        },
+        {
+          "title": "TSS Operations & Maintenance Manual REV03(1).pdf",
+          "locator": "صفحة PDF 61، الصفحة المطبوعة 56: قائمة TDLH150S10، أرقام القطع ووصف 25b. روجعت بتاريخ 14/09/2026.",
+          "date": "2026-09-14",
+          "type": "file"
+        }
+      ],
+      "history": [
+        {
+          "date": "2026-08-27",
+          "status": "بانتظار عروض الموردين أو نماذج التقييم.",
+          "source": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx"
+        }
+      ],
+      "original": {
+        "id": "16",
+        "category": "Contracts / CPD",
+        "title": "Torishima Pump Spare Parts",
+        "reference": "PR10013102",
+        "owner": "Abdulla / Mustafa",
+        "followUpWith": "Contracts / CPD",
+        "status": "Awaiting supplier quotations or evaluation sheets.",
+        "action": "Obtain offers and complete the technical evaluation.",
+        "priority": "Medium",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": ""
+      },
+      "procurement": {
+        "kind": "pr",
+        "stage": "quotes",
+        "prNumber": "10013102",
+        "numberType": "PR",
+        "lpoNumber": null,
+        "budgetCode": null,
+        "amountAed": null,
+        "amountBasis": null,
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "base-17",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [
+        17
+      ],
+      "kind": "baseline",
+      "title": "حلقات O-Rings لوصلات Storz / Bauer",
+      "stage": "evaluation",
+      "status": "وصلت العروض؛ طُلب إعداد رسالة لمصطفى للتقييم وطلب العينات قبل الموافقة.",
+      "action": "استكمال التقييم الفني وطلب العينات وتأكيد المطابقة قبل الاعتماد؛ تأكيد إرسال الرسالة.",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "العقود والمشتريات CPD",
+      "notes": "بند الموازنة 221601؛ القيمة 3,790 درهماً. وصول العروض مؤكد؛ إرسال مسودة طلب التقييم والعينات غير مؤكد.",
+      "reference": "PR10013841",
+      "priority": "medium",
+      "group": "purchase-action",
+      "informationDate": "2026-09-10",
+      "dueDate": null,
+      "evidence": "user-confirmed",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 17",
+          "date": "2026-08-27",
+          "type": "file"
+        },
+        {
+          "title": "تحديث متابعة طلبات الشراء",
+          "locator": "PR10013841 — أكد المستخدم وصول العروض وطلب صياغة بريد للتقييم والعينات",
+          "date": "2026-09-10",
+          "type": "conversation"
+        }
+      ],
+      "history": [
+        {
+          "date": "2026-08-27",
+          "status": "بانتظار عروض الموردين أو نماذج التقييم.",
+          "source": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx"
+        }
+      ],
+      "original": {
+        "id": "17",
+        "category": "Contracts / CPD",
+        "title": "O-Rings for Storz and Bauer Couplings",
+        "reference": "PR10013841",
+        "owner": "Abdulla / Mustafa",
+        "followUpWith": "Contracts / CPD",
+        "status": "Awaiting supplier quotations or evaluation sheets.",
+        "action": "Confirm sizes and technical compliance during evaluation.",
+        "priority": "Medium",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": ""
+      },
+      "procurement": {
+        "kind": "pr",
+        "stage": "offers_received",
+        "prNumber": "10013841",
+        "numberType": "PR",
+        "lpoNumber": null,
+        "budgetCode": "221601",
+        "amountAed": 3790,
+        "amountBasis": "recorded",
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "base-18",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [
+        18
+      ],
+      "kind": "baseline",
+      "title": "زيت محركات 15W40 CI-4",
+      "stage": "delivery",
+      "status": "صدر أمر الشراء؛ بانتظار التوريد.",
+      "action": "متابعة التسليم والفحص والاستلام وإدخال المخزون وإقفال المتابعة.",
+      "owner": "مصطفى",
+      "followUpWith": "المورد / المستودع",
+      "notes": "البند 60010499؛ إجمالي 1,040 لتراً، 5 براميل × 208 لترات.",
+      "reference": "DPR20002321 / LPO4500014806",
+      "priority": "high",
+      "group": "coordination",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 18",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "18",
+        "category": "Supply & Store",
+        "title": "Engine Oil - 15W40 CI-4",
+        "reference": "DPR20002321 / LPO4500014806",
+        "owner": "Mustafa",
+        "followUpWith": "Supplier",
+        "status": "Purchase order issued; awaiting delivery.",
+        "action": "Follow delivery, inspection, receipt, inventory entry, and closure.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": "Item 60010499; 1,040 litres; 5 drums x 208 litres."
+      },
+      "procurement": {
+        "kind": "dpr",
+        "stage": "delivery",
+        "prNumber": "20002321",
+        "numberType": "DPR",
+        "lpoNumber": "4500014806",
+        "budgetCode": null,
+        "amountAed": null,
+        "amountBasis": null,
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "base-19",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [
+        19
+      ],
+      "kind": "baseline",
+      "title": "هياكل تغطية لـ16 مقطورة Action / Atlas Copco",
+      "stage": "evaluation",
+      "status": "وصل عرض المورد وهو تحت المراجعة.",
+      "action": "مراجعة النطاق والسعر وتحديد مسار الشراء المناسب.",
+      "owner": "مصطفى",
+      "followUpWith": "المورد / المراجعة الداخلية",
+      "notes": "هذا بند الهياكل الوارد في السجل الأساسي؛ لا يفترض أنه طلب قطع غيار الكبائن لأسطول 30 مقطورة.",
+      "reference": "Supplier Offer",
+      "priority": "medium",
+      "group": "coordination",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 19",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "19",
+        "category": "Supply & Store",
+        "title": "Enclosures for 16 Action/Atlas Copco Trailer Pumps",
+        "reference": "Supplier Offer",
+        "owner": "Mustafa",
+        "followUpWith": "Supplier / Internal Review",
+        "status": "Supplier offer received and under review.",
+        "action": "Review scope and price and decide the appropriate procurement route.",
+        "priority": "Medium",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "In Progress",
+        "updateDate": "",
+        "remarks": ""
+      },
+      "procurement": {
+        "kind": "unregistered",
+        "stage": "evaluation",
+        "prNumber": null,
+        "numberType": null,
+        "lpoNumber": null,
+        "budgetCode": null,
+        "amountAed": null,
+        "amountBasis": null,
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "base-20",
+      "updatedAt": "2026-09-14T07:36:11.000Z",
+      "baseIds": [
+        20
+      ],
+      "kind": "baseline",
+      "title": "أحزمة رفع — 2 و3 بوصات",
+      "stage": "delivery",
+      "status": "تم تأكيد احتياج الورشة وإرساله إلى قسم السلامة.",
+      "action": "متابعة الطلب وموعد التوريد المتوقع.",
+      "owner": "مصطفى",
+      "followUpWith": "قسم السلامة",
+      "notes": "بند متعلق بالسلامة.",
+      "reference": "Safety Section Request",
+      "priority": "high",
+      "group": "coordination",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 20",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "20",
+        "category": "Supply & Store",
+        "title": "Lifting Belts - 2-inch and 3-inch",
+        "reference": "Safety Section Request",
+        "owner": "Mustafa",
+        "followUpWith": "Safety Section",
+        "status": "Workshop requirement confirmed and submitted to the Safety Section.",
+        "action": "Follow the request and expected supply.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": "Safety-related item."
+      }
+    },
+    {
+      "id": "base-21",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [
+        21
+      ],
+      "kind": "baseline",
+      "title": "البطاريات الدائمة",
+      "stage": "delivery",
+      "status": "التوريد الدائم معلق وفق آخر حالة مسجلة؛ مخزون المورد لم يكن متاحاً.",
+      "action": "تأكيد التسليم الفعلي لـ7 بطاريات N-70 و53 بطارية N-100.",
+      "owner": "مصطفى",
+      "followUpWith": "المورد",
+      "notes": "60 بطارية. الموعد السابق أوائل سبتمبر؛ لم يصل تأكيد استلام أحدث في المصادر المستخدمة.",
+      "reference": "LPO4500011955",
+      "priority": "high",
+      "group": "coordination",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 21",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "21",
+        "category": "Supply & Store",
+        "title": "Permanent Batteries",
+        "reference": "LPO4500011955",
+        "owner": "Mustafa",
+        "followUpWith": "Supplier",
+        "status": "Supplier stock is unavailable; permanent supply remains pending.",
+        "action": "Follow delivery of 7 N-70 and 53 N-100 batteries.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": "Supplier previously indicated expected availability in early September."
+      },
+      "procurement": {
+        "kind": "lpo_only",
+        "stage": "delivery",
+        "prNumber": null,
+        "numberType": null,
+        "lpoNumber": "4500011955",
+        "budgetCode": null,
+        "amountAed": null,
+        "amountBasis": null,
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "base-22",
+      "updatedAt": "2026-09-14T07:36:11.000Z",
+      "baseIds": [
+        22
+      ],
+      "kind": "baseline",
+      "title": "بطاريات المولدات المؤقتة",
+      "stage": "in_progress",
+      "status": "استُلمت بطاريات مؤقتة لتشغيل المولدات.",
+      "action": "توثيق الكميات والمولدات المركبة عليها، ثم إرجاعها بعد وصول البطاريات الدائمة.",
+      "owner": "مصطفى",
+      "followUpWith": "إدارة النقليات",
+      "notes": "",
+      "reference": "Temporary Issue",
+      "priority": "medium",
+      "group": "coordination",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 22",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "22",
+        "category": "Supply & Store",
+        "title": "Temporary Generator Batteries",
+        "reference": "Temporary Issue",
+        "owner": "Mustafa",
+        "followUpWith": "Transportation Department",
+        "status": "Temporary batteries received for generator operation.",
+        "action": "Record quantities and installed generators, then return batteries after permanent supply arrives.",
+        "priority": "Medium",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "In Progress",
+        "updateDate": "",
+        "remarks": ""
+      }
+    },
+    {
+      "id": "base-23",
+      "updatedAt": "2026-09-14T07:36:11.000Z",
+      "baseIds": [
+        23
+      ],
+      "kind": "baseline",
+      "title": "بيانات استهلاك مواد المستودع لسنة",
+      "stage": "coordination",
+      "status": "طُلبت الكميات والقيم وأُرسل تذكير.",
+      "action": "استلام البيانات وإعداد نموذج الاحتياج.",
+      "owner": "مصطفى",
+      "followUpWith": "إدارة المستودعات",
+      "notes": "",
+      "reference": "Store Data Request",
+      "priority": "medium",
+      "group": "coordination",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 23",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "23",
+        "category": "Supply & Store",
+        "title": "One-Year Store Material Consumption",
+        "reference": "Store Data Request",
+        "owner": "Mustafa",
+        "followUpWith": "Store Department",
+        "status": "Quantities and values requested; reminder already sent.",
+        "action": "Receive the data and prepare the requirement form.",
+        "priority": "Medium",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": ""
+      }
+    },
+    {
+      "id": "base-24",
+      "updatedAt": "2026-09-14T07:36:11.000Z",
+      "baseIds": [
+        24
+      ],
+      "kind": "baseline",
+      "title": "شاحنات مضخات السد 1500 — إصلاح العيوب",
+      "stage": "in_progress",
+      "status": "أُصلحت وحدة واحدة؛ بقية العيوب والأعمال ما زالت مفتوحة في آخر سجل.",
+      "action": "استكمال القاعدة والرديتر وصوفة خرج الجير وتسريب زيت المحرك والاختبار التشغيلي.",
+      "owner": "مصطفى",
+      "followUpWith": "AMET / الورشة",
+      "notes": "اختبار كل شاحنة بشكل مستقل قبل الإغلاق أو الإفراج عن الضمان البنكي.",
+      "reference": "Supplier Rectification",
+      "priority": "high",
+      "group": "coordination",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 24",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "24",
+        "category": "Maintenance & Readiness",
+        "title": "Al Sad 1500 Truck Pumps - Rectification and Defects",
+        "reference": "Supplier Rectification",
+        "owner": "Mustafa",
+        "followUpWith": "AMET / Workshop",
+        "status": "One unit rectified; remaining defects and works are still open.",
+        "action": "Complete base frame, radiator, gearbox output shaft seal, engine-oil leakage repair, and operational test before closure.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "In Progress",
+        "updateDate": "",
+        "remarks": "Test every truck separately before closure or BG release."
+      }
+    },
+    {
+      "id": "base-25",
+      "updatedAt": "2026-09-14T07:36:11.000Z",
+      "baseIds": [
+        25
+      ],
+      "kind": "baseline",
+      "title": "مقطورات Action / Atlas Copco — العيوب والضمان",
+      "stage": "in_progress",
+      "status": "توجد عيوب مفتوحة تحتاج ربطاً بأرقام المضخات وردود المورد والاختبارات والمستندات.",
+      "action": "تحديث سجل العيوب، ومتابعة المورد، واستكمال الاختبارات ووثائق الضمان وكتاب قطع الغيار.",
+      "owner": "مصطفى",
+      "followUpWith": "Action / Atlas Copco",
+      "notes": "أسطول 30 مقطورة.",
+      "reference": "Fleet of 30 Trailer Pumps",
+      "priority": "high",
+      "group": "coordination",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 25",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "25",
+        "category": "Maintenance & Readiness",
+        "title": "Action/Atlas Copco Trailer Pumps - Defects, Warranty and Documents",
+        "reference": "Fleet of 30 Trailer Pumps",
+        "owner": "Mustafa",
+        "followUpWith": "Action / Atlas Copco",
+        "status": "Open defects require pump-number linkage, supplier responses, tests, warranty documents, and Spare Parts Book.",
+        "action": "Update defect register, follow supplier, complete site tests, and obtain all documents.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "In Progress",
+        "updateDate": "",
+        "remarks": ""
+      }
+    },
+    {
+      "id": "base-26",
+      "updatedAt": "2026-09-14T07:36:11.000Z",
+      "baseIds": [
+        26
+      ],
+      "kind": "baseline",
+      "title": "Hilti TE-1000 AVR",
+      "stage": "closure",
+      "status": "حُوّل للأعمال المدنية لأن HILTI لا تبيع قطع الغيار منفصلة.",
+      "action": "استلام رد الأعمال المدنية وتوثيق إغلاق متابعة الورشة.",
+      "owner": "مصطفى",
+      "followUpWith": "الأعمال المدنية — م. خالد درويش",
+      "notes": "العمل المحال مكتمل من جهة الورشة، لكن الإغلاق ينتظر التأكيد.",
+      "reference": "Civil Works Follow-up",
+      "priority": "low",
+      "group": "coordination",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 26",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "26",
+        "category": "Maintenance & Readiness",
+        "title": "Hilti TE-1000 AVR",
+        "reference": "Civil Works Follow-up",
+        "owner": "Mustafa",
+        "followUpWith": "Civil Works - Eng. Khaled Darwish",
+        "status": "Transferred to Civil Works because HILTI does not sell spare parts separately.",
+        "action": "Obtain Civil Works response and close the workshop follow-up; no further workshop action.",
+        "priority": "Low",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": "Completed awaiting closure."
+      }
+    },
+    {
+      "id": "base-27",
+      "updatedAt": "2026-09-14T07:36:11.000Z",
+      "baseIds": [
+        27
+      ],
+      "kind": "baseline",
+      "title": "المضخة الهيدروليكية لفرامة الأخشاب",
+      "stage": "in_progress",
+      "status": "استُبدلت المضخة؛ نتيجة الاختبار النهائي بانتظار التأكيد.",
+      "action": "توثيق نتيجة الاختبار وإقفال المتابعة إذا كان التشغيل سليماً.",
+      "owner": "مصطفى",
+      "followUpWith": "الورشة / فريق الاختبار",
+      "notes": "لا يعاد تسجيلها كطلب فحص أولي.",
+      "reference": "Workshop Repair",
+      "priority": "medium",
+      "group": "coordination",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 27",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "27",
+        "category": "Maintenance & Readiness",
+        "title": "Wood Chipper Hydraulic Pump",
+        "reference": "Workshop Repair",
+        "owner": "Mustafa",
+        "followUpWith": "Workshop / Test Team",
+        "status": "Hydraulic pump replaced; final test result is pending confirmation.",
+        "action": "Document the test result and close if operation is satisfactory.",
+        "priority": "Medium",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "In Progress",
+        "updateDate": "",
+        "remarks": ""
+      }
+    },
+    {
+      "id": "base-28",
+      "updatedAt": "2026-09-14T07:36:11.000Z",
+      "baseIds": [
+        28
+      ],
+      "kind": "baseline",
+      "title": "جاهزية أسطول المقطورات — 30 مضخة",
+      "stage": "in_progress",
+      "status": "آخر عدد مسجل: 21 جاهزة و9 تحت الصيانة الوقائية.",
+      "action": "تأكيد وتحديث حالة كل مضخة برقمها.",
+      "owner": "مصطفى",
+      "followUpWith": "فريق الورشة",
+      "notes": "الأعداد مرجعية بتاريخ 27 أغسطس، وليست إحصاءً مباشراً لليوم.",
+      "reference": "30-pump Fleet",
+      "priority": "high",
+      "group": "coordination",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 28",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "28",
+        "category": "Maintenance & Readiness",
+        "title": "Readiness of 30 Trailer Diesel Pumps",
+        "reference": "30-pump Fleet",
+        "owner": "Mustafa",
+        "followUpWith": "Workshop Team",
+        "status": "Last recorded status: 21 ready and 9 under preventive maintenance.",
+        "action": "Confirm and update the status of every pump.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "In Progress",
+        "updateDate": "",
+        "remarks": ""
+      }
+    },
+    {
+      "id": "base-29",
+      "updatedAt": "2026-09-14T07:36:11.000Z",
+      "baseIds": [
+        29
+      ],
+      "kind": "baseline",
+      "title": "الصيانة الوقائية لـ30 مضخة مقطورة",
+      "stage": "in_progress",
+      "status": "آخر سجل يثبت إنجاز صيانة 5 مضخات؛ البقية ضمن الجدولة والتنفيذ.",
+      "action": "استكمال الصيانة وتسجيل ساعات التشغيل وقطع الغيار المستهلكة.",
+      "owner": "مصطفى",
+      "followUpWith": "فريق الورشة",
+      "notes": "خدمتان سنوياً ضمن الخطة؛ العدد المنجز يعود للسجل الأساسي.",
+      "reference": "PM Plan",
+      "priority": "high",
+      "group": "coordination",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 29",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "29",
+        "category": "Maintenance & Readiness",
+        "title": "Preventive Maintenance for 30 Trailer Pumps",
+        "reference": "PM Plan",
+        "owner": "Mustafa",
+        "followUpWith": "Workshop Team",
+        "status": "PM completed for 5 pumps; remaining fleet is under scheduling and execution.",
+        "action": "Continue PM and record operating hours and spare parts used.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "In Progress",
+        "updateDate": "",
+        "remarks": "Two services per year are planned."
+      }
+    },
+    {
+      "id": "base-30",
+      "updatedAt": "2026-09-14T07:36:11.000Z",
+      "baseIds": [
+        30
+      ],
+      "kind": "baseline",
+      "title": "نقل المضخات إلى المستودع المظلل",
+      "stage": "in_progress",
+      "status": "نُقلت 7 مضخات؛ ما زال نقل بقية المضخات غير المستخدمة مطلوباً في السجل.",
+      "action": "توثيق أرقام المضخات واستكمال النقل.",
+      "owner": "موسى / مصطفى",
+      "followUpWith": "فريق الورشة",
+      "notes": "وفق توجيه مدير الإدارة.",
+      "reference": "Director Instruction",
+      "priority": "medium",
+      "group": "coordination",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 30",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "30",
+        "category": "Maintenance & Readiness",
+        "title": "Relocation of Pumps to the Shaded Warehouse",
+        "reference": "Director Instruction",
+        "owner": "Mussa / Mustafa",
+        "followUpWith": "Workshop Team",
+        "status": "Seven pumps relocated; remaining unused pumps still require relocation.",
+        "action": "Record pump numbers and complete relocation of the remaining equipment.",
+        "priority": "Medium",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "In Progress",
+        "updateDate": "",
+        "remarks": ""
+      }
+    },
+    {
+      "id": "base-31",
+      "updatedAt": "2026-09-14T07:36:11.000Z",
+      "baseIds": [
+        31,
+        32
+      ],
+      "kind": "baseline",
+      "title": "فحص وتجديد المركبات — 46880 و3-46295",
+      "stage": "coordination",
+      "status": "46880/46800: اختلاف في الرقم وآخر حالة إصلاح بالكراج. 3-46295: الفحص والتسجيل والجاهزية غير مؤكدة.",
+      "action": "تأكيد رقم المركبة وإتمام الإصلاح والفحص والتجديد؛ والتنسيق مع م. فارس بشأن شاحنة PS-2.",
+      "owner": "سلطان",
+      "followUpWith": "الكراج الرئيسي / م. فارس / النقليات",
+      "notes": "دُمج بندا المركبات 31 و32 مع الاحتفاظ بمتابعة كل مركبة. لا يشمل المركبة 46003 المغلقة أو 3-46129 غير التابعة للإدارة.",
+      "reference": "Vehicle Record",
+      "priority": "high",
+      "group": "vehicles",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 31",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "31",
+        "category": "Vehicles",
+        "title": "Vehicle 46880 / 46800",
+        "reference": "Vehicle Record",
+        "owner": "Sultan",
+        "followUpWith": "Main Garage",
+        "status": "Vehicle number discrepancy remains; last status was under main-garage repair.",
+        "action": "Confirm the correct number, repair completion, inspection, and registration copy.",
+        "priority": "High",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": ""
+      }
+    },
+    {
+      "id": "base-33",
+      "updatedAt": "2026-09-14T07:36:11.000Z",
+      "baseIds": [
+        33
+      ],
+      "kind": "baseline",
+      "title": "قائمة مزاد الإمارات المحدثة",
+      "stage": "coordination",
+      "status": "لم يُسجل تأكيد إبلاغ المشتري.",
+      "action": "تأكيد الإبلاغ وتسجيل تاريخ بداية مهلة الشهر.",
+      "owner": "سلطان / مصطفى",
+      "followUpWith": "مزاد الإمارات",
+      "notes": "",
+      "reference": "Auction Follow-up",
+      "priority": "medium",
+      "group": "coordination",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 33",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "33",
+        "category": "Administrative",
+        "title": "Emirates Auction Updated List",
+        "reference": "Auction Follow-up",
+        "owner": "Sultan / Mustafa",
+        "followUpWith": "Emirates Auction",
+        "status": "Confirmation that the buyer was notified is not recorded.",
+        "action": "Confirm notification and record the start date of the one-month period.",
+        "priority": "Medium",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "",
+        "remarks": ""
+      }
+    },
+    {
+      "id": "base-34",
+      "updatedAt": "2026-09-14T07:36:11.000Z",
+      "baseIds": [
+        34
+      ],
+      "kind": "baseline",
+      "title": "تدريب Atlas Copco على المقطورات",
+      "stage": "coordination",
+      "status": "تدريب المشغلين مطلوب ضمن استعداد القطاعات؛ لا يوجد تأكيد اكتمال التدريب.",
+      "action": "تنسيق الترشيحات والمواعيد مع القطاعات؛ عدم تشغيل مضخات Action قبل التدريب أو تحت إشراف مشغل ذي خبرة.",
+      "owner": "مصطفى",
+      "followUpWith": "Atlas Copco / القطاعات",
+      "notes": "يرسل كل قطاع المتدربين حسب حاجته. توزيع المواقع وإدارة الورديات من مسؤولية القطاعات.",
+      "reference": "Training Requirement",
+      "priority": "medium",
+      "group": "coordination",
+      "informationDate": "2026-09-12",
+      "dueDate": null,
+      "evidence": "user-update",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 34",
+          "date": "2026-08-27",
+          "type": "file"
+        },
+        {
+          "title": "ترتيب اجتماع لجنة الأمطار",
+          "locator": "متطلبات تدريب القطاعات والجاهزية لموسم 2026–2027",
+          "date": "2026-09-12",
+          "type": "conversation"
+        }
+      ],
+      "history": [
+        {
+          "date": "2026-08-27",
+          "status": "التدريب ما زال مفتوحاً ولم يُثبت اكتماله في السجل.",
+          "source": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx"
+        }
+      ],
+      "original": {
+        "id": "34",
+        "category": "Administrative",
+        "title": "Atlas Copco Training for 30 Trailer Pumps",
+        "reference": "Training Requirement",
+        "owner": "Mustafa",
+        "followUpWith": "Atlas Copco",
+        "status": "Training remains open and has not been completed.",
+        "action": "Set the date and participants and close after completion.",
+        "priority": "Medium",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "Not Started",
+        "updateDate": "",
+        "remarks": ""
+      }
+    },
+    {
+      "id": "base-35",
+      "updatedAt": "2026-09-14T07:36:11.000Z",
+      "baseIds": [
+        35
+      ],
+      "kind": "baseline",
+      "title": "طلب شريحة SIM وجهاز لوحي",
+      "stage": "on_hold",
+      "status": "متوقف وأولويته منخفضة.",
+      "action": "المتابعة عند توفر الموازنة أو ورود تحديث من تقنية المعلومات.",
+      "owner": "مصطفى / سلطان",
+      "followUpWith": "تقنية المعلومات / الموازنة",
+      "notes": "",
+      "reference": "IT Request",
+      "priority": "low",
+      "group": "coordination",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 35",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "35",
+        "category": "Administrative",
+        "title": "SIM Card and Tablet Request",
+        "reference": "IT Request",
+        "owner": "Mustafa / Sultan",
+        "followUpWith": "IT / Budget",
+        "status": "On hold and low priority.",
+        "action": "Follow only when budget is available or IT provides an update.",
+        "priority": "Low",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "On Hold",
+        "updateDate": "",
+        "remarks": ""
+      }
+    },
+    {
+      "id": "base-36",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [
+        36
+      ],
+      "kind": "baseline",
+      "title": "أغطية 30 مضخة Action",
+      "stage": "on_hold",
+      "status": "احتياج مستقبلي منخفض الأولوية.",
+      "action": "رفع الطلب عندما تسمح الموازنة والأولوية التشغيلية.",
+      "owner": "مصطفى",
+      "followUpWith": "تخطيط الموازنة",
+      "notes": "قيمة تقديرية 90,000 درهم. تُستخدم الأغطية بعد أن تبرد المضخات.",
+      "reference": "Est. AED 90,000",
+      "priority": "low",
+      "group": "future",
+      "informationDate": "2026-08-27",
+      "dueDate": null,
+      "evidence": "baseline",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 36",
+          "date": "2026-08-27",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "original": {
+        "id": "36",
+        "category": "Future Plan",
+        "title": "Canopy Covers for 30 Action Pumps",
+        "reference": "Est. AED 90,000",
+        "owner": "Mustafa",
+        "followUpWith": "Budget Planning",
+        "status": "Future low-priority requirement.",
+        "action": "Raise when budget and operational priority allow.",
+        "priority": "Low",
+        "baselineDate": "2026-08-27 00:00:00",
+        "ahmedUpdate": "On Hold",
+        "updateDate": "",
+        "remarks": "Use covers only after the pumps have cooled."
+      },
+      "procurement": {
+        "kind": "planning",
+        "stage": "on_hold",
+        "prNumber": null,
+        "numberType": null,
+        "lpoNumber": null,
+        "budgetCode": null,
+        "amountAed": 90000,
+        "amountBasis": "estimated",
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "base-37",
+      "updatedAt": "2026-09-14T07:36:11.000Z",
+      "baseIds": [],
+      "kind": "new",
+      "title": "جاهزية الأمطار — متطلبات القطاع 2",
+      "stage": "coordination",
+      "status": "وصلت نسخة محدثة من القطاع بتاريخ 12 سبتمبر؛ استكمال ردود المطبات والتدقيق يحتاج تأكيداً.",
+      "action": "مراجعة أحدث نسخة، وإقفال فروقاتها، وتأكيد ردود المطبات قبل اجتماع 15 سبتمبر.",
+      "owner": "عبدالله",
+      "followUpWith": "القطاع 2 — عبدالغفار",
+      "notes": "السجل المؤرخ 9 سبتمبر: 27 مضخة؛ تفاصيل الطرد 2,120م مقابل 2,700م بالإجمالي؛ يلزم مراجعة النسخة الأحدث قبل إقفال الفروقات.",
+      "reference": "Sector 2 emails / 09-Sep-2026",
+      "priority": "high",
+      "group": "coordination",
+      "informationDate": "2026-09-12",
+      "dueDate": "2026-09-15",
+      "evidence": "user-confirmed",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 37",
+          "date": "2026-09-09",
+          "type": "file"
+        },
+        {
+          "title": "ترتيب اجتماع لجنة الأمطار",
+          "locator": "استلام تحديثات القطاعين 2 و4؛ الاجتماع 15 سبتمبر 2026",
+          "date": "2026-09-12",
+          "type": "conversation"
+        }
+      ],
+      "history": [
+        {
+          "date": "2026-09-09",
+          "status": "وصل الجدول المحدث وأُرسلت استفسارات عن المطبات والمقاسات والإجماليات والحضور.",
+          "source": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx"
+        }
+      ],
+      "original": {
+        "id": "37",
+        "category": "Administrative",
+        "title": "Rainy Season 2026-2027 - Sector 2 Requirements",
+        "reference": "Sector 2 emails / 09-Sep-2026",
+        "owner": "Abdulla",
+        "followUpWith": "Abdul Ghaffar / Sector 2",
+        "status": "Updated sector sheet received. Clarification email sent; awaiting reply on ramps, four added pump sizes, hose totals and meeting attendance.",
+        "action": "By 10-Sep-2026: obtain ramp quantity per location and map/coordinates (or confirm none); confirm 4-inch vs 6-inch added pumps; correct all hose totals; confirm attendance/representative for 15-Sep meeting.",
+        "priority": "High",
+        "baselineDate": "2026-09-09 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "2026-09-09 00:00:00",
+        "remarks": "27 pumps / 27 suction hoses. Delivery detail totals 2,120 m; main total is 2,700 m. Added pumps listed 4-inch, hoses/statistics 6-inch. All 27 entries have coordinates. Sheet marked Approved. Source: user confirmed email sent."
+      }
+    },
+    {
+      "id": "base-38",
+      "updatedAt": "2026-09-14T07:36:11.000Z",
+      "baseIds": [],
+      "kind": "new",
+      "title": "جاهزية الأمطار — متطلبات القطاع 4",
+      "stage": "coordination",
+      "status": "وصلت نسخة محدثة من القطاع بتاريخ 12 سبتمبر؛ استكمال ردود المطبات والتدقيق يحتاج تأكيداً.",
+      "action": "مراجعة أحدث نسخة، وإقفال فروقاتها، وتأكيد ردود المطبات قبل اجتماع 15 سبتمبر.",
+      "owner": "عبدالله",
+      "followUpWith": "القطاع 4 — سيد علي شاه",
+      "notes": "السجل المؤرخ 9 سبتمبر: 26 مضخة؛ تفاصيل الطرد 2,460م مقابل 760م بالإحصاء؛ يلزم تدقيق النسخة الأحدث قبل إقفال الفروقات. ذُكر خطأ مخاطبة القطاع 4 باسم القطاع 1 وطُلب التصحيح؛ لا يوجد تأكيد مستقل لإرسال التصحيح.",
+      "reference": "Sector 4 emails / 09-Sep-2026",
+      "priority": "high",
+      "group": "coordination",
+      "informationDate": "2026-09-12",
+      "dueDate": "2026-09-15",
+      "evidence": "user-confirmed",
+      "sources": [
+        {
+          "title": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx",
+          "locator": "Handover Tracker — بند 38",
+          "date": "2026-09-09",
+          "type": "file"
+        },
+        {
+          "title": "ترتيب اجتماع لجنة الأمطار",
+          "locator": "استلام تحديثات القطاعين 2 و4؛ الاجتماع 15 سبتمبر 2026",
+          "date": "2026-09-12",
+          "type": "conversation"
+        }
+      ],
+      "history": [
+        {
+          "date": "2026-09-09",
+          "status": "وصل الجدول المحدث وأُرسل طلب تفاصيل المطبات؛ الحضور مؤكد في سجل 9 سبتمبر.",
+          "source": "AUTO_Workshop_Handover_Follow_Up_2026-08-27(1)(1).xlsx"
+        }
+      ],
+      "original": {
+        "id": "38",
+        "category": "Administrative",
+        "title": "Rainy Season 2026-2027 - Sector 4 Requirements",
+        "reference": "Sector 4 emails / 09-Sep-2026",
+        "owner": "Abdulla",
+        "followUpWith": "Syed Ali Shah / Sector 4",
+        "status": "Updated sector sheet received. Ramp quantity/location request sent; reply pending. Attendance for 15-Sep-2026 confirmed. Signed approval remains pending.",
+        "action": "Follow ramp quantity per site and map/coordinates, or explicit no requirement. Overall submission deadline: 10-Sep-2026. Complete coordinates/approval and review hose statistics and deletion of Al Qarayen-4. Confirm correction email was sent.",
+        "priority": "High",
+        "baselineDate": "2026-09-09 00:00:00",
+        "ahmedUpdate": "Waiting",
+        "updateDate": "2026-09-09 00:00:00",
+        "remarks": "26 pumps / 30 numeric suction hoses / 2,460 m delivery; delivery statistics show 760 m. Coordinates blank. Original email incorrectly greeted Sector 1; recipient is Sector 4. Correction draft prepared; dispatch not confirmed. Source: user emails and workbook review."
+      }
+    },
+    {
+      "id": "new-torque",
+      "updatedAt": "2026-09-14T12:56:13.000Z",
+      "baseIds": [],
+      "kind": "new",
+      "title": "مفاتيح صدمات — 3 وحدات",
+      "stage": "warehouse_approval",
+      "status": "بانتظار موافقات المستودع، وفق تحديث المستخدم بتاريخ 14/09/2026.",
+      "action": "متابعة موافقات المستودع على الطلب مع مصطفى، وتأكيد استكمال أي استفسارات أو تبريرات مطلوبة قبل الانتقال للمرحلة التالية.",
+      "notes": "القيمة 2,700 درهم؛ تصحيح بند الموازنة إلى 231507 (AUTO، السطر 43). استفسار المستودع يتعلق بـ11 وحدة صُرفت في 2025؛ لا يُفترض أنها كلها للورشة.",
+      "reference": "PR10013956",
+      "informationDate": "2026-09-14",
+      "group": "purchase-action",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "المستودع / مصطفى",
+      "priority": "high",
+      "dueDate": null,
+      "evidence": "user-confirmed",
+      "sources": [
+        {
+          "title": "تحديث متابعة طلبات الشراء",
+          "locator": "PR10013956",
+          "date": "2026-09-09",
+          "type": "conversation"
+        },
+        {
+          "title": "تحديث المستخدم — PR10013956 بانتظار موافقات المستودع",
+          "locator": "14/09/2026: طلب المستخدم نقل PR10013956 — مفاتيح صدمات، 3 وحدات — إلى بانتظار موافقات المستودع.",
+          "date": "2026-09-14",
+          "type": "conversation"
+        }
+      ],
+      "history": [
+        {
+          "date": "2026-09-09",
+          "status": "أُرسل استفسار إلى مصطفى بتاريخ 9 سبتمبر؛ بانتظار استكمال التبرير والمعلومات.",
+          "source": "تحديث متابعة طلبات الشراء — 09/09/2026"
+        }
+      ],
+      "procurement": {
+        "kind": "pr",
+        "stage": "warehouse_approval",
+        "prNumber": "10013956",
+        "numberType": "PR",
+        "lpoNumber": null,
+        "budgetCode": "231507",
+        "amountAed": 2700,
+        "amountBasis": "recorded",
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "new-hoses",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [],
+      "kind": "new",
+      "title": "خراطيم سحب وطرد 4 و6 بوصات وملحقات Bauer",
+      "stage": "action",
+      "status": "أكد المستخدم إرسال الطلب للاعتماد كما هو؛ لم يُثبت صدور رقم SAP أو أمر شراء.",
+      "action": "متابعة الاعتماد وتسجيل رقم طلب الشراء عند صدوره.",
+      "notes": "بند الموازنة 222210. الاحتياج مرتبط بعدد الأسطول والاستخدام التشغيلي؛ قد يحتاج الموقع أكثر من خرطوم. لا تُضاف إكسسوارات تطويل تلقائياً ما لم تذكر الملاحظات خراطيم مقسومة.",
+      "reference": "طلب الخراطيم — 222210",
+      "informationDate": "2026-09-12",
+      "group": "purchase-action",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "بحسب الإجراء الموضح",
+      "priority": "high",
+      "dueDate": null,
+      "evidence": "user-update",
+      "sources": [
+        {
+          "title": "ترتيب اجتماع لجنة الأمطار — «تم الإرسال للاعتماد مثل ما هو»",
+          "locator": "طلب الخراطيم — 222210",
+          "date": "2026-09-12",
+          "type": "conversation"
+        },
+        {
+          "title": "PR -Delivery hose, suction hose .(4''& 6'') bauer reduser , hose clip(2).pdf",
+          "locator": "صفحة 1 — القيمة التقديرية وبند الموازنة؛ تاريخ النموذج",
+          "date": "2026-09-01",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "procurement": {
+        "kind": "unregistered",
+        "stage": "approvals",
+        "prNumber": null,
+        "numberType": null,
+        "lpoNumber": null,
+        "budgetCode": "222210",
+        "amountAed": 214480,
+        "amountBasis": "estimated",
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "new-storz",
+      "updatedAt": "2026-09-14T12:30:57.000Z",
+      "baseIds": [],
+      "kind": "new",
+      "title": "وصلات Storz ومفاتيح الفك — 6 و8 و12 بوصة",
+      "stage": "number_pending",
+      "status": "بانتظار رقم طلب الشراء، وفق تحديث المستخدم بتاريخ 14/09/2026. لم يصدر رقم PR مؤكد بعد.",
+      "action": "متابعة فريق طلبات الشراء لإصدار رقم PR وتسجيله عند وروده، ثم متابعة مسار الطلب وفق الحالة المؤكدة التالية.",
+      "notes": "القيمة التقديرية 52,850 درهماً على بند الموازنة 222210. حصر الوصلات والأدابترز الموجودة والمطلوبة متابعة مستقلة لاحقة. الطلب يشمل 6 بنود، والعينات مطلوبة لجميع المواد حسب النموذج.",
+      "reference": "STORZ COUPLING & REMOVING SPANNER",
+      "informationDate": "2026-09-14",
+      "group": "purchase-action",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "فريق طلبات الشراء — إصدار رقم PR",
+      "priority": "high",
+      "dueDate": null,
+      "evidence": "user-confirmed",
+      "sources": [
+        {
+          "title": "رأي بالموافقة — 14 سبتمبر 2026",
+          "locator": "STORZ COUPLING & REMOVING SPANNER",
+          "date": "2026-09-14",
+          "type": "conversation"
+        },
+        {
+          "title": "STORZ  COUPLING  & REMOVING SPANNER ( 6'' -8'' -  & 12'' ).pdf",
+          "locator": "صفحة 1 — القيمة التقديرية وبند الموازنة؛ تاريخ النموذج",
+          "date": "2026-09-12",
+          "type": "file"
+        },
+        {
+          "title": "تحديث المستخدم — بانتظار فريق طلبات الشراء",
+          "locator": "«حدث جدول المتابعات بانتظار فريق طلبات الشراء» مع مرفقي طلب Storz؛ تحديث لاحق لنية الموافقة السابقة.",
+          "date": "2026-09-14",
+          "type": "conversation"
+        },
+        {
+          "title": "تم لصق markdown(9).md",
+          "locator": "PR- STORZ COUPLING & REMOVING SPANNER — مراسلات 14/09/2026: مصطفى 10:43، عبدالله 11:35، علياء 12:28، ورد جعفر 14:27.",
+          "date": "2026-09-14",
+          "type": "file"
+        },
+        {
+          "title": "STORZ  COUPLING   REMOVING SPANNER ( 6'' -8'' -   12'' ) (003).pdf",
+          "locator": "صفحة 1: القيمة 52,850 درهماً والبند 222210؛ صفحات 2–4: ستة بنود؛ صفحة 5: شرط العينات.",
+          "date": "2026-09-12",
+          "type": "file"
+        },
+        {
+          "title": "تحديث المستخدم — انتظار رقم طلب الشراء",
+          "locator": "14/09/2026: طلب المستخدم تحديث طلبي Storz ومراوح التبريد المرفقين إلى حالة بانتظار رقم طلب الشراء.",
+          "date": "2026-09-14",
+          "type": "conversation"
+        },
+        {
+          "title": "STORZ  COUPLING   REMOVING SPANNER ( 6'' -8'' -   12'' ) (003)(1).pdf",
+          "locator": "صفحة 1: بيانات الطلب والقيمة وبند الموازنة؛ خانة رقم الطلب فارغة. روجع المرفق بتاريخ 14/09/2026.",
+          "date": "2026-09-14",
+          "type": "file"
+        }
+      ],
+      "history": [
+        {
+          "date": "2026-09-14",
+          "status": "ذكر المستخدم: «سوف أوافق على هذا الطلب»؛ تنفيذ الاعتماد لم يُثبت بعد.",
+          "source": "رأي بالموافقة — توجيه المستخدم السابق بتاريخ 14/09/2026"
+        },
+        {
+          "date": "2026-09-14",
+          "status": "بانتظار فريق طلبات الشراء لاستكمال إجراءات الطلب، وفق تحديث المستخدم بتاريخ 14/09/2026. لم يرد رقم PR مؤكد بعد.",
+          "source": "تحديث المستخدم السابق — انتظار فريق طلبات الشراء"
+        }
+      ],
+      "procurement": {
+        "kind": "unregistered",
+        "stage": "number_pending",
+        "prNumber": null,
+        "numberType": null,
+        "lpoNumber": null,
+        "budgetCode": "222210",
+        "amountAed": 52850,
+        "amountBasis": "estimated",
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "new-coupling-inventory",
+      "updatedAt": "2026-09-14T07:36:11.000Z",
+      "baseIds": [],
+      "kind": "new",
+      "title": "حصر الوصلات والأدابترز المتوفرة والمطلوبة",
+      "stage": "coordination",
+      "status": "طلب المستخدم إجراء الحصر لاحقاً بعد طلب Storz.",
+      "action": "حصر النوع والمقاس والعدد والحالة والموجود والمطلوب، ومطابقته مع الخراطيم والمضخات والطلبات القائمة.",
+      "notes": "لم يحدد موعداً أو مسؤولاً تنفيذياً للحصر بعد. لا تُحسب إكسسوارات التطويل دون حاجة موثقة.",
+      "reference": "حصر الوصلات والأدابترز",
+      "informationDate": "2026-09-14",
+      "group": "coordination",
+      "owner": "لم يُحدد بعد",
+      "followUpWith": "بحسب الإجراء الموضح",
+      "priority": "medium",
+      "dueDate": null,
+      "evidence": "user-update",
+      "sources": [
+        {
+          "title": "رأي بالموافقة — توجيه المستخدم للحصر لاحقاً",
+          "locator": "حصر الوصلات والأدابترز",
+          "date": "2026-09-14",
+          "type": "conversation"
+        }
+      ],
+      "history": []
+    },
+    {
+      "id": "new-furniture",
+      "updatedAt": "2026-09-14T07:36:11.000Z",
+      "baseIds": [],
+      "kind": "new",
+      "title": "وحدات تخزين وكنبة للمكتب والورش",
+      "stage": "coordination",
+      "status": "طُلب إعداد كتاب تراسل للاحتياج؛ إرسال الكتاب غير مؤكد.",
+      "action": "استكمال الكتاب بالمواصفات والكميات وتأكيد إرساله للجهة المختصة.",
+      "notes": "إجمالي 3 وحدات أدراج: واحدة للديزل واثنتان للميكانيكا. تخصيص وحدات تخزين للمكتب وورشتي الديزل والميكانيكا، وكنبة واحدة لشخصين مع ملحقاتها.",
+      "reference": "طلب كتاب تراسل — تجهيز المكتب والورش",
+      "informationDate": "2026-09-10",
+      "group": "coordination",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "بحسب الإجراء الموضح",
+      "priority": "medium",
+      "dueDate": null,
+      "evidence": "user-update",
+      "sources": [
+        {
+          "title": "طلب كتاب تراسل — 10 سبتمبر 2026",
+          "locator": "طلب كتاب تراسل — تجهيز المكتب والورش",
+          "date": "2026-09-10",
+          "type": "conversation"
+        }
+      ],
+      "history": []
+    },
+    {
+      "id": "new-canopy-parts",
+      "updatedAt": "2026-09-14T08:06:04.000Z",
+      "baseIds": [],
+      "kind": "new",
+      "title": "قطع غيار كبائن مضخات Action — 30 مقطورة",
+      "stage": "action",
+      "status": "طلب قطع غيار لمعدات تُطلب قطعها لأول مرة وكانت سابقاً تحت الضمان؛ جرى طلب مراجعة الكميات والمواصفات.",
+      "action": "استكمال مراجعة الكميات والمواصفات وتسجيل اعتماد رفع الطلب عند تأكيده؛ تحديد ضمان التوريد عند التقييم.",
+      "notes": "لا توجد بيانات استهلاك سابقة لهذه القطع. النطاق 30 مقطورة؛ يبقى منفصلاً عن هياكل 16 مقطورة وأغطية 30 مضخة في السجل الأساسي.",
+      "reference": "ACTION PUMP CANOPY PARTS",
+      "informationDate": "2026-09-09",
+      "group": "purchase-action",
+      "owner": "عبدالله / مصطفى",
+      "followUpWith": "بحسب الإجراء الموضح",
+      "priority": "high",
+      "dueDate": null,
+      "evidence": "user-update",
+      "sources": [
+        {
+          "title": "رأي وملاحظات الطلب — 9 سبتمبر 2026",
+          "locator": "ACTION PUMP CANOPY PARTS",
+          "date": "2026-09-09",
+          "type": "conversation"
+        }
+      ],
+      "history": [],
+      "procurement": {
+        "kind": "unregistered",
+        "stage": "preparation",
+        "prNumber": null,
+        "numberType": null,
+        "lpoNumber": null,
+        "budgetCode": null,
+        "amountAed": null,
+        "amountBasis": null,
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "new-air-cooling-fan-asset",
+      "updatedAt": "2026-09-14T12:30:57.000Z",
+      "baseIds": [],
+      "kind": "new",
+      "title": "مروحتا تبريد برذاذ الماء — طلب أصل",
+      "stage": "number_pending",
+      "status": "بانتظار رقم طلب الشراء، وفق تحديث المستخدم بتاريخ 14/09/2026. لم يصدر رقم PR مؤكد بعد.",
+      "action": "متابعة فريق طلبات الشراء لإصدار رقم PR وتسجيله عند وروده؛ استكمال سطر العنصر ونصه بالتنسيق مع ريان وفق المراسلات السابقة.",
+      "owner": "مصطفى / فريق طلبات الشراء",
+      "followUpWith": "فريق طلبات الشراء — إصدار رقم PR",
+      "notes": "عدد 2 مروحة تبريد برذاذ الماء مع خزان؛ سعر الوحدة 1,800 درهم والإجمالي 3,600 درهم. طلب رأسمالي على البند 231502، الأموال المخصصة 300000185. سطر العنصر ونصه غير مدرجين في النموذج ويُستكملان بعد إنشاء رقم PR وفق مراسلة مصطفى. تاريخ التسليم المستهدف في النموذج 29/10/2026. الطلب السابق SMRF-05 يخص مروحة واحدة بقيمة 800 درهم، ولم يثبت أن هذا الطلب يحل محله.",
+      "reference": "AIR COOLING FAN (ASSET) / 231502 / AED 3,600",
+      "priority": "high",
+      "group": "purchase-action",
+      "informationDate": "2026-09-14",
+      "dueDate": null,
+      "evidence": "user-confirmed",
+      "sources": [
+        {
+          "title": "تحديث المستخدم — انتظار موافقات المستودع",
+          "locator": "المحادثة الحالية: «حدث جدول المتابعات في انتظار موافقات المستودع» مع مرفقات طلب المراوح",
+          "date": "2026-09-14",
+          "type": "conversation"
+        },
+        {
+          "title": "تم لصق markdown(7).md",
+          "locator": "FW: PR -AIR COOLING FAN(ASSET) — بريد عبدالله إلى فريق طلبات الشراء 14/09/2026 الساعة 11:49؛ وملاحظة مصطفى الساعة 10:21 عن سطر العنصر",
+          "date": "2026-09-14",
+          "type": "file"
+        },
+        {
+          "title": "AIR COOLING FAN (ASSET).pdf",
+          "locator": "صفحتا 1 و2: العدد 2، الإجمالي 3,600 درهم، البند 231502، الأموال المخصصة 300000185",
+          "date": "2026-09-14",
+          "type": "file"
+        },
+        {
+          "title": "تصحيح المستخدم — تسلسل الموافقات",
+          "locator": "«عذرا تسلسل الاحداث موافقة فريق طلبات الشراء بعدها موافقة المستودع»؛ تصحيح لاحق لحالة الانتظار المسجلة في المحادثة نفسها.",
+          "date": "2026-09-14",
+          "type": "conversation"
+        },
+        {
+          "title": "تحديث المستخدم — انتظار رقم طلب الشراء",
+          "locator": "14/09/2026: طلب المستخدم تحديث طلبي Storz ومراوح التبريد المرفقين إلى حالة بانتظار رقم طلب الشراء.",
+          "date": "2026-09-14",
+          "type": "conversation"
+        },
+        {
+          "title": "AIR COOLING FAN (ASSET)(1).pdf",
+          "locator": "صفحة 1: بيانات الطلب والقيمة وبند الموازنة؛ خانة رقم الطلب فارغة. روجع المرفق بتاريخ 14/09/2026.",
+          "date": "2026-09-14",
+          "type": "file"
+        }
+      ],
+      "history": [
+        {
+          "date": "2026-09-14",
+          "status": "اكتملت الموافقات الداخلية وأُرسل الطلب إلى فريق طلبات الشراء الساعة 11:49 لإنشاء رقم PR.",
+          "source": "تم لصق markdown(7).md"
+        },
+        {
+          "date": "2026-09-14",
+          "status": "سُجل سابقاً: بانتظار موافقات المستودع. اكتملت الموافقات الداخلية وأُرسل الطلب إلى فريق طلبات الشراء بتاريخ 14/09/2026 لإنشاء رقم طلب شراء؛ لم يرد رقم PR مؤكد بعد. صحح المستخدم تسلسل الإجراء لاحقاً: موافقة فريق طلبات الشراء تسبق موافقة المستودع.",
+          "source": "تصحيح المستخدم في المحادثة الحالية — 14/09/2026"
+        },
+        {
+          "date": "2026-09-14",
+          "status": "بانتظار موافقة فريق طلبات الشراء. اكتملت الموافقات الداخلية وأُرسل الطلب إلى الفريق بتاريخ 14/09/2026؛ تأتي موافقة المستودع بعد موافقة فريق طلبات الشراء. لم يرد رقم PR مؤكد بعد.",
+          "source": "تحديث المستخدم السابق — انتظار فريق طلبات الشراء"
+        }
+      ],
+      "procurement": {
+        "kind": "unregistered",
+        "stage": "number_pending",
+        "prNumber": null,
+        "numberType": null,
+        "lpoNumber": null,
+        "budgetCode": "231502",
+        "amountAed": 3600,
+        "amountBasis": "estimated",
+        "linkedItemIds": []
+      }
+    },
+    {
+      "id": "new-atlas-demo-aem2000913",
+      "updatedAt": "2026-09-14T11:51:58.000Z",
+      "baseIds": [],
+      "kind": "new",
+      "title": "مضخة Atlas Copco التجريبية — AEM2000913",
+      "stage": "coordination",
+      "status": "تم استلام مضخة واحدة للتجربة والإرجاع إلى المورد؛ بانتظار التجربة الميدانية المقررة في 15/09/2026، ثم تقرير الفريق وملاحظاته الفنية.",
+      "action": "إجراء التجربة الميدانية في 15/09/2026 ومقارنتها بمضخات Sykes وTorishima، ثم تقديم التقرير والتوصية الفنية؛ تأكيد مواصفات الوحدة وسرعتها المعتمدة مع المورد قبل التجربة.",
+      "owner": "فريق شعبة ورشة الديزل",
+      "followUpWith": "Atlas Copco / عبدالله",
+      "notes": "عدد 1، الرقم التسلسلي حسب سند التسليم AEM2000913؛ وردت عن طريق مكتب السيد عاطف الزرعوني، مدير خدمات المساندة. سند التسليم بتاريخ 14/09/2026 ينص على التوريد للتجربة والاسترجاع. مطلوب تقييم التدفق والرفع الفعليين، زمن التحضير للسحب، استهلاك الديزل، استقرار التشغيل والحرارة والاهتزاز والضجيج والتسرب، توافق الخراطيم والوصلات، وسهولة النقل والصيانة وقطع الغيار، مع صور وقراءات وتوصية بملاءمتها للأمطار والضخ المؤقت. توجد اختلافات بين نشرة Atlas Copco المسودة (506 م³/ساعة، 33 م، 1900 دورة/دقيقة، 77 مم) ودليل PAS 4–6 (540 م³/ساعة، 49 م، 2200 دورة/دقيقة، 65 مم)؛ يلزم حسمها ومطابقة المنحنى بلوحة الوحدة. أُعدّت مسودة إيميل بالعربية والإنجليزية؛ لم يرد تأكيد إرسالها أو تنفيذ التجربة. الموعد المحدد يخص التجربة؛ التقرير مطلوب بعدها دون موعد مستقل مؤكد. موعد إرجاع المضخة غير محدد بعد.",
+      "reference": "Atlas Copco / S/N AEM2000913 / Demo",
+      "priority": "high",
+      "group": "coordination",
+      "informationDate": "2026-09-14",
+      "dueDate": "2026-09-15",
+      "evidence": "user-update",
+      "sources": [
+        {
+          "title": "تقييم المضخة المستلمة من Atlas Copco — المحادثة الحالية",
+          "locator": "تأكيد استلام مضخة واحدة؛ طلب المقارنة مع Sykes وTorishima، وتوجيه بإعداد إيميل لتجربة الغد وتقرير الفريق وملاحظاته الفنية، ثم تحديث جدول المتابعات.",
+          "date": "2026-09-14",
+          "type": "conversation"
+        },
+        {
+          "title": "3EA1C096-B539-45B6-B82C-E00946182B04.png",
+          "locator": "سند تسليم Atlas Copco بتاريخ 14/09/2026: الكمية 1؛ الرقم AEM2000913؛ التوريد للتجربة مع الاسترجاع.",
+          "date": "2026-09-14",
+          "type": "file"
+        },
+        {
+          "title": "Atlas Copco 6” Pump - PAS6 Trolley(1).pdf",
+          "locator": "الصفحتان 1 و2: نشرة Draft والمواصفات ومنحنى الأداء؛ روجعت ضمن مرفقات المحادثة بتاريخ 14/09/2026.",
+          "date": "2026-09-14",
+          "type": "file"
+        },
+        {
+          "title": "2962 1560 00_PAS 4-6 AEM_AIB_EN_30Apr25_1.pdf",
+          "locator": "صفحة PDF رقم 69، الصفحة المطبوعة 67: مواصفات PAS 6 المختلفة عن النشرة؛ روجعت بتاريخ 14/09/2026.",
+          "date": "2026-09-14",
+          "type": "file"
+        },
+        {
+          "title": "Pump- TSS_TDLH150S Data sheet.pdf / SYKES PUMP.pdf / SYKES PUMP GP100M,150M,200M Manual.docx",
+          "locator": "مراجع مقارنة المضخات القائمة مع الوحدة التجريبية؛ روجعت ضمن المحادثة بتاريخ 14/09/2026.",
+          "date": "2026-09-14",
+          "type": "file"
+        }
+      ],
+      "history": [
+        {
+          "date": "2026-09-14",
+          "status": "تم تأكيد استلام مضخة واحدة عن طريق مكتب مدير خدمات المساندة؛ طُلب تقرير عن كفاءتها وفعاليتها ومدى مناسبتها لأعمال الشعبة.",
+          "source": "توجيه المستخدم الأول في المحادثة الحالية"
+        }
+      ]
+    },
+    {
+      "id": "new-ropes-waterproof-tape",
+      "updatedAt": "2026-09-14T12:35:24.000Z",
+      "baseIds": [],
+      "kind": "new",
+      "title": "حبال نايلون وشريط مقاوم للماء لإصلاح التسربات",
+      "stage": "approvals",
+      "status": "بانتظار الموافقات، وفق توجيه المستخدم بتاريخ 14/09/2026. لم يُسجل رقم طلب شراء بعد.",
+      "action": "متابعة الموافقات واستكمال الإجراءات مع فريق طلبات الشراء؛ توضيح سعر الشريط المقاوم للماء وإجمالي قيمة الطلب، وتسجيل رقم PR عند صدوره.",
+      "owner": "عبدالله",
+      "followUpWith": "جهة الموافقة المختصة / فريق طلبات الشراء",
+      "notes": "طلب تشغيلي على بند الموازنة 222210، بتاريخ 14/09/2026. حبال نايلون، طول اللفة 50 متراً: 4 مم × 5 لفات، 8 مم × 10 لفات، 10 مم × 5 لفات، 12 مم × 10 لفات، 16 مم × 8 لفات؛ الإجمالي 38 لفة. شريط ألمنيوم مقاوم للماء لإصلاح التسربات، 15 سم × 5 م: 15 وحدة. القيمة التقديرية المكتوبة 5,230 درهماً تساوي مجموع الحبال فقط؛ سعر الشريط غير مدرج ويحتاج استكمالاً، فلا تعد القيمة إجمالياً شاملاً مؤكداً. لا يوجد لون محدد للحبال. تاريخ التسليم المستهدف بالنموذج 01/10/2026، والتوريد كامل. أكواد المواد الجديدة للحبل 16 مم والشريط غير مكتملة؛ الوارد 4203 وليس رقم PR.",
+      "reference": "ROPES & WATERPROOF TAPE / 222210",
+      "priority": "medium",
+      "group": "purchase-action",
+      "informationDate": "2026-09-14",
+      "dueDate": null,
+      "evidence": "user-confirmed",
+      "sources": [
+        {
+          "title": "تحديث المستخدم — طلب الحبال والشريط بانتظار الموافقات",
+          "locator": "14/09/2026: «حدثه تحت بانتظار الموافقات» مع مرفق طلب الحبال والشريط المقاوم للماء.",
+          "date": "2026-09-14",
+          "type": "conversation"
+        },
+        {
+          "title": "ROPES  WATERPROOF TAPE (003).pdf",
+          "locator": "صفحة 1: تاريخ الطلب والقيمة 5,230 والبند 222210؛ الصفحتان 2 و3: ستة بنود وكمياتها؛ صفحة 5: مقاس الشريط 15 سم × 5 م. سعر الشريط غير مدرج.",
+          "date": "2026-09-14",
+          "type": "file"
+        }
+      ],
+      "history": [],
+      "procurement": {
+        "kind": "unregistered",
+        "stage": "approvals",
+        "prNumber": null,
+        "numberType": null,
+        "lpoNumber": null,
+        "budgetCode": "222210",
+        "amountAed": 5230,
+        "amountBasis": "estimated",
+        "amountNote": "الحبال فقط؛ الشريط غير مسعّر",
+        "linkedItemIds": []
+      }
+    }
+  ]
+}
