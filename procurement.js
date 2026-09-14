@@ -43,6 +43,7 @@
   function renderRows(){
     if(!feed)return;
     const visible=rows.filter(x=>(stage==='all'||model.displayStage(x.meta.stage)===stage)&&(!query||normal(I.search([x.item.title,x.meta.prNumber,x.meta.lpoNumber,x.meta.budgetCode,x.item.status,x.item.owner,x.item.action])).includes(normal(query))));
+    window.WorkshopPresentation?.setItems('procurement', visible.map(({item})=>item), stage==='all'?'طلبات الشراء':model.stageLabels[stage]);
     $('pr-count').textContent=visible.length+' / '+rows.length;
     $('pr-empty').hidden=visible.length!==0;$('pr-records').hidden=visible.length===0;
     const sections=model.stages.filter(([id])=>id!=='all').map(([id,label])=>{

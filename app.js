@@ -38,6 +38,7 @@
     const items = orderedItems();
     const indexed = items.map((item,i)=>({item,index:i+1}));
     const visible = indexed.filter(({item}) => (selectedGroup === 'all' || item.group === selectedGroup) && (!query || normal(I.search([item.title,item.reference,item.owner,item.status,item.action,item.notes])).includes(normal(query))));
+    window.WorkshopPresentation?.setItems(overviewView, visible.map(({item})=>item), groupLabel(data.groups.find(g=>g.id===selectedGroup)));
     $('rows').innerHTML = visible.map(({item,index})=>{
       const isOld = item.evidence === 'baseline';
       return `<tr class="record-row ${expanded.has(item.id)?'is-open':''}" id="row-${escape(item.id)}"><td class="number-cell"><span class="row-number">${index}</span></td><td class="topic-cell"><h4 class="item-title">${escape(item.title)}</h4><span class="reference" dir="auto">${escape(item.reference)}</span></td><td class="status-cell"><div class="badges"><span class="priority priority-${escape(item.priority)}">${priorities[item.priority]}</span></div><span class="stage stage-${escape(item.stage)}">${labels[item.stage]}</span></td><td class="action-cell"><p class="next-action">${escape(item.action)}</p><span class="owner">${escape(item.owner)}</span></td><td class="date-cell"><time class="information-date" datetime="${escape(item.informationDate)}">${escape(shortDate(item.informationDate))}</time><span class="date-note ${isOld?'':'current'}">${isOld?'حالة من السجل الأساسي':'تحديث مسجل'}</span><span class="purchase-sub record-edit-time"><span>آخر تعديل للبند</span>: <time translate="no" datetime="${escape(item.updatedAt || '')}">${escape(window.WorkshopRecordTime(item.updatedAt))}</time> <span>بتوقيت الإمارات</span></span></td><td class="expand-cell"><button type="button" class="expand-button" data-item="${escape(item.id)}" aria-label="تفاصيل ${escape(item.title)}" aria-expanded="${expanded.has(item.id)}" aria-controls="detail-${escape(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></td></tr>${details(item)}`;
@@ -83,6 +84,7 @@
     connected=ok;
     $('connection-dot').className = 'connection-dot'+(ok?'':' offline');
     $('connection-label').textContent = ok ? 'متصل بـ Google Sheets' : data?.connectionSource==='google-sheets' ? 'تعذر التحديث — آخر قراءة من Google Sheets' : 'نسخة محفوظة — Google Sheets غير متصل';
+    window.WorkshopPresentation?.setConnection($('connection-label').textContent, ok);
     $('fetch-time').textContent = lastFetch ? 'آخر قراءة من Google Sheets '+time(lastFetch)+' · تحديث كل 30 ثانية' : '';
     $('sheet-status').textContent = ok ? 'البيانات مقروءة من ملف المتابعات في Google Sheets. تتجدد أثناء فتح الشاشة.' : data?.connectionSource==='google-sheets' ? 'تعذرت القراءة الجديدة من Google Sheets؛ تُعرض آخر قراءة ناجحة لحين عودة الاتصال.' : 'إعداد الربط جاهز؛ لم تنجح القراءة المباشرة من Google Sheets بعد. البيانات الظاهرة نسخة محفوظة، وليست تأكيداً لنجاح الربط.';
   }

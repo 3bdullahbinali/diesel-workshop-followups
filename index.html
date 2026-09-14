@@ -9,15 +9,17 @@
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./motion.css">
+  <link rel="stylesheet" href="./presentation.css?v=display-1">
   <title>متابعات شعبة ورشة الديزل</title>
-  <script src="./translations-en.js" defer></script>
+  <script src="./translations-en.js?v=display-1" defer></script>
   <script src="./i18n.js" defer></script>
   <script src="./record-time.js" defer></script>
   <script src="./motion.js" defer></script>
   <script src="./procurement-model.js" defer></script>
-  <script src="./procurement.js" defer></script>
+  <script src="./presentation.js?v=display-1" defer></script>
+  <script src="./procurement.js?v=display-1" defer></script>
   <script src="./sheets.js" defer></script>
-  <script src="./app.js" defer></script>
+  <script src="./app.js?v=display-1" defer></script>
 </head>
 <body>
   <div class="ambient-background" aria-hidden="true"><div class="ambient-art"></div></div>
@@ -33,6 +35,7 @@
     <section class="page-heading" aria-label="مقدمة المتابعات">
       <div><div class="eyebrow">سجل العمل</div><h2>المتابعات</h2><p id="scope">جارٍ تحميل السجل…</p></div>
       <div class="page-actions">
+        <button class="presentation-launch" id="presentation-open" type="button" aria-haspopup="dialog" aria-controls="presentation"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="m10 8 5 3-5 3ZM8 21h8M12 17v4"/></svg><span>عرض تلقائي</span></button>
         <button class="refresh-button" id="refresh" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6.1 7a7 7 0 0 1 11.6-1L20 9M4 15l2.3 3A7 7 0 0 0 17.9 17"/></svg><span>تحديث العرض</span></button>
         <button class="motion-toggle" id="motion-toggle" type="button" aria-pressed="false" aria-label="تشغيل الحركة" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path class="motion-pause" d="M9 5v14M15 5v14"/><path class="motion-play" d="m9 5 10 7-10 7Z"/></svg><span id="motion-label">الحركة متوقفة</span></button>
       </div>
@@ -76,6 +79,32 @@
     </section>
     <footer><p>السجل الأساسي: 27 أغسطس 2026. الحالات التي لم يرد لها تحديث أحدث تبقى موضحة بتاريخها.</p><p>شعبة ورشة الديزل</p></footer>
   </main>
+  <dialog id="presentation" class="presentation" aria-labelledby="presentation-title" translate="no">
+    <div class="presentation-art" aria-hidden="true"></div>
+    <div class="presentation-shell">
+      <header class="presentation-header">
+        <div class="presentation-brand"><span class="presentation-mark" aria-hidden="true">د</span><div><p data-present-label="شعبة ورشة الديزل">شعبة ورشة الديزل</p><h2 id="presentation-title" data-present-label="عرض المتابعات">عرض المتابعات</h2></div></div>
+        <div class="presentation-header-actions"><button id="presentation-language" type="button">English</button><button id="presentation-close" type="button" autofocus><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg><span data-present-label="العودة للجدول">العودة للجدول</span></button></div>
+      </header>
+      <div class="presentation-context"><div><span class="presentation-dot" aria-hidden="true"></span><span id="presentation-scope"></span></div><span id="presentation-counter" class="presentation-counter"></span></div>
+      <div class="presentation-stage">
+        <article id="presentation-card" class="presentation-card" tabindex="0" aria-labelledby="presentation-item-title" aria-live="off">
+          <div class="presentation-card-top"><span id="presentation-reference" dir="auto"></span><div class="presentation-badges"><span id="presentation-priority"></span><span id="presentation-status-badge"></span></div></div>
+          <h3 id="presentation-item-title" dir="auto"></h3>
+          <div class="presentation-detail-grid"><section class="presentation-status"><h4 data-present-label="آخر حالة مسجلة">آخر حالة مسجلة</h4><p id="presentation-status" dir="auto"></p></section><section class="presentation-action"><h4 data-present-label="الإجراء المطلوب">الإجراء المطلوب</h4><p id="presentation-action" dir="auto"></p></section></div>
+          <dl class="presentation-meta"><div><dt data-present-label="المسؤول">المسؤول</dt><dd id="presentation-owner" dir="auto"></dd></div><div><dt data-present-label="آخر معلومة">آخر معلومة</dt><dd><time id="presentation-information"></time></dd></div><div><dt data-present-label="آخر تعديل للبند">آخر تعديل للبند</dt><dd><time id="presentation-updated"></time><small data-present-label="بتوقيت الإمارات">بتوقيت الإمارات</small></dd></div></dl>
+        </article>
+        <div id="presentation-empty" class="presentation-empty" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h5M8 16h3"/></svg><h3 data-present-label="لا توجد متابعات للعرض">لا توجد متابعات للعرض</h3><p data-present-label="ارجع إلى الجدول واختر تبويباً أو غيّر البحث والتصنيف.">ارجع إلى الجدول واختر تبويباً أو غيّر البحث والتصنيف.</p></div>
+      </div>
+      <div class="presentation-next"><span data-present-label="بعدها">بعدها</span><p id="presentation-next-title" dir="auto"></p></div>
+      <footer class="presentation-footer">
+        <div class="presentation-progress" aria-hidden="true"><div id="presentation-progress-fill"></div></div>
+        <div class="presentation-controls"><div class="presentation-playback"><button type="button" id="presentation-prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg><span data-present-label="السابق">السابق</span></button><button type="button" id="presentation-toggle"><svg viewBox="0 0 24 24" aria-hidden="true"><path id="presentation-play-icon" d="M9 5v14M15 5v14"/></svg><span id="presentation-play-label"></span></button><button type="button" id="presentation-next"><span data-present-label="التالي">التالي</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button></div><label class="presentation-speed"><span data-present-label="مدة العرض">مدة العرض</span><select id="presentation-speed"><option value="8" data-present-label="8 ثوانٍ">8 ثوانٍ</option><option value="12" data-present-label="12 ثانية" selected>12 ثانية</option><option value="20" data-present-label="20 ثانية">20 ثانية</option><option value="30" data-present-label="30 ثانية">30 ثانية</option></select></label><span id="presentation-play-state" class="presentation-play-state"></span></div>
+        <div class="presentation-footnote"><span id="presentation-connection"></span><span data-present-label="يعرض نتائج التبويب والبحث والتصنيف الحالي.">يعرض نتائج التبويب والبحث والتصنيف الحالي.</span></div>
+      </footer>
+      <p id="presentation-announcement" class="sr-only" role="status" aria-live="polite"></p>
+    </div>
+  </dialog>
   <noscript><p class="noscript">يلزم تفعيل JavaScript لعرض السجل والتحديثات التلقائية.</p></noscript>
 </body>
 </html>
