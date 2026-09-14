@@ -15,7 +15,8 @@
   const flag = name => ['1','true','yes','on'].includes((params.get(name) || '').toLowerCase());
   const hashView = () => location.hash === '#purchase-orders' ? 'procurement' : location.hash === '#non-purchase' ? 'non-purchase' : location.hash === '#closed' ? 'closed' : 'overview';
   let view = hashView();
-  let items = [], scope = '', index = 0, playing = false, elapsed = 0, lastTick = 0, frame = 0, animation;
+  let items = [], scope = '', index = 0, playing = false, elapsed = 0, lastTick = 0, frame = 0;
+  const animations = new Set();
   let connection = 'جارٍ الاتصال بالسجل', connected = false, speed = 12, cycle = false;
   let pendingPlay = false, resumeTimer = 0, linkTimer = 0, wakeLock = null, resumedAt = 0;
   try {
@@ -89,7 +90,56 @@
     text('presentation-next-title', next?.title || (cycle ? 'التبويب التالي' : ''));
     dialog.querySelector('.presentation-next').hidden = !next && !cycle;
   }
-  function render({animate = false, resetScroll = false} = {}) {
+  const motionOn = () => document.documentElement.dataset.motion === 'on' && !reducedMotion.matches;
+  const ease = 'cubic-bezier(.22,.68,.16,1)';
+  // The leaving record is animated as a copy so both cards move at once.
+  function snapshot() {
+    for (const stale of dialog.querySelectorAll('.presentation-ghost')) stale.remove();
+    const rect = card.getBoundingClientRect();
+    const ghost = card.cloneNode(true);
+    for (const node of ghost.querySelectorAll('[id]')) node.removeAttribute('id');
+    ghost.removeAttribute('id');
+    ghost.removeAttribute('tabindex');
+    ghost.setAttribute('aria-hidden', 'true');
+    ghost.classList.add('presentation-ghost');
+    ghost.style.cssText = `position:fixed;top:${rect.top}px;left:${rect.left}px;width:${rect.width}px;height:${rect.height}px;margin:0;`;
+    dialog.querySelector('.presentation-stage').append(ghost);
+    ghost.scrollTop = card.scrollTop;
+    return ghost;
+  }
+  function transition(ghost, direction) {
+    for (const running of animations) running.cancel();
+    animations.clear();
+    const shift = (I.language === 'ar' ? -1 : 1) * (direction || 1);
+    const track = animation => { animations.add(animation); animation.finished.then(() => animations.delete(animation), () => {}); };
+    if (ghost) {
+      const away = direction ? `translate3d(${shift * -64}px,0,0) scale(.982)` : 'scale(1.015)';
+      const leaving = ghost.animate([
+        {opacity:1, transform:'translate3d(0,0,0) scale(1)'},
+        {opacity:0, transform:away}
+      ], {duration:330, easing:'cubic-bezier(.4,.06,.4,1)'});
+      leaving.finished.finally(() => ghost.remove());
+    }
+    const from = direction ? `translate3d(${shift * 64}px,0,0) scale(.985)` : 'scale(.99)';
+    track(card.animate([
+      {opacity:0, transform:from},
+      {opacity:1, transform:'translate3d(0,0,0) scale(1)'}
+    ], {duration:470, delay:190, easing:ease, fill:'backwards'}));
+    // The record reveals in reading order, close behind the card so it never
+    // shows as an empty sheet while the outgoing one is still fading.
+    const parts = [...card.querySelectorAll('.presentation-card-top, h3, .presentation-status, .presentation-action, .presentation-meta')];
+    parts.forEach((part, step) => track(part.animate([
+      {opacity:0, transform:'translate3d(0,16px,0)'},
+      {opacity:1, transform:'translate3d(0,0,0)'}
+    ], {duration:400, delay:225 + step * 50, easing:ease, fill:'backwards'})));
+    track(card.animate([{borderTopColor:'#f2dcaa'}, {borderTopColor:'#d2b578'}], {duration:1100, easing:'ease-out'}));
+    // The counter and the up-next line follow the card instead of snapping.
+    for (const node of [$('presentation-counter'), dialog.querySelector('.presentation-next p')]) {
+      track(node.animate([{opacity:.25}, {opacity:1}], {duration:470, delay:190, easing:ease, fill:'backwards'}));
+    }
+  }
+  function render({animate = false, resetScroll = false, direction = 1} = {}) {
+    const ghost = animate && motionOn() && !card.hidden && items.length ? snapshot() : null;
     labels();
     card.hidden = items.length === 0;
     $('presentation-empty').hidden = items.length !== 0;
@@ -111,18 +161,19 @@
       text('presentation-updated', window.WorkshopRecordTime(item.updatedAt));
       $('presentation-updated').dateTime = item.updatedAt || '';
       if (resetScroll) card.scrollTop = 0;
-      if (animate && document.documentElement.dataset.motion === 'on' && !reducedMotion.matches) {
-        animation?.cancel();
-        animation = card.animate([
-          {opacity:0, transform:`translateX(${I.language === 'ar' ? -18 : 18}px) translateY(10px)`},
-          {opacity:1, transform:'translateX(0) translateY(0)'}
-        ], {duration:620, easing:'cubic-bezier(.2,.7,.2,1)'});
-      }
+      if (animate && motionOn()) transition(ghost, direction);
+      else ghost?.remove();
     } else {
       delete card.dataset.itemId;
+      ghost?.remove();
     }
     controls();
     progress();
+  }
+  function clearAnimations() {
+    for (const running of animations) running.cancel();
+    animations.clear();
+    for (const ghost of dialog.querySelectorAll('.presentation-ghost')) ghost.remove();
   }
   function stopFrame() {
     cancelAnimationFrame(frame);
@@ -150,7 +201,7 @@
     window.WorkshopViews.select(viewOrder[(viewOrder.indexOf(view) + 1) % viewOrder.length]);
     index = 0;
     elapsed = 0;
-    render({animate:true, resetScroll:true});
+    render({animate:true, resetScroll:true, direction:0});
     return items.length ? true : nextView(attempts + 1);
   }
   function advance(delta, manual = false) {
@@ -161,7 +212,7 @@
     }
     index = (index + delta + items.length) % items.length;
     elapsed = 0;
-    render({animate:true, resetScroll:true});
+    render({animate:true, resetScroll:true, direction:delta > 0 ? 1 : -1});
     if (manual) text('presentation-announcement', `${index + 1} / ${items.length} — ${items[index].title}`);
   }
   function tick(now) {
@@ -233,7 +284,7 @@
     elapsed = 0;
     if (!dialog.open) dialog.showModal();
     document.body.classList.add('presentation-open');
-    render({animate:true, resetScroll:true});
+    render({animate:true, resetScroll:true, direction:0});
     if (auto || !reducedMotion.matches) {
       pendingPlay = true;
       if (rotating()) { pendingPlay = false; play(); }
@@ -259,7 +310,7 @@
   dialog.addEventListener('close', () => {
     pause();
     pendingPlay = false;
-    animation?.cancel();
+    clearAnimations();
     text('presentation-announcement', '');
     document.body.classList.remove('presentation-open');
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
@@ -344,7 +395,7 @@
     else if (pendingPlay) { pendingPlay = false; play(); }
   });
   reducedMotion.addEventListener('change', () => {
-    if (reducedMotion.matches) { animation?.cancel(); if (dialog.open && !kiosk) pause(); }
+    if (reducedMotion.matches) { clearAnimations(); if (dialog.open && !kiosk) pause(); }
   });
   window.addEventListener('workshop-view', event => {
     view = event.detail;
