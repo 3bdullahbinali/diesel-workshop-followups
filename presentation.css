@@ -6,6 +6,47 @@ body.presentation-open{overflow:hidden}
 .presentation::backdrop{background:#0b3029}
 .presentation-art{position:fixed;inset:-6%;z-index:-1;pointer-events:none;background:linear-gradient(110deg,#082e29ed,#0b3029b0 54%,#082820de),url('./ambient-water.webp') center/cover no-repeat;animation:presentation-drift 36s ease-in-out infinite alternate}
 .presentation-art::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 10%,#e4c38329,transparent 40%),radial-gradient(ellipse at 15% 90%,#51b89c29,transparent 45%)}
+/* Workshop scene: pump, impeller, gears, hoses and the diesel tank, drawn as a
+   faint schematic behind the record so it never competes with the text. */
+.presentation-scene{position:absolute;bottom:100%;inset-inline:0;width:100%;height:clamp(78px,12vh,138px);z-index:-1;pointer-events:none;opacity:.28;color:#c2dcd0}
+.sc-line{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sc-ground,.sc-detail{stroke-width:1.2;opacity:.5}
+.sc-part,.sc-tank,.sc-base{stroke-width:2}
+.sc-base{opacity:.7}
+.sc-volute{stroke-width:1.6;opacity:.8}
+.sc-hose{stroke-width:7;opacity:.42}
+.sc-clamp{stroke-width:2.6;opacity:.6}
+.sc-dot{fill:currentColor;stroke:none;opacity:.7}
+.sc-water{stroke:#7ad2bb}
+.sc-diesel{stroke:#e6c78c}
+.sc-hose-flow{stroke-width:3;stroke-dasharray:12 17;animation:sc-flow 1.9s linear infinite}
+.sc-flow{stroke-width:2.6;stroke-dasharray:11 16;animation:sc-flow 1.6s linear infinite}
+.sc-water-pipe{stroke-width:6;opacity:.42}
+.sc-stream{stroke-width:2.6;stroke-dasharray:5 7;animation:sc-flow .7s linear infinite}
+.sc-impeller,.sc-fan,.sc-gear-a,.sc-gear-b{transform-box:fill-box;transform-origin:center}
+.sc-impeller{animation:sc-spin 5.5s linear infinite}
+.sc-fan{animation:sc-spin 2.1s linear infinite}
+.sc-gear-a{animation:sc-spin 9s linear infinite}
+.sc-gear-b{animation:sc-spin-back 6s linear infinite}
+.sc-level{animation:sc-level 15s ease-in-out infinite}
+.sc-wave{animation:sc-wave 3.6s linear infinite}
+.sc-wave path{fill:#d8b87a;fill-opacity:.3;stroke:#e9cd96;stroke-opacity:.55;stroke-width:2}
+.sc-wave-b{animation-duration:5.4s;animation-direction:reverse}
+.sc-wave-b path{fill-opacity:.2;stroke-opacity:.22}
+.sc-bubble{fill:#e6c78c;fill-opacity:.4;stroke:none;animation:sc-bubble 4.5s ease-in infinite}
+.sc-bubble-b{animation-duration:5.6s;animation-delay:1.4s}
+.sc-bubble-c{animation-duration:6.4s;animation-delay:2.6s}
+.sc-drop{stroke:#7ad2bb;stroke-width:2.2;opacity:0;animation:sc-drop 3.4s ease-in infinite}
+.sc-drop-b{animation-duration:4.6s;animation-delay:1.7s}
+@keyframes sc-flow{to{stroke-dashoffset:-29}}
+@keyframes sc-spin{to{transform:rotate(360deg)}}
+@keyframes sc-spin-back{to{transform:rotate(-360deg)}}
+@keyframes sc-level{0%,100%{transform:translateY(54px)}45%,62%{transform:translateY(6px)}}
+@keyframes sc-wave{to{transform:translateX(-48px)}}
+@keyframes sc-bubble{0%{transform:translateY(0);opacity:0}15%{opacity:.5}100%{transform:translateY(-40px);opacity:0}}
+@keyframes sc-drop{0%,55%{transform:translateY(0);opacity:0}60%{opacity:.8}100%{transform:translateY(20px);opacity:0}}
+html[dir=ltr] .presentation-scene{transform:scaleX(-1)}
+html[data-motion=off] .presentation-scene *{animation-play-state:paused}
 .presentation-shell{max-width:1440px;height:100%;min-height:100%;margin:0 auto;padding:clamp(18px,3vw,40px) clamp(18px,4vw,60px) 20px;display:flex;flex-direction:column;gap:18px}
 .presentation-header{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-shrink:0}
 .presentation-brand{display:flex;align-items:center;gap:14px}
@@ -50,7 +91,7 @@ body.presentation-open{overflow:hidden}
 .presentation-next{display:flex;align-items:baseline;gap:12px;font-size:13px;min-width:0;padding:0 4px}
 .presentation-next>span{color:#d9be8a;flex-shrink:0}
 .presentation-next p{margin:0;color:#d1ddd5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.presentation-footer{display:block;flex-shrink:0;margin:0;border:0;padding:0;color:#d1ddd5}
+.presentation-footer{position:relative;display:block;flex-shrink:0;margin:0;border:0;padding:0;color:#d1ddd5}
 .presentation-progress{height:3px;border-radius:3px;background:#ffffff15;overflow:hidden;margin-bottom:16px}
 #presentation-progress-fill{width:100%;height:100%;background:linear-gradient(90deg,#c9a765,#f0d79f);box-shadow:0 0 12px #dfbf7e59;transform:scaleX(0);transform-origin:left}
 html[dir=rtl] #presentation-progress-fill{transform-origin:right}
@@ -113,6 +154,7 @@ html[data-motion=off] #presentation-progress-fill{visibility:hidden}
   .presentation-footnote{flex-direction:column;gap:4px;font-size:10px;margin-top:14px}
   .presentation .presentation-link{align-self:flex-start;font-size:10px}
   .presentation-progress{margin-bottom:14px}
+  .presentation-scene{display:none}
 }
 @media(max-height:620px){.presentation-card{max-height:none}.presentation-stage{flex:auto}.presentation-shell{height:auto;gap:12px}.presentation-header{position:relative}}
-@media(prefers-reduced-motion:reduce){.presentation-art{animation:none}#presentation-progress-fill{visibility:hidden}}
+@media(prefers-reduced-motion:reduce){.presentation-art{animation:none}.presentation-scene *{animation:none}#presentation-progress-fill{visibility:hidden}}
