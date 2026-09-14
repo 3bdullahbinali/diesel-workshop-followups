@@ -23,6 +23,10 @@ body.presentation-open{overflow:hidden}
 .presentation-context>div{display:flex;gap:9px;align-items:center}
 .presentation-dot{width:6px;height:6px;border-radius:50%;background:#d8b976;box-shadow:0 0 0 5px #d8b97613;flex-shrink:0}
 .presentation-counter{direction:ltr;font-variant-numeric:tabular-nums;letter-spacing:2px;color:#e7d5ad;font-size:16px;white-space:nowrap}
+.presentation-context>.presentation-context-end{display:flex;align-items:center;gap:14px;flex-shrink:0}
+.presentation-remaining{display:inline-flex;align-items:baseline;gap:5px;font-size:12px;color:#c1d2c8;white-space:nowrap}
+#presentation-remaining-value{direction:ltr;font-variant-numeric:tabular-nums;font-size:14px;font-weight:700;color:#e7d5ad}
+.presentation[data-playing=false] .presentation-remaining{opacity:.55}
 .presentation-stage{flex:1;display:flex;align-items:center;min-height:0}
 .presentation-card{width:100%;max-height:100%;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#abbeb4 transparent;background:#fcfdf9;color:#1b352d;border:1px solid #ffffffa6;border-top:3px solid #d2b578;border-radius:16px;padding:clamp(22px,3vw,40px);box-shadow:0 24px 64px #001f2450;scroll-padding:20px}
 .presentation-card-top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:20px}
@@ -56,8 +60,14 @@ html[dir=rtl] #presentation-progress-fill{transform-origin:right}
 html[dir=rtl] #presentation-prev svg,html[dir=rtl] #presentation-next svg{transform:rotate(180deg)}
 .presentation-speed{display:flex;align-items:center;gap:8px;font-size:12px}
 .presentation-speed select{font-size:13px;background:#123d31;color:#f1eee3;border:1px solid #b6cfc84d;padding:6px 12px}
+.presentation-cycle svg{width:19px;height:19px}
+.presentation-cycle[aria-pressed=true]{background:#1d5545;border-color:#dfbf7e7a;color:#f4e7c9}
+.presentation-cycle[aria-pressed=true] svg{stroke:#e0c58d}
 .presentation-play-state{margin-inline-start:auto;font-size:12px;color:#cfddd1}
 .presentation-footnote{display:flex;justify-content:space-between;gap:16px;margin-top:17px;font-size:11px;color:#b8cbc0}
+.presentation .presentation-link{min-height:0;gap:6px;padding:4px 10px;font-size:11px;border-radius:6px;border-color:#b6cfc82e;background:#ffffff05;color:#c9dad0}
+.presentation .presentation-link svg{width:14px;height:14px}
+.presentation-link[data-copied=true]{color:#e7d5ad;border-color:#dfbf7e5c}
 #presentation-connection[data-connected=false]{color:#e3c692}
 .presentation-empty{width:100%;text-align:center;padding:55px 20px;color:#dbe6dc;border:1px solid #a1c1b638;border-radius:16px;background:#ffffff05}
 .presentation-empty svg{width:38px;height:38px;stroke:#cfb984;margin-bottom:10px}
@@ -75,6 +85,10 @@ html[data-motion=off] #presentation-progress-fill{visibility:hidden}
   .presentation-header-actions{gap:5px}
   .presentation-header-actions button{font-size:12px;padding:8px}
   #presentation-close span{display:none}
+  #presentation-fullscreen span{display:none}
+  .presentation-context>.presentation-context-end{gap:9px}
+  .presentation-remaining span:last-child{display:none}
+  .presentation-cycle{font-size:12px;padding:8px 11px}
   .presentation-context{font-size:12px;padding-top:5px}
   .presentation-stage{align-items:flex-start}
   .presentation-card{padding:23px 20px;border-radius:12px}
@@ -95,6 +109,7 @@ html[data-motion=off] #presentation-progress-fill{visibility:hidden}
   #presentation-toggle{min-width:148px;flex:1.35}
   .presentation-play-state{font-size:11px}
   .presentation-footnote{flex-direction:column;gap:4px;font-size:10px;margin-top:14px}
+  .presentation .presentation-link{align-self:flex-start;font-size:10px}
   .presentation-progress{margin-bottom:14px}
 }
 @media(max-height:620px){.presentation-card{max-height:none}.presentation-stage{flex:auto}.presentation-shell{height:auto;gap:12px}.presentation-header{position:relative}}

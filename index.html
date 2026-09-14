@@ -9,17 +9,17 @@
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./motion.css">
-  <link rel="stylesheet" href="./presentation.css?v=display-1">
+  <link rel="stylesheet" href="./presentation.css?v=display-2">
   <title>متابعات شعبة ورشة الديزل</title>
-  <script src="./translations-en.js?v=display-1" defer></script>
+  <script src="./translations-en.js?v=display-2" defer></script>
   <script src="./i18n.js" defer></script>
   <script src="./record-time.js" defer></script>
   <script src="./motion.js" defer></script>
   <script src="./procurement-model.js" defer></script>
-  <script src="./presentation.js?v=display-1" defer></script>
-  <script src="./procurement.js?v=display-1" defer></script>
+  <script src="./presentation.js?v=display-2" defer></script>
+  <script src="./procurement.js?v=display-2" defer></script>
   <script src="./sheets.js" defer></script>
-  <script src="./app.js?v=display-1" defer></script>
+  <script src="./app.js?v=display-2" defer></script>
 </head>
 <body>
   <div class="ambient-background" aria-hidden="true"><div class="ambient-art"></div></div>
@@ -84,9 +84,9 @@
     <div class="presentation-shell">
       <header class="presentation-header">
         <div class="presentation-brand"><span class="presentation-mark" aria-hidden="true">د</span><div><p data-present-label="شعبة ورشة الديزل">شعبة ورشة الديزل</p><h2 id="presentation-title" data-present-label="عرض المتابعات">عرض المتابعات</h2></div></div>
-        <div class="presentation-header-actions"><button id="presentation-language" type="button">English</button><button id="presentation-close" type="button" autofocus><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg><span data-present-label="العودة للجدول">العودة للجدول</span></button></div>
+        <div class="presentation-header-actions"><button id="presentation-fullscreen" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3H5a2 2 0 0 0-2 2v4M15 3h4a2 2 0 0 1 2 2v4M9 21H5a2 2 0 0 1-2-2v-4M15 21h4a2 2 0 0 0 2-2v-4"/></svg><span id="presentation-fullscreen-label" data-present-label="ملء الشاشة">ملء الشاشة</span></button><button id="presentation-language" type="button">English</button><button id="presentation-close" type="button" autofocus><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg><span data-present-label="العودة للجدول">العودة للجدول</span></button></div>
       </header>
-      <div class="presentation-context"><div><span class="presentation-dot" aria-hidden="true"></span><span id="presentation-scope"></span></div><span id="presentation-counter" class="presentation-counter"></span></div>
+      <div class="presentation-context"><div><span class="presentation-dot" aria-hidden="true"></span><span id="presentation-scope"></span></div><div class="presentation-context-end"><span id="presentation-remaining" class="presentation-remaining" hidden><span id="presentation-remaining-value"></span> <span data-present-label="ثانية للبند التالي">ثانية للبند التالي</span></span><span id="presentation-counter" class="presentation-counter"></span></div></div>
       <div class="presentation-stage">
         <article id="presentation-card" class="presentation-card" tabindex="0" aria-labelledby="presentation-item-title" aria-live="off">
           <div class="presentation-card-top"><span id="presentation-reference" dir="auto"></span><div class="presentation-badges"><span id="presentation-priority"></span><span id="presentation-status-badge"></span></div></div>
@@ -99,8 +99,8 @@
       <div class="presentation-next"><span data-present-label="بعدها">بعدها</span><p id="presentation-next-title" dir="auto"></p></div>
       <footer class="presentation-footer">
         <div class="presentation-progress" aria-hidden="true"><div id="presentation-progress-fill"></div></div>
-        <div class="presentation-controls"><div class="presentation-playback"><button type="button" id="presentation-prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg><span data-present-label="السابق">السابق</span></button><button type="button" id="presentation-toggle"><svg viewBox="0 0 24 24" aria-hidden="true"><path id="presentation-play-icon" d="M9 5v14M15 5v14"/></svg><span id="presentation-play-label"></span></button><button type="button" id="presentation-next"><span data-present-label="التالي">التالي</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button></div><label class="presentation-speed"><span data-present-label="مدة العرض">مدة العرض</span><select id="presentation-speed"><option value="8" data-present-label="8 ثوانٍ">8 ثوانٍ</option><option value="12" data-present-label="12 ثانية" selected>12 ثانية</option><option value="20" data-present-label="20 ثانية">20 ثانية</option><option value="30" data-present-label="30 ثانية">30 ثانية</option></select></label><span id="presentation-play-state" class="presentation-play-state"></span></div>
-        <div class="presentation-footnote"><span id="presentation-connection"></span><span data-present-label="يعرض نتائج التبويب والبحث والتصنيف الحالي.">يعرض نتائج التبويب والبحث والتصنيف الحالي.</span></div>
+        <div class="presentation-controls"><div class="presentation-playback"><button type="button" id="presentation-prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg><span data-present-label="السابق">السابق</span></button><button type="button" id="presentation-toggle"><svg viewBox="0 0 24 24" aria-hidden="true"><path id="presentation-play-icon" d="M9 5v14M15 5v14"/></svg><span id="presentation-play-label"></span></button><button type="button" id="presentation-next"><span data-present-label="التالي">التالي</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button></div><label class="presentation-speed"><span data-present-label="مدة العرض">مدة العرض</span><select id="presentation-speed"><option value="auto" data-present-label="تلقائي حسب طول النص">تلقائي حسب طول النص</option><option value="8" data-present-label="8 ثوانٍ">8 ثوانٍ</option><option value="12" data-present-label="12 ثانية" selected>12 ثانية</option><option value="20" data-present-label="20 ثانية">20 ثانية</option><option value="30" data-present-label="30 ثانية">30 ثانية</option></select></label><button type="button" id="presentation-cycle" class="presentation-cycle" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a8 8 0 0 1 13.7-5.7L20 6M20 15a8 8 0 0 1-13.7 5.7L4 18"/><path d="M20 3v3.5h-3.5M4 21v-3.5h3.5"/></svg><span data-present-label="تدوير التبويبات">تدوير التبويبات</span></button><span id="presentation-play-state" class="presentation-play-state"></span></div>
+        <div class="presentation-footnote"><span id="presentation-connection"></span><button type="button" id="presentation-link" class="presentation-link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></svg><span id="presentation-link-label" data-present-label="نسخ رابط شاشة العرض">نسخ رابط شاشة العرض</span></button><span data-present-label="يعرض نتائج التبويب والبحث والتصنيف الحالي.">يعرض نتائج التبويب والبحث والتصنيف الحالي.</span></div>
       </footer>
       <p id="presentation-announcement" class="sr-only" role="status" aria-live="polite"></p>
     </div>

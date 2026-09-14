@@ -21,6 +21,8 @@
     window.dispatchEvent(new CustomEvent('workshop-view',{detail:view}));
     if(changed)window.WorkshopMotion?.reveal($(purchase?'procurement-panel':'overview-panel'));
   }
+  // The automatic display rotates tabs through the same selection path as a click.
+  window.WorkshopViews={select:view=>selectView(view),get current(){return selectedView;}};
   const tabs=[...document.querySelectorAll('.view-tabs [data-view]')];
   for(const tab of tabs){
     tab.addEventListener('click',()=>selectView(tab.dataset.view));
