@@ -47,6 +47,14 @@ body.presentation-open{overflow:hidden}
 @keyframes sc-drop{0%,55%{transform:translateY(0);opacity:0}60%{opacity:.8}100%{transform:translateY(20px);opacity:0}}
 html[dir=ltr] .presentation-scene{transform:scaleX(-1)}
 html[data-motion=off] .presentation-scene *{animation-play-state:paused}
+/* The same workshop drawing, smaller and quieter, closes the register page. */
+.page-scene{display:block;flex:0 0 100%;width:100%;height:clamp(52px,6vw,80px);margin:8px 0 14px;opacity:.22;color:#14513f}
+html[dir=rtl] .page-scene{transform:scaleX(-1)}
+.page-scene .sc-water,.page-scene .sc-drop{stroke:#1d7660}
+.page-scene .sc-diesel{stroke:#93702a}
+.page-scene .sc-wave path{fill:#b08a3c;fill-opacity:.36;stroke:#8a6820;stroke-opacity:.5}
+.page-scene .sc-bubble{fill:#8a6820}
+html[data-motion=off] .page-scene *,.page-scene[data-visible=false] *{animation-play-state:paused}
 .presentation-shell{max-width:1440px;height:100%;min-height:100%;margin:0 auto;padding:clamp(18px,3vw,40px) clamp(18px,4vw,60px) 20px;display:flex;flex-direction:column;gap:18px}
 .presentation-header{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-shrink:0}
 .presentation-brand{display:flex;align-items:center;gap:14px}
@@ -157,4 +165,4 @@ html[data-motion=off] #presentation-progress-fill{visibility:hidden}
   .presentation-scene{display:none}
 }
 @media(max-height:620px){.presentation-card{max-height:none}.presentation-stage{flex:auto}.presentation-shell{height:auto;gap:12px}.presentation-header{position:relative}}
-@media(prefers-reduced-motion:reduce){.presentation-art{animation:none}.presentation-scene *{animation:none}#presentation-progress-fill{visibility:hidden}}
+@media(prefers-reduced-motion:reduce){.presentation-art{animation:none}.presentation-scene *,.page-scene *{animation:none}#presentation-progress-fill{visibility:hidden}}

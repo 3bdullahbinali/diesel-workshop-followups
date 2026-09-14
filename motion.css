@@ -102,4 +102,4 @@ html[data-motion=off] { scroll-behavior:auto; }
   .record-updated { font-size:.875rem; }
 }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; } }
-@media print { .ambient-background,.motion-toggle { display:none!important; } *,*::before,*::after { animation:none!important; box-shadow:none!important; } }
+@media print { .ambient-background,.motion-toggle,.page-scene { display:none!important; } *,*::before,*::after { animation:none!important; box-shadow:none!important; } }

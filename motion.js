@@ -37,6 +37,11 @@
   });
   preference.addEventListener('change',sync);
   document.addEventListener('visibilitychange',sync);
+  // The register drawing only runs while it is actually on screen.
+  const scene=document.querySelector('.page-scene');
+  if(scene&&'IntersectionObserver' in window){
+    new IntersectionObserver(entries=>{for(const entry of entries)scene.dataset.visible=String(entry.isIntersecting);},{rootMargin:'140px'}).observe(scene);
+  }
   window.WorkshopMotion={reveal};
   sync();
 })();
