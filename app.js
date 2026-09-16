@@ -133,6 +133,10 @@
     const old=new Map((before?.items||[]).map(item=>[item.id,item]));
     const fresh=new Map((after?.items||[]).map(item=>[item.id,item]));
     const news=[];
+    // معرّف الإشعار يعتمد على البند والتحديث والنتيجة، لا النص المترجم أو النسخة السابقة.
+    const emit=(domain,item,field,value,notice)=>news.push({
+      ...notice,id:JSON.stringify([domain,item.id,field,item.updatedAt||'',value])
+    });
     const fields=[
       ['stage','الحالة',v=>S.stages[v]||v],
       ['priority','الأولوية',v=>({high:'عالية',medium:'متوسطة',low:'منخفضة'}[v]||v)],
@@ -146,35 +150,35 @@
     ];
     for(const [id,item] of fresh){
       const was=old.get(id);
-      if(!was){news.push({kind:'add',title:'متابعة جديدة',body:item.title});continue;}
+      if(!was){emit('item',item,'created',item.title,{kind:'add',title:'متابعة جديدة',body:item.title});continue;}
       for(const [key,label,show] of fields){
         if((was[key]||'')===(item[key]||''))continue;
-        news.push({kind:'change',title:item.title,body:`${label}: ${show(was[key])} ← ${show(item[key])}`});
+        emit('item',item,key,item[key]||'',{kind:'change',title:item.title,body:`${label}: ${show(was[key])} ← ${show(item[key])}`});
       }
       const wasStage=was.procurement?.stage, nowStage=item.procurement?.stage;
-      if(wasStage!==nowStage&&nowStage)news.push({kind:'change',title:item.title,body:`مرحلة الشراء: ${P.stageLabels[wasStage]||'—'} ← ${P.stageLabels[nowStage]}`});
+      if(wasStage!==nowStage&&nowStage)emit('item',item,'procurement.stage',nowStage,{kind:'change',title:item.title,body:`مرحلة الشراء: ${P.stageLabels[wasStage]||'—'} ← ${P.stageLabels[nowStage]}`});
       const wasGear=was.equipment, gear=item.equipment;
       if(gear&&(!wasGear||wasGear.phase!==gear.phase||wasGear.handover!==gear.handover)){
-        news.push({kind:'change',title:item.title,body:`المعدة: ${S.phases[gear.phase]} · ${S.handovers[gear.handover]}`});
+        emit('equipment',{...item,updatedAt:gear.updatedAt||item.updatedAt},'state',[gear.phase,gear.handover],{kind:'change',title:item.title,body:`المعدة: ${S.phases[gear.phase]} · ${S.handovers[gear.handover]}`});
       }
     }
-    for(const [id,item] of old)if(!fresh.has(id))news.push({kind:'remove',title:'حُذفت متابعة',body:item.title});
+    for(const [id,item] of old)if(!fresh.has(id))emit('item',item,'removed',true,{kind:'remove',title:'حُذفت متابعة',body:item.title});
     const oldLetters=new Map((before?.letters||[]).map(letter=>[letter.id,letter]));
     for(const letter of after?.letters||[]){
       const was=oldLetters.get(letter.id);
-      if(!was){news.push({kind:'add',title:'كتاب جديد',body:letter.title});continue;}
-      if(was.closure!==letter.closure)news.push({kind:'change',title:letter.title,body:`حالة الكتاب: ${S.closureStates[was.closure]} ← ${S.closureStates[letter.closure]}`});
-      else if(was.reply!==letter.reply)news.push({kind:'change',title:letter.title,body:`حالة الرد: ${S.replyStates[was.reply]} ← ${S.replyStates[letter.reply]}`});
-      else if(was.work!==letter.work)news.push({kind:'change',title:letter.title,body:`حالة العمل: ${S.workStates[was.work]} ← ${S.workStates[letter.work]}`});
-      else if(was.location!==letter.location)news.push({kind:'change',title:letter.title,body:`موقع الكتاب: ${letter.location||'غير مسجل'}`});
+      if(!was){emit('letter',letter,'created',letter.title,{kind:'add',title:'كتاب جديد',body:letter.title});continue;}
+      if(was.closure!==letter.closure)emit('letter',letter,'closure',letter.closure,{kind:'change',title:letter.title,body:`حالة الكتاب: ${S.closureStates[was.closure]} ← ${S.closureStates[letter.closure]}`});
+      else if(was.reply!==letter.reply)emit('letter',letter,'reply',letter.reply,{kind:'change',title:letter.title,body:`حالة الرد: ${S.replyStates[was.reply]} ← ${S.replyStates[letter.reply]}`});
+      else if(was.work!==letter.work)emit('letter',letter,'work',letter.work,{kind:'change',title:letter.title,body:`حالة العمل: ${S.workStates[was.work]} ← ${S.workStates[letter.work]}`});
+      else if(was.location!==letter.location)emit('letter',letter,'location',letter.location,{kind:'change',title:letter.title,body:`موقع الكتاب: ${letter.location||'غير مسجل'}`});
     }
     const oldJobs=new Map((before?.jobs||[]).map(job=>[job.id,job]));
     for(const job of after?.jobs||[]){
       const was=oldJobs.get(job.id);
-      if(!was){news.push({kind:'add',title:'عمل جديد',body:`${S.jobKinds[job.kind]} — ${job.title}`});continue;}
-      if(was.state!==job.state)news.push({kind:'change',title:job.title,body:`حالة العمل: ${S.jobStates[was.state]} ← ${S.jobStates[job.state]}`});
-      else if(was.dueDate!==job.dueDate)news.push({kind:'change',title:job.title,body:`الموعد المتوقع: ${shortDate(job.dueDate)}`});
-      else if(was.owner!==job.owner)news.push({kind:'change',title:job.title,body:`المسؤول: ${job.owner||'غير مسجل'}`});
+      if(!was){emit('job',job,'created',job.title,{kind:'add',title:'عمل جديد',body:`${S.jobKinds[job.kind]} — ${job.title}`});continue;}
+      if(was.state!==job.state)emit('job',job,'state',job.state,{kind:'change',title:job.title,body:`حالة العمل: ${S.jobStates[was.state]} ← ${S.jobStates[job.state]}`});
+      else if(was.dueDate!==job.dueDate)emit('job',job,'dueDate',job.dueDate,{kind:'change',title:job.title,body:`الموعد المتوقع: ${shortDate(job.dueDate)}`});
+      else if(was.owner!==job.owner)emit('job',job,'owner',job.owner,{kind:'change',title:job.title,body:`المسؤول: ${job.owner||'غير مسجل'}`});
     }
     return news;
   }
@@ -199,9 +203,9 @@
       const first=!data;data=value;lastFetch=new Date();
       if(changed){render();window.dispatchEvent(new CustomEvent('workshop-data',{detail:data}));}
       setConnection(true);
-      if(news.length)window.WorkshopToast?.pushAll(news);
-      if(manual&&!news.length)notice('تمت قراءة Google Sheets؛ لا توجد تغييرات جديدة.');
-      else if(news.length)notice('');
+      const unseen=news.length ? window.WorkshopToast?.pushAll(news) || 0 : 0;
+      if(manual&&!unseen)notice('تمت قراءة Google Sheets؛ لا توجد تغييرات جديدة.');
+      else if(unseen)notice('');
       else if($('notice').classList.contains('error'))notice('');
     }catch(error){
       setConnection(false);

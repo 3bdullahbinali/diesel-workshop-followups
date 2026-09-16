@@ -17,6 +17,8 @@
   const jobHeaders=['معرّف العمل','الموضوع','الطرف','الجهة','نوع العمل','الحالة','المسؤول','تاريخ البدء','الموعد المتوقع','معرّف المتابعة','الملاحظات','آخر تعديل بتوقيت الإمارات'];
   const parties={outbound:'نقدّمه لجهة',inbound:'تقدّمه لنا جهة',internal:'داخلي'};
   const jobKinds={pending:'بيندنق جوب',ongoing:'عمل قائم',periodic:'صيانة دورية',support:'دعم وتوفير معدات'};
+  // تسميات العرض منفصلة عن قيم التخزين القديمة لتبقى الخدمة الحالية متوافقة.
+  const jobLabels={...jobKinds,pending:'الأعمال المطلوب إنجازها'};
   const jobStates={not_started:'لم يبدأ',in_progress:'قيد التنفيذ',awaiting_parts:'بانتظار قطع غيار',awaiting_party:'بانتظار الجهة',done:'اكتمل',cancelled:'ملغى'};
   // المعدات المستلمة للصيانة: ورقة اختيارية تُقرأ بالاسم وتُربط ببنود السجل.
   const equipmentSheetName='المعدات';
@@ -207,7 +209,7 @@
         title:text(row[1]),
         party:enumValue(row[2],parties,null,'طرف العمل في '+id),
         counterpart:text(row[3]),
-        kind:enumValue(row[4],jobKinds,null,'نوع العمل في '+id),
+        kind:enumValue(row[4]===jobLabels.pending?'pending':row[4],jobKinds,null,'نوع العمل في '+id),
         state:enumValue(row[5],jobStates,null,'حالة العمل في '+id),
         owner:text(row[6]),
         startDate:dateValue(row[7]),
@@ -278,5 +280,5 @@
     }
     return Object.fromEntries(entries);
   }
-  root.WorkshopSheets={load,merge,tableRows,dateValue,translationEntries,letterEntries,headers,sourceHeaders,optionalHeaders,letterHeaders,letterSheetName,equipmentHeaders,equipmentSheetName,jobHeaders,jobSheetName,stages,areas,actions,directions,workStates,replyStates,closureStates,phases,handovers,equipmentEntries,parties,jobKinds,jobStates,jobEntries};
+  root.WorkshopSheets={load,merge,tableRows,dateValue,translationEntries,letterEntries,headers,sourceHeaders,optionalHeaders,letterHeaders,letterSheetName,equipmentHeaders,equipmentSheetName,jobHeaders,jobSheetName,stages,areas,actions,directions,workStates,replyStates,closureStates,phases,handovers,equipmentEntries,parties,jobKinds:jobLabels,jobStates,jobEntries};
 })(globalThis);

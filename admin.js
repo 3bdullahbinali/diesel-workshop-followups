@@ -7,6 +7,7 @@
   const bases = {estimated:'تقديرية', quoted:'عرض سعر', recorded:'مسجلة'};
   const store = 'workshop-session';
   let endpoint = '', session = null, data = null, editing = null, busy = false, confirmTimer = 0, features = {};
+  let authRevision = 0;
 
   const read = () => { try { return JSON.parse(localStorage.getItem(store) || 'null'); } catch { return null; } };
   const write = value => { try { value ? localStorage.setItem(store, JSON.stringify(value)) : localStorage.removeItem(store); } catch {} };
@@ -32,6 +33,7 @@
     return result;
   }
   function signedOut(message) {
+    authRevision++;
     session = null;
     write(null);
     sync();
@@ -49,6 +51,7 @@
   const canDelete = () => session?.user?.role === 'admin';
 
   function sync() {
+    $('sheet-access-panel').hidden = !session;
     $('admin-open').hidden = Boolean(session);
     $('admin-session').hidden = !session;
     $('admin-add').hidden = !session;
@@ -447,12 +450,14 @@
     if (busy) return;
     const username = $('admin-username').value.trim(), password = $('admin-password').value;
     if (!username || !password) { say('admin-login-error', 'اكتب اسم المستخدم وكلمة المرور.'); return; }
+    const attempt = ++authRevision;
     say('admin-login-error', '');
     busy = true;
     $('admin-login-submit').disabled = true;
     $('admin-login-label').textContent = I.t('جارٍ التحقق…');
     try {
       const result = await api('login', {username, password});
+      if (attempt !== authRevision) return;
       session = {token: result.token, user: result.user, expiresAt: result.expiresAt};
       features = result.features || {};
       write(session);
@@ -478,16 +483,17 @@
     const saved = read();
     if (!saved?.token) return;
     if (saved.expiresAt && Date.parse(saved.expiresAt) <= Date.now()) { write(null); return; }
-    session = saved;
-    sync();
+    // لا نظهر روابط الإدارة قبل التحقق من الجلسة المحفوظة لدى الخدمة.
+    const attempt = authRevision;
     try {
       const result = await api('session', {token: saved.token});
+      if (attempt !== authRevision) return;
       features = result.features || {};
       session = {token: saved.token, user: result.user, expiresAt: result.expiresAt};
       write(session);
       sync();
     } catch {
-      signedOut('انتهت الجلسة، سجّل الدخول من جديد.');
+      if (attempt === authRevision) signedOut('انتهت الجلسة، سجّل الدخول من جديد.');
     }
   }
   window.WorkshopAdmin = {

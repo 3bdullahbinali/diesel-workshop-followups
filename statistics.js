@@ -164,7 +164,7 @@
     list.push({title:'طلبات الشراء', note:'من الإعداد حتى الاستلام', body:
       `<div class="stat-hero stat-hero-small">${card('طلبات قائمة', s.purchase.open, 'لم تُغلق بعد')}${card('بانتظار العروض', s.purchase.quotes)}${card('بانتظار التوريد', s.purchase.delivery)}${card('طلبات مغلقة', s.purchase.total - s.purchase.open)}</div>` +
       amountHint(s)});
-    if (s.jobs) list.push({title:'البيندنق جوب والأعمال القائمة', note:'ما نقدّمه لجهات أخرى وما يُقدّم لنا', body:
+    if (s.jobs) list.push({title:'الأعمال المطلوب إنجازها والأعمال القائمة', note:'ما نقدّمه لجهات أخرى وما يُقدّم لنا', body:
       `<div class="stat-hero stat-hero-small">${card('أعمال قائمة', s.jobs.running)}${card('اكتملت', s.jobs.done)}${card('إجمالي الأعمال', s.jobs.total)}</div>` + bars('حسب الطرف', s.jobs.parties)});
     if (s.letters) list.push({title:'المراسلات', note:'الصادر والوارد وحالة الإغلاق', body:
       `<div class="stat-hero stat-hero-small">${card('صادر', s.letters.out)}${card('وارد', s.letters.in)}${card('بانتظار رد جهة', s.letters.awaitingReply)}${card('مغلقة', s.letters.closed)}</div>`});
