@@ -68,11 +68,11 @@
       const old=prior.get(id),item=old?copy(old):{id,baseIds:[],kind:'new',sources:[],history:[],evidence:'sheet'};
       const info=dateValue(row[6]);
       if(!info||!text(row[1]))return fail('الموضوع أو تاريخ المعلومة مفقود في بند '+id+'.');
-      Object.assign(item,{title:text(row[1]),priority:enumValue(row[2],priorities,old?.priority,'الأولوية'),stage:enumValue(row[3],stages,old?.stage,'الحالة'),action:text(row[4]),owner:text(row[5]),informationDate:info,status:text(row[10]),followUpWith:text(row[11]),group:enumValue(row[12],groupMap,old?.group,'التصنيف'),dueDate:dateValue(row[13]),reference:text(row[15]),notes:text(row[16])});
+      Object.assign(item,{title:text(row[1]),priority:enumValue(row[2],priorities,old?.priority,'الأولوية في بند '+id),stage:enumValue(row[3],stages,old?.stage,'الحالة في بند '+id),action:text(row[4]),owner:text(row[5]),informationDate:info,status:text(row[10]),followUpWith:text(row[11]),group:enumValue(row[12],groupMap,old?.group,'التصنيف في بند '+id),dueDate:dateValue(row[13]),reference:text(row[15]),notes:text(row[16])});
       // المجال والإجراء عند يرجعان إلى النسخة المجهزة عند خلو الخلية، حتى تعمل
       // الصفحة قبل تعبئة الأعمدة الجديدة؛ أما العائق فالشيت مرجعه عند وجود عموده.
-      if(text(row[23]))item.area=enumValue(row[23],areas,old?.area,'المجال');
-      if(text(row[24]))item.actionAt=enumValue(row[24],actions,old?.actionAt,'الإجراء عند');
+      if(text(row[23]))item.area=enumValue(row[23],areas,old?.area,'المجال في بند '+id);
+      if(text(row[24]))item.actionAt=enumValue(row[24],actions,old?.actionAt,'الإجراء عند في بند '+id);
       if(row.length>25){const blocker=text(row[25]);if(blocker)item.blocker=blocker;else delete item.blocker;}
       const edited=dateValue(row[14],true);
       // Import/display rounding must never change an existing record's timestamp.
@@ -81,16 +81,18 @@
       if(row.slice(7,10).some(v=>v!=null&&v!=='')||row.slice(17).some(v=>v!=null&&v!=='')||old?.procurement){
         const meta=old?.procurement?copy(old.procurement):{linkedItemIds:[]};
         const rawKind=text(row[17]);
+        // خلية فارغة في بند شراء تُستنتج من أرقامه بدل أن تُسقط قراءة السجل كله.
+        const guessedKind=text(row[7])?'pr':text(row[20])?'lpo':'unregistered';
         // The prepared file retains raw values for legacy procurement kinds.
-        meta.kind=rawKind===old?.procurement?.kind?rawKind:enumValue(rawKind,{...kinds,unregistered:'طلب غير مرقم',dpr:'طلب مباشر',cancelled:'ملغى',lpo_only:'أمر توريد'},old?.procurement?.kind,'نوع طلب الشراء');
+        meta.kind=!rawKind?(old?.procurement?.kind||guessedKind):rawKind===old?.procurement?.kind?rawKind:enumValue(rawKind,{...kinds,unregistered:'طلب غير مرقم',dpr:'طلب مباشر',cancelled:'ملغى',lpo_only:'أمر توريد'},old?.procurement?.kind,'نوع طلب الشراء في بند '+id);
         if(rawKind==='طلب غير مرقم' && !['request','unnumbered'].includes(old?.procurement?.kind))meta.kind='unregistered';
         if(rawKind==='أمر توريد' && old?.procurement?.kind!=='lpo')meta.kind='lpo_only';
-        meta.stage=enumValue(row[18],stages,old?.procurement?.stage,'مرحلة الشراء');
+        meta.stage=text(row[18])?enumValue(row[18],stages,old?.procurement?.stage,'مرحلة الشراء في بند '+id):(old?.procurement?.stage||item.stage);
         meta.prNumber=text(row[7])||null;meta.budgetCode=text(row[9])||null;
         meta.numberType=text(row[19])||null;meta.lpoNumber=text(row[20])||null;
         meta.amountAed=row[8]==null||row[8]===''?null:Number(text(row[8]).replaceAll(',',''));
         if(meta.amountAed!==null&&(!Number.isFinite(meta.amountAed)||meta.amountAed<0))return fail('قيمة مالية غير صالحة في بند '+id+'.');
-        meta.amountBasis=text(row[21])?enumValue(row[21],bases,old?.procurement?.amountBasis,'أساس القيمة'):null;
+        meta.amountBasis=text(row[21])?enumValue(row[21],bases,old?.procurement?.amountBasis,'أساس القيمة في بند '+id):null;
         if(text(row[22])||Object.hasOwn(meta,'amountNote'))meta.amountNote=text(row[22])||null;
         for(const key of Object.keys(meta))if(meta[key]===null&&old?.procurement&&!Object.hasOwn(old.procurement,key))delete meta[key];
         item.procurement=meta;
