@@ -104,6 +104,7 @@
       const value=await window.WorkshopSheets.load(sheetConfig,snapshot);
       if(!validPayload(value))throw new Error('invalid');
       const changed=!data || JSON.stringify(data)!==JSON.stringify(value);
+      if(value.translations && JSON.stringify(value.translations)!==JSON.stringify(data?.translations)) I.setTranslations(value.translations);
       const first=!data;data=value;lastFetch=new Date();
       if(changed){render();window.dispatchEvent(new CustomEvent('workshop-data',{detail:data}));}
       setConnection(true);

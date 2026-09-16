@@ -78,5 +78,7 @@
   $('pr-records').addEventListener('click',event=>{const button=event.target.closest('[data-pr-item]');if(!button)return;const id=button.dataset.prItem,open=!expanded.has(id);if(open)expanded.add(id);else expanded.delete(id);button.setAttribute('aria-expanded',String(open));$('pr-detail-'+id).hidden=!open;if(open)window.WorkshopMotion?.reveal($('pr-detail-'+id).querySelector('.detail-grid'),'detail');});
   const viewFromHash=()=>location.hash==='#purchase-orders'?'procurement':location.hash==='#non-purchase'?'non-purchase':location.hash==='#closed'?'closed':'overview';
   window.addEventListener('hashchange',()=>selectView(viewFromHash(),false));
+  // Reformat locale-dependent dates and refresh bilingual search results immediately.
+  window.addEventListener('workshop-language',()=>{renderFilters();renderRows();});
   selectView(viewFromHash(),false);
 })();

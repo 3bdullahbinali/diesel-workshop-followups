@@ -404,6 +404,7 @@
     adoptCollection();
   });
   window.addEventListener('workshop-language', () => { if (dialog.open) render(); });
+  window.addEventListener('workshop-translations', () => { if (dialog.open) render(); });
   if (!document.documentElement.requestFullscreen) $('presentation-fullscreen').hidden = true;
   fullscreenLabel();
   // ?display=1 opens the register straight into the running display for wall screens.

@@ -99,7 +99,7 @@
     return result;
   }
   let requestNo=0;
-  function query(sheetId,tabId,range){
+  function query(sheetId,tabId,range,timeout=25000){
     return new Promise((resolve,reject)=>{
       const name='workshopSheetsResponse'+(++requestNo),script=document.createElement('script');
       let done=false;
@@ -110,7 +110,7 @@
         else{delete root[name];resolve(response);}
       };
       root[name]=response=>finish(null,response);
-      const timer=setTimeout(()=>finish(new Error('تعذر الوصول إلى ملف Google Sheets.')),25000);
+      const timer=setTimeout(()=>finish(new Error('تعذر الوصول إلى ملف Google Sheets.')),timeout);
       const url=new URL('https://docs.google.com/spreadsheets/d/'+encodeURIComponent(sheetId)+'/gviz/tq');
       url.search=new URLSearchParams({gid:String(tabId),headers:'1',range,tqx:'out:json;responseHandler:'+name,tq:'select *',_t:String(Date.now())});
       script.src=url.href;script.referrerPolicy='no-referrer';
@@ -119,8 +119,25 @@
     });
   }
   async function load(config,snapshot){
-    const [main,refs]=await Promise.all([query(config.spreadsheetId,config.mainSheetId,'A1:W5001'),query(config.spreadsheetId,config.sourceSheetId,'A1:E20001')]);
-    return merge(snapshot,tableRows(main,headers),tableRows(refs,sourceHeaders));
+    const translations = config.translationSheetId == null ? Promise.resolve(null) :
+      query(config.spreadsheetId,config.translationSheetId,'A1:B5001',6000)
+        .then(response=>translationEntries(tableRows(response,['النص العربي','English'])))
+        .catch(()=>null); // A translation outage must not suppress current operational records.
+    const [main,refs,english]=await Promise.all([query(config.spreadsheetId,config.mainSheetId,'A1:W5001'),query(config.spreadsheetId,config.sourceSheetId,'A1:E20001'),translations]);
+    const result=merge(snapshot,tableRows(main,headers),tableRows(refs,sourceHeaders));
+    result.translations=english;
+    return result;
   }
-  root.WorkshopSheets={load,merge,tableRows,dateValue,headers,sourceHeaders,stages};
+  function translationEntries(rows){
+    const entries=new Map();
+    for(const row of rows){
+      const source=text(row[0]),target=text(row[1]);
+      if(!source||!target)continue;
+      if(/[\u0621-\u063a\u0641-\u064a]/.test(target))continue;
+      if(entries.has(source)&&entries.get(source)!==target)throw new Error('Conflicting English translations');
+      entries.set(source,target);
+    }
+    return Object.fromEntries(entries);
+  }
+  root.WorkshopSheets={load,merge,tableRows,dateValue,translationEntries,headers,sourceHeaders,stages};
 })(globalThis);
