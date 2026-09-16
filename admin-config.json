@@ -1,4 +1,4 @@
 {
-  "apiUrl": "",
-  "note": "ضع هنا رابط /exec الخاص بتطبيق الويب من Apps Script. ما دام فارغاً يبقى الموقع للقراءة فقط بلا زر دخول."
+  "apiUrl": "https://script.google.com/macros/s/AKfycby87UOmRi0JLeXy2u29uyqR7D0ECQBSJ4yxO4rnCIiJaY8YyfxmTVpwCpwp4iFJGcWF8w/exec",
+  "note": "رابط تطبيق الويب من Apps Script. الرابط عام بطبيعته ولا ينفّذ أي كتابة قبل التحقق من اسم المستخدم وكلمة المرور والصلاحية. أفرغه ليعود الموقع للقراءة فقط."
 }
