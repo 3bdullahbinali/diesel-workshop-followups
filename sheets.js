@@ -78,7 +78,8 @@
       // Import/display rounding must never change an existing record's timestamp.
       item.updatedAt=old?.updatedAt && edited && Math.floor(Date.parse(old.updatedAt)/60000)===Math.floor(Date.parse(edited)/60000)?old.updatedAt:edited;
       if(old && (item.informationDate!==old.informationDate||item.status!==old.status))item.evidence='sheet';
-      if(row.slice(7,10).some(v=>v!=null&&v!=='')||row.slice(17).some(v=>v!=null&&v!=='')||old?.procurement){
+      // أعمدة الشراء وحدها (17..22)؛ المدى يمتد إلى Z فلا يصح تركها مفتوحة.
+      if(row.slice(7,10).some(v=>v!=null&&v!=='')||row.slice(17,23).some(v=>v!=null&&v!=='')||old?.procurement){
         const meta=old?.procurement?copy(old.procurement):{linkedItemIds:[]};
         const rawKind=text(row[17]);
         // خلية فارغة في بند شراء تُستنتج من أرقامه بدل أن تُسقط قراءة السجل كله.

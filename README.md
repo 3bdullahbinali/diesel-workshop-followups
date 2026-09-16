@@ -132,6 +132,7 @@
 ```
 node tools/bump-version.js       # يرفع إصدار كل ملفات الموقع دفعة واحدة
 node tools/verify-release.js     # الملفات والإصدارات وتطابق القيم مع الخدمة
+node tools/test-reader.js        # قراءة الشيت: أعمدة الشراء والتشغيل والقيم الناقصة
 node apps-script/test/run.js     # الخدمة كاملة في بيئة محاكية
 ```
 
