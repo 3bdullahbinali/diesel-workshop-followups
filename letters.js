@@ -6,11 +6,13 @@
   const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const normal = value => String(value ?? '').toLowerCase().replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/[ً-ٟ]/g,'').trim();
   const shortDate = value => value ? String(value).slice(0,10).split('-').reverse().join(' / ') : 'غير مسجل';
-  let letters = null, items = [], direction = 'all', query = '';
+  let letters = null, items = [], direction = 'all', state = 'all', query = '';
 
   const open = letter => letter.closure !== 'closed';
   function matches(letter) {
     if (direction !== 'all' && letter.direction !== direction) return false;
+    if (state === 'open' && letter.closure === 'closed') return false;
+    if (state !== 'all' && state !== 'open' && letter.closure !== state) return false;
     if (!query) return true;
     return normal(I.search([letter.title, letter.reference, letter.party, letter.location, letter.action])).includes(normal(query));
   }
@@ -50,7 +52,10 @@
     const total = counts();
     $('letters-filters').innerHTML = [['all','جميع الكتب'],['out','صادر'],['in','وارد']].map(([id,label]) =>
       `<button type="button" data-direction="${id}" class="filter-button ${direction===id?'active':''}" aria-pressed="${direction===id}">${escape(label)}<span class="filter-count">${total[id]}</span></button>`).join('');
-    $('letters-count').textContent = query || direction !== 'all' ? `${visible.length} / ${letters.length}` : letters.length;
+    const byState = {all:letters.length, open:letters.filter(open).length, pending:letters.filter(l=>l.closure==='pending').length, closed:letters.filter(l=>l.closure==='closed').length};
+    $('letters-states').innerHTML = [['all','كل الحالات'],['open','مفتوحة'],['pending','بانتظار الإغلاق'],['closed','مغلقة']].map(([id,label]) =>
+      `<button type="button" data-state="${id}" class="filter-button ${state===id?'active':''}" aria-pressed="${state===id}">${escape(label)}<span class="filter-count">${byState[id]}</span></button>`).join('');
+    $('letters-count').textContent = query || direction !== 'all' || state !== 'all' ? `${visible.length} / ${letters.length}` : letters.length;
     $('letters-grid').innerHTML = visible.map(card).join('');
     $('letters-grid').hidden = visible.length === 0;
     $('letters-empty').hidden = visible.length !== 0;
@@ -80,6 +85,12 @@
     const button = event.target.closest('button[data-direction]');
     if (!button) return;
     direction = button.dataset.direction;
+    render();
+  });
+  $('letters-states').addEventListener('click', event => {
+    const button = event.target.closest('button[data-state]');
+    if (!button) return;
+    state = button.dataset.state;
     render();
   });
   $('letters-search').addEventListener('input', event => { query = event.target.value; render(); });

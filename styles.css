@@ -86,3 +86,18 @@ html[dir=rtl] .letter-top .edit-button{margin:0 auto 0 0}
 .detail-equipment{border-inline-start:3px solid #7fa2c4;padding-inline-start:14px}
 .detail-equipment p{margin:0 0 4px}
 .detail-equipment strong{color:#35597d}
+
+/* إشعارات التحديث: تطفو أعلى الصفحة ولا تحجب المحتوى. */
+.toast-shelf{position:fixed;top:14px;inset-inline:0;z-index:40;display:flex;flex-direction:column;align-items:center;gap:9px;pointer-events:none;padding:0 12px}
+.toast{pointer-events:auto;display:flex;align-items:flex-start;gap:12px;width:min(520px,100%);padding:12px 15px;border-radius:10px;border:1px solid #cfded5;background:#ffffffeb;backdrop-filter:blur(8px);box-shadow:0 10px 30px #12382e1f;color:var(--ink)}
+.toast[data-kind=add]{border-inline-start:3px solid #3f7f5f}
+.toast[data-kind=change]{border-inline-start:3px solid var(--gold)}
+.toast[data-kind=remove]{border-inline-start:3px solid #b07a6d}
+.toast-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.toast-text strong{font-size:.9375rem;line-height:1.6}
+.toast-text span{font-size:.8125rem;color:var(--muted);line-height:1.7;overflow-wrap:anywhere}
+.toast-close{width:28px;height:28px;flex:none;display:grid;place-items:center;border:0;border-radius:6px;background:none;color:#7b8c84;cursor:pointer}
+.toast-close:hover{background:#eef2f0;color:var(--ink)}
+.toast-close svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+@media(max-width:700px){.toast-shelf{top:8px;gap:7px}.toast{padding:10px 13px}}
+@media print{.toast-shelf{display:none!important}}

@@ -127,6 +127,49 @@
     $('fetch-time').textContent = lastFetch ? 'آخر قراءة من Google Sheets '+time(lastFetch)+' · تحديث كل 30 ثانية' : '';
     $('sheet-status').textContent = ok ? 'البيانات مقروءة من ملف المتابعات في Google Sheets. تتجدد أثناء فتح الشاشة.' : data?.connectionSource==='google-sheets' ? 'تعذرت القراءة الجديدة من Google Sheets؛ تُعرض آخر قراءة ناجحة لحين عودة الاتصال.' : 'إعداد الربط جاهز؛ لم تنجح القراءة المباشرة من Google Sheets بعد. البيانات الظاهرة نسخة محفوظة، وليست تأكيداً لنجاح الربط.';
   }
+  // وصف ما تغيّر فعلاً بين قراءتين، ليظهر كإشعارات بدل رسالة عامة.
+  function describe(before,after){
+    const S=window.WorkshopSheets, P=window.WorkshopProcurement;
+    const old=new Map((before?.items||[]).map(item=>[item.id,item]));
+    const fresh=new Map((after?.items||[]).map(item=>[item.id,item]));
+    const news=[];
+    const fields=[
+      ['stage','الحالة',v=>S.stages[v]||v],
+      ['priority','الأولوية',v=>({high:'عالية',medium:'متوسطة',low:'منخفضة'}[v]||v)],
+      ['actionAt','الإجراء عند',v=>S.actions[v]||'لم يحدد'],
+      ['owner','المسؤول',v=>v],
+      ['action','الإجراء المطلوب',v=>v],
+      ['status','تفاصيل الحالة',v=>v],
+      ['blocker','العائق',v=>v||'—'],
+      ['informationDate','تاريخ المعلومة',v=>shortDate(v)],
+      ['dueDate','الموعد المرتبط',v=>shortDate(v)]
+    ];
+    for(const [id,item] of fresh){
+      const was=old.get(id);
+      if(!was){news.push({kind:'add',title:'متابعة جديدة',body:item.title});continue;}
+      for(const [key,label,show] of fields){
+        if((was[key]||'')===(item[key]||''))continue;
+        news.push({kind:'change',title:item.title,body:`${label}: ${show(was[key])} ← ${show(item[key])}`});
+      }
+      const wasStage=was.procurement?.stage, nowStage=item.procurement?.stage;
+      if(wasStage!==nowStage&&nowStage)news.push({kind:'change',title:item.title,body:`مرحلة الشراء: ${P.stageLabels[wasStage]||'—'} ← ${P.stageLabels[nowStage]}`});
+      const wasGear=was.equipment, gear=item.equipment;
+      if(gear&&(!wasGear||wasGear.phase!==gear.phase||wasGear.handover!==gear.handover)){
+        news.push({kind:'change',title:item.title,body:`المعدة: ${S.phases[gear.phase]} · ${S.handovers[gear.handover]}`});
+      }
+    }
+    for(const [id,item] of old)if(!fresh.has(id))news.push({kind:'remove',title:'حُذفت متابعة',body:item.title});
+    const oldLetters=new Map((before?.letters||[]).map(letter=>[letter.id,letter]));
+    for(const letter of after?.letters||[]){
+      const was=oldLetters.get(letter.id);
+      if(!was){news.push({kind:'add',title:'كتاب جديد',body:letter.title});continue;}
+      if(was.closure!==letter.closure)news.push({kind:'change',title:letter.title,body:`حالة الكتاب: ${S.closureStates[was.closure]} ← ${S.closureStates[letter.closure]}`});
+      else if(was.reply!==letter.reply)news.push({kind:'change',title:letter.title,body:`حالة الرد: ${S.replyStates[was.reply]} ← ${S.replyStates[letter.reply]}`});
+      else if(was.work!==letter.work)news.push({kind:'change',title:letter.title,body:`حالة العمل: ${S.workStates[was.work]} ← ${S.workStates[letter.work]}`});
+      else if(was.location!==letter.location)news.push({kind:'change',title:letter.title,body:`موقع الكتاب: ${letter.location||'غير مسجل'}`});
+    }
+    return news;
+  }
   function notice(message,isError=false){$('notice').textContent=message;$('notice').hidden=!message;$('notice').className='notice'+(isError?' error':'');}
   async function fetchData(manual=false){
     if(fetching)return;
@@ -143,12 +186,14 @@
       const value=await window.WorkshopSheets.load(sheetConfig,snapshot);
       if(!validPayload(value))throw new Error('invalid');
       const changed=!data || JSON.stringify(data)!==JSON.stringify(value);
+      const news=changed&&data?describe(data,value):[];
       if(value.translations && JSON.stringify(value.translations)!==JSON.stringify(data?.translations)) I.setTranslations(value.translations);
       const first=!data;data=value;lastFetch=new Date();
       if(changed){render();window.dispatchEvent(new CustomEvent('workshop-data',{detail:data}));}
       setConnection(true);
-      if(manual)notice(changed&&!first?'وصلت تحديثات جديدة من Google Sheets.':'تمت قراءة Google Sheets؛ لا توجد تغييرات جديدة.');
-      else if(changed&&!first)notice('تم تحديث السجل من Google Sheets.');
+      if(news.length)window.WorkshopToast?.pushAll(news);
+      if(manual&&!news.length)notice('تمت قراءة Google Sheets؛ لا توجد تغييرات جديدة.');
+      else if(news.length)notice('');
       else if($('notice').classList.contains('error'))notice('');
     }catch(error){
       setConnection(false);
