@@ -9,19 +9,19 @@
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./motion.css">
-  <link rel="stylesheet" href="./presentation.css?v=display-5">
-  <link rel="stylesheet" href="./admin.css?v=admin-1">
+  <link rel="stylesheet" href="./presentation.css?v=display-6">
+  <link rel="stylesheet" href="./admin.css?v=admin-2">
   <title>متابعات شعبة ورشة الديزل</title>
-  <script src="./translations-en.js?v=display-5" defer></script>
+  <script src="./translations-en.js?v=display-6" defer></script>
   <script src="./i18n.js" defer></script>
   <script src="./record-time.js" defer></script>
   <script src="./motion.js" defer></script>
   <script src="./procurement-model.js" defer></script>
-  <script src="./presentation.js?v=display-5" defer></script>
-  <script src="./procurement.js?v=display-5" defer></script>
+  <script src="./presentation.js?v=display-6" defer></script>
+  <script src="./procurement.js?v=display-6" defer></script>
   <script src="./sheets.js" defer></script>
-  <script src="./app.js?v=display-5" defer></script>
-  <script src="./admin.js?v=admin-1" defer></script>
+  <script src="./app.js?v=display-6" defer></script>
+  <script src="./admin.js?v=admin-2" defer></script>
 </head>
 <body>
   <div class="ambient-background" aria-hidden="true"><div class="ambient-art"></div></div>
@@ -66,7 +66,8 @@
     </section>
     <section class="records-section" id="records" aria-labelledby="records-title">
       <div class="records-heading"><h3 id="records-title">جميع المتابعات <span id="shown-count"></span></h3><span class="sort-hint">الأولوية الأعلى أولاً</span></div>
-      <div class="toolbar"><div class="group-filters" id="groups" role="group" aria-label="تصنيف المتابعات"></div><label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="search" type="search" autocomplete="off" placeholder="ابحث بالموضوع أو رقم الطلب" aria-label="البحث في المتابعات"></label></div>
+      <div class="focus-bar"><div class="group-filters focus-filters" id="focus-filters" role="group" aria-label="من عنده الإجراء"></div></div>
+      <div class="toolbar"><div class="group-filters" id="groups" role="group" aria-label="تصنيف المتابعات"></div><select id="area-filter" class="area-filter" aria-label="تصفية حسب مجال العمل" hidden></select><label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="search" type="search" autocomplete="off" placeholder="ابحث بالموضوع أو رقم الطلب" aria-label="البحث في المتابعات"></label></div>
       <div class="table-wrap"><table class="records-table"><caption class="sr-only">المتابعات مرتبة بالأولوية، مع الحالة والإجراء والمسؤول وتاريخ آخر معلومة.</caption><thead><tr><th class="number-col" scope="col">#</th><th scope="col">الموضوع والمرجع</th><th scope="col">الأولوية والحالة</th><th scope="col">الإجراء المطلوب</th><th scope="col">آخر معلومة</th><th class="expand-col" scope="col"><span class="sr-only">التفاصيل</span></th></tr></thead><tbody id="rows"><tr><td colspan="6" class="loading-cell">جارٍ تحميل المتابعات…</td></tr></tbody></table></div>
       <div class="empty-state" id="empty" hidden><h4 id="empty-title">لا توجد متابعات مطابقة</h4><p id="empty-description">جرّب رقماً أو كلمة أخرى، أو ارجع إلى جميع المتابعات.</p><button class="refresh-button" id="clear-filters" type="button">عرض جميع المتابعات</button></div>
     </section>
@@ -95,9 +96,9 @@
       <div class="presentation-stage">
         <article id="presentation-card" class="presentation-card" tabindex="0" aria-labelledby="presentation-item-title" aria-live="off">
           <div class="presentation-card-top"><span id="presentation-reference" dir="auto"></span><div class="presentation-badges"><span id="presentation-priority"></span><span id="presentation-status-badge"></span></div></div>
-          <h3 id="presentation-item-title" dir="auto"></h3>
+          <h3 id="presentation-item-title" dir="auto"></h3><p id="presentation-blocker" class="presentation-blocker" dir="auto" hidden></p>
           <div class="presentation-detail-grid"><section class="presentation-status"><h4 data-present-label="آخر حالة مسجلة">آخر حالة مسجلة</h4><p id="presentation-status" dir="auto"></p></section><section class="presentation-action"><h4 data-present-label="الإجراء المطلوب">الإجراء المطلوب</h4><p id="presentation-action" dir="auto"></p></section></div>
-          <dl class="presentation-meta"><div><dt data-present-label="المسؤول">المسؤول</dt><dd id="presentation-owner" dir="auto"></dd></div><div><dt data-present-label="آخر معلومة">آخر معلومة</dt><dd><time id="presentation-information"></time></dd></div><div><dt data-present-label="آخر تعديل للبند">آخر تعديل للبند</dt><dd><time id="presentation-updated"></time><small data-present-label="بتوقيت الإمارات">بتوقيت الإمارات</small></dd></div></dl>
+          <dl class="presentation-meta"><div><dt data-present-label="المسؤول">المسؤول</dt><dd id="presentation-owner" dir="auto"></dd><small id="presentation-action-at"></small></div><div><dt data-present-label="آخر معلومة">آخر معلومة</dt><dd><time id="presentation-information"></time></dd></div><div><dt data-present-label="آخر تعديل للبند">آخر تعديل للبند</dt><dd><time id="presentation-updated"></time><small data-present-label="بتوقيت الإمارات">بتوقيت الإمارات</small></dd></div></dl>
         </article>
         <div id="presentation-empty" class="presentation-empty" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h5M8 16h3"/></svg><h3 data-present-label="لا توجد متابعات للعرض">لا توجد متابعات للعرض</h3><p data-present-label="ارجع إلى الجدول واختر تبويباً أو غيّر البحث والتصنيف.">ارجع إلى الجدول واختر تبويباً أو غيّر البحث والتصنيف.</p></div>
       </div>
@@ -128,6 +129,8 @@
         <label class="admin-field"><span>الأولوية</span><select id="admin-priority"></select></label>
         <label class="admin-field"><span>الحالة</span><select id="admin-stage"></select></label>
         <label class="admin-field"><span>التصنيف</span><select id="admin-group"></select></label>
+        <label class="admin-field admin-operational"><span>المجال</span><select id="admin-area"></select></label>
+        <label class="admin-field admin-operational"><span>الإجراء عند</span><select id="admin-action-at"></select></label>
         <label class="admin-field"><span>المسؤول</span><input id="admin-owner" maxlength="120" required></label>
         <label class="admin-field"><span>تاريخ المعلومة</span><input id="admin-information" type="date" required></label>
         <label class="admin-field"><span>الموعد المرتبط</span><input id="admin-due" type="date"></label>
@@ -135,6 +138,7 @@
         <label class="admin-field admin-wide-field"><span>تفاصيل الحالة</span><textarea id="admin-status" rows="3" maxlength="2000"></textarea></label>
         <label class="admin-field"><span>جهة المتابعة</span><input id="admin-follow" maxlength="200"></label>
         <label class="admin-field"><span>المرجع</span><input id="admin-reference" maxlength="300"></label>
+        <label class="admin-field admin-wide-field admin-operational"><span>العائق إن وجد</span><input id="admin-blocker" maxlength="500" placeholder="ما الذي يوقف التقدّم الآن؟"></label>
         <label class="admin-field admin-wide-field"><span>الملاحظات</span><textarea id="admin-notes" rows="2" maxlength="2000"></textarea></label>
       </div>
       <label class="admin-check"><input type="checkbox" id="admin-pr-enabled"><span>بند مرتبط بطلب شراء</span></label>

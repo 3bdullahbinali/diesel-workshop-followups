@@ -98,7 +98,9 @@
         "amountAed": 800,
         "amountBasis": "recorded",
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "team"
     },
     {
       "id": "base-2",
@@ -154,7 +156,9 @@
         "amountAed": 8400,
         "amountBasis": "recorded",
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "external"
     },
     {
       "id": "base-3",
@@ -359,7 +363,9 @@
             }
           ]
         }
-      ]
+      ],
+      "area": "procurement",
+      "actionAt": "external"
     },
     {
       "id": "base-4",
@@ -415,7 +421,9 @@
         "amountAed": null,
         "amountBasis": null,
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "external"
     },
     {
       "id": "base-5",
@@ -502,7 +510,9 @@
         "amountBasis": "quoted",
         "linkedItemIds": [],
         "amountNote": "عرض سعر قبل الضريبة؛ غير معتمد بعد"
-      }
+      },
+      "area": "procurement",
+      "actionAt": "team"
     },
     {
       "id": "base-6",
@@ -558,7 +568,9 @@
         "amountAed": null,
         "amountBasis": null,
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "external"
     },
     {
       "id": "base-7",
@@ -614,7 +626,9 @@
         "amountAed": 247627,
         "amountBasis": "estimated",
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "external"
     },
     {
       "id": "base-8",
@@ -672,7 +686,9 @@
         "linkedItemIds": [
           "base-9"
         ]
-      }
+      },
+      "area": "procurement",
+      "actionAt": "team"
     },
     {
       "id": "base-9",
@@ -723,7 +739,9 @@
         "parentItemId": "base-8",
         "prNumber": "10013813",
         "stage": "quotes"
-      }
+      },
+      "area": "procurement",
+      "actionAt": "team"
     },
     {
       "id": "base-10",
@@ -779,7 +797,9 @@
         "amountAed": null,
         "amountBasis": null,
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "external"
     },
     {
       "id": "base-11",
@@ -835,7 +855,9 @@
         "amountAed": null,
         "amountBasis": null,
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "external"
     },
     {
       "id": "base-12",
@@ -891,7 +913,9 @@
         "amountAed": null,
         "amountBasis": null,
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "external"
     },
     {
       "id": "base-13",
@@ -947,7 +971,9 @@
         "amountAed": null,
         "amountBasis": null,
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "external"
     },
     {
       "id": "base-14",
@@ -1003,7 +1029,9 @@
         "amountAed": null,
         "amountBasis": null,
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "external"
     },
     {
       "id": "base-15",
@@ -1059,7 +1087,9 @@
         "amountAed": null,
         "amountBasis": null,
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "team"
     },
     {
       "id": "base-16",
@@ -1151,7 +1181,9 @@
         "amountAed": null,
         "amountBasis": null,
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "external"
     },
     {
       "id": "base-17",
@@ -1219,7 +1251,9 @@
         "amountAed": 3790,
         "amountBasis": "recorded",
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "external"
     },
     {
       "id": "base-18",
@@ -1275,7 +1309,9 @@
         "amountAed": null,
         "amountBasis": null,
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "external"
     },
     {
       "id": "base-19",
@@ -1331,7 +1367,9 @@
         "amountAed": null,
         "amountBasis": null,
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "team"
     },
     {
       "id": "base-20",
@@ -1376,7 +1414,9 @@
         "ahmedUpdate": "Waiting",
         "updateDate": "",
         "remarks": "Safety-related item."
-      }
+      },
+      "area": "inventory",
+      "actionAt": "external"
     },
     {
       "id": "base-21",
@@ -1432,7 +1472,9 @@
         "amountAed": null,
         "amountBasis": null,
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "external"
     },
     {
       "id": "base-22",
@@ -1477,7 +1519,9 @@
         "ahmedUpdate": "In Progress",
         "updateDate": "",
         "remarks": ""
-      }
+      },
+      "area": "inventory",
+      "actionAt": "team"
     },
     {
       "id": "base-23",
@@ -1522,7 +1566,9 @@
         "ahmedUpdate": "Waiting",
         "updateDate": "",
         "remarks": ""
-      }
+      },
+      "area": "inventory",
+      "actionAt": "team"
     },
     {
       "id": "base-24",
@@ -1567,7 +1613,9 @@
         "ahmedUpdate": "In Progress",
         "updateDate": "",
         "remarks": "Test every truck separately before closure or BG release."
-      }
+      },
+      "area": "maintenance",
+      "actionAt": "team"
     },
     {
       "id": "base-25",
@@ -1612,7 +1660,9 @@
         "ahmedUpdate": "In Progress",
         "updateDate": "",
         "remarks": ""
-      }
+      },
+      "area": "maintenance",
+      "actionAt": "team"
     },
     {
       "id": "base-26",
@@ -1657,7 +1707,9 @@
         "ahmedUpdate": "Waiting",
         "updateDate": "",
         "remarks": "Completed awaiting closure."
-      }
+      },
+      "area": "maintenance",
+      "actionAt": "team"
     },
     {
       "id": "base-27",
@@ -1702,7 +1754,9 @@
         "ahmedUpdate": "In Progress",
         "updateDate": "",
         "remarks": ""
-      }
+      },
+      "area": "maintenance",
+      "actionAt": "team"
     },
     {
       "id": "base-28",
@@ -1747,7 +1801,9 @@
         "ahmedUpdate": "In Progress",
         "updateDate": "",
         "remarks": ""
-      }
+      },
+      "area": "maintenance",
+      "actionAt": "team"
     },
     {
       "id": "base-29",
@@ -1792,7 +1848,9 @@
         "ahmedUpdate": "In Progress",
         "updateDate": "",
         "remarks": "Two services per year are planned."
-      }
+      },
+      "area": "maintenance",
+      "actionAt": "team"
     },
     {
       "id": "base-30",
@@ -1837,7 +1895,9 @@
         "ahmedUpdate": "In Progress",
         "updateDate": "",
         "remarks": ""
-      }
+      },
+      "area": "inventory",
+      "actionAt": "team"
     },
     {
       "id": "base-31",
@@ -1883,7 +1943,9 @@
         "ahmedUpdate": "Waiting",
         "updateDate": "",
         "remarks": ""
-      }
+      },
+      "area": "vehicles",
+      "actionAt": "team"
     },
     {
       "id": "base-33",
@@ -1928,7 +1990,9 @@
         "ahmedUpdate": "Waiting",
         "updateDate": "",
         "remarks": ""
-      }
+      },
+      "area": "inventory",
+      "actionAt": "team"
     },
     {
       "id": "base-34",
@@ -1985,7 +2049,9 @@
         "ahmedUpdate": "Not Started",
         "updateDate": "",
         "remarks": ""
-      }
+      },
+      "area": "rain",
+      "actionAt": "team"
     },
     {
       "id": "base-35",
@@ -2030,7 +2096,9 @@
         "ahmedUpdate": "On Hold",
         "updateDate": "",
         "remarks": ""
-      }
+      },
+      "area": "admin",
+      "actionAt": "team"
     },
     {
       "id": "base-36",
@@ -2086,7 +2154,9 @@
         "amountAed": 90000,
         "amountBasis": "estimated",
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "team"
     },
     {
       "id": "base-37",
@@ -2141,7 +2211,9 @@
         "ahmedUpdate": "Waiting",
         "updateDate": "2026-09-09 00:00:00",
         "remarks": "27 pumps / 27 suction hoses. Delivery detail totals 2,120 m; main total is 2,700 m. Added pumps listed 4-inch, hoses/statistics 6-inch. All 27 entries have coordinates. Sheet marked Approved. Source: user confirmed email sent."
-      }
+      },
+      "area": "rain",
+      "actionAt": "me"
     },
     {
       "id": "base-38",
@@ -2196,7 +2268,9 @@
         "ahmedUpdate": "Waiting",
         "updateDate": "2026-09-09 00:00:00",
         "remarks": "26 pumps / 30 numeric suction hoses / 2,460 m delivery; delivery statistics show 760 m. Coordinates blank. Original email incorrectly greeted Sector 1; recipient is Sector 4. Correction draft prepared; dispatch not confirmed. Source: user emails and workbook review."
-      }
+      },
+      "area": "rain",
+      "actionAt": "external"
     },
     {
       "id": "new-torque",
@@ -2247,7 +2321,9 @@
         "amountAed": 2700,
         "amountBasis": "recorded",
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "external"
     },
     {
       "id": "new-hoses",
@@ -2292,7 +2368,10 @@
         "amountAed": 214480,
         "amountBasis": "estimated",
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "external",
+      "blocker": "يحتاج مناقلة مالية لعدم كفاية الموازنة في البند 222210."
     },
     {
       "id": "new-storz",
@@ -2378,7 +2457,9 @@
         "amountAed": 52850,
         "amountBasis": "estimated",
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "external"
     },
     {
       "id": "new-coupling-inventory",
@@ -2406,7 +2487,9 @@
           "type": "conversation"
         }
       ],
-      "history": []
+      "history": [],
+      "area": "inventory",
+      "actionAt": "unassigned"
     },
     {
       "id": "new-furniture",
@@ -2434,7 +2517,9 @@
           "type": "conversation"
         }
       ],
-      "history": []
+      "history": [],
+      "area": "admin",
+      "actionAt": "me"
     },
     {
       "id": "new-canopy-parts",
@@ -2473,7 +2558,9 @@
         "amountAed": null,
         "amountBasis": null,
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "team"
     },
     {
       "id": "new-air-cooling-fan-asset",
@@ -2558,7 +2645,9 @@
         "amountAed": 3600,
         "amountBasis": "estimated",
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "external"
     },
     {
       "id": "new-atlas-demo-aem2000913",
@@ -2616,7 +2705,9 @@
           "status": "تم تأكيد استلام مضخة واحدة عن طريق مكتب مدير خدمات المساندة؛ طُلب تقرير عن كفاءتها وفعاليتها ومدى مناسبتها لأعمال الشعبة.",
           "source": "توجيه المستخدم الأول في المحادثة الحالية"
         }
-      ]
+      ],
+      "area": "maintenance",
+      "actionAt": "team"
     },
     {
       "id": "new-ropes-waterproof-tape",
@@ -2662,7 +2753,9 @@
         "amountBasis": "estimated",
         "amountNote": "الحبال فقط؛ الشريط غير مسعّر",
         "linkedItemIds": []
-      }
+      },
+      "area": "procurement",
+      "actionAt": "external"
     }
   ]
 }

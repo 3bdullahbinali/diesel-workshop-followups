@@ -5,7 +5,18 @@
   const labels = {...window.WorkshopSheets.stages};
   const priorities = {high:'عالية',medium:'متوسطة',low:'منخفضة'};
   const rank = {high:0,medium:1,low:2};
-  let data = null, selectedGroup = 'all', query = '', lastFetch = null, fetching = false, poller = null, connected = false;
+  const areas = window.WorkshopSheets.areas, actionLabels = window.WorkshopSheets.actions;
+  const focusLabels = {all:'الكل', me:'مطلوب مني', team:'عند الفريق', external:'بانتظار جهة', due:'حان موعدها', blocked:'متعطل', unassigned:'لم يحدد الإجراء'};
+  const isClosed = item => window.WorkshopProcurement.isClosed(item) || item.stage==='cancelled';
+  const today = () => new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dubai'}).format(new Date());
+  function matchesFocus(item,focus){
+    if(focus==='all')return true;
+    if(isClosed(item))return false;
+    if(focus==='due')return Boolean(item.dueDate) && item.dueDate<=today();
+    if(focus==='blocked')return Boolean(item.blocker);
+    return item.actionAt===focus;
+  }
+  let data = null, selectedGroup = 'all', query = '', selectedFocus = 'all', selectedArea = '', lastFetch = null, fetching = false, poller = null, connected = false;
   let snapshot = null, sheetConfig = null;
   let overviewView = location.hash === '#non-purchase' ? 'non-purchase' : location.hash === '#closed' ? 'closed' : 'overview';
   const expanded = new Set();
@@ -29,21 +40,24 @@
   }
   function details(item){
     const source = item.sources.map(s => `<li><span class="source-title">${escape(s.title)}</span><span class="source-locator">${escape(s.locator)} · <bdi>${escape(shortDate(s.date))}</bdi></span></li>`).join('');
+    const blocked = item.blocker ? `<div class="detail-full detail-blocker"><h4>العائق</h4><p>${escape(item.blocker)}</p></div>` : '';
     const old = item.history?.length ? `<div class="detail-full"><h4>الحالة السابقة</h4>${item.history.map(h=>`<p><bdi>${escape(shortDate(h.date))}</bdi> — ${escape(h.status)}</p>`).join('')}</div>` : '';
     const base = item.baseIds?.length ? `بند السجل الأساسي: ${item.baseIds.join(' + ')}` : 'متابعة أحدث أُضيفت إلى السجل';
-    return `<tr class="detail-row" id="detail-${escape(item.id)}" ${expanded.has(item.id)?'':'hidden'}><td colspan="6"><div class="detail-grid"><div><h4>آخر حالة مسجلة</h4><p>${escape(item.status)}</p><p class="detail-meta">${escape(base)}${item.dueDate ? ' · الموعد المرتبط: '+escape(shortDate(item.dueDate)):''}</p></div><div><h4>جهة المتابعة</h4><p>${escape(item.followUpWith)}</p><p class="detail-meta">المسؤول: ${escape(item.owner)}</p></div>${item.notes?`<div class="detail-full"><h4>الملاحظات والتفاصيل</h4><p>${escape(item.notes)}</p></div>`:''}<div class="detail-full"><h4>المراجع — للرجوع والبحث</h4><ul class="sources">${source}</ul></div>${old}</div></td></tr>`;
+    return `<tr class="detail-row" id="detail-${escape(item.id)}" ${expanded.has(item.id)?'':'hidden'}><td colspan="6"><div class="detail-grid"><div><h4>آخر حالة مسجلة</h4><p>${escape(item.status)}</p><p class="detail-meta">${escape(base)}${item.dueDate ? ' · الموعد المرتبط: '+escape(shortDate(item.dueDate)):''}</p></div><div><h4>جهة المتابعة</h4><p>${escape(item.followUpWith)}</p><p class="detail-meta">المسؤول: ${escape(item.owner)}</p><p class="detail-meta">الإجراء عند: ${escape(actionLabels[item.actionAt]||'لم يحدد')}${item.area?' · المجال: '+escape(areas[item.area]):''}</p></div>${blocked}${item.notes?`<div class="detail-full"><h4>الملاحظات والتفاصيل</h4><p>${escape(item.notes)}</p></div>`:''}<div class="detail-full"><h4>المراجع — للرجوع والبحث</h4><ul class="sources">${source}</ul></div>${old}</div></td></tr>`;
   }
   function renderRows(){
     if(!data)return;
     const items = orderedItems();
     const indexed = items.map((item,i)=>({item,index:i+1}));
-    const visible = indexed.filter(({item}) => (selectedGroup === 'all' || item.group === selectedGroup) && (!query || normal(I.search([item.title,item.reference,item.owner,item.status,item.action,item.notes])).includes(normal(query))));
+    const base = indexed.filter(({item}) => (selectedGroup === 'all' || item.group === selectedGroup) && (!selectedArea || item.area === selectedArea) && (!query || normal(I.search([item.title,item.reference,item.owner,item.status,item.action,item.notes,item.blocker])).includes(normal(query))));
+    const visible = base.filter(({item}) => matchesFocus(item,selectedFocus));
+    renderFocus(base.map(({item})=>item));
     window.WorkshopPresentation?.setItems(overviewView, visible.map(({item})=>item), groupLabel(data.groups.find(g=>g.id===selectedGroup)));
     $('rows').innerHTML = visible.map(({item,index})=>{
       const isOld = item.evidence === 'baseline';
-      return `<tr class="record-row ${expanded.has(item.id)?'is-open':''}" id="row-${escape(item.id)}"><td class="number-cell"><span class="row-number">${index}</span></td><td class="topic-cell"><h4 class="item-title">${escape(item.title)}</h4><span class="reference" dir="auto">${escape(item.reference)}</span></td><td class="status-cell"><div class="badges"><span class="priority priority-${escape(item.priority)}">${priorities[item.priority]}</span></div><span class="stage stage-${escape(item.stage)}">${labels[item.stage]}</span></td><td class="action-cell"><p class="next-action">${escape(item.action)}</p><span class="owner">${escape(item.owner)}</span></td><td class="date-cell"><time class="information-date" datetime="${escape(item.informationDate)}">${escape(shortDate(item.informationDate))}</time><span class="date-note ${isOld?'':'current'}">${isOld?'حالة من السجل الأساسي':'تحديث مسجل'}</span><span class="purchase-sub record-edit-time"><span>آخر تعديل للبند</span>: <time translate="no" datetime="${escape(item.updatedAt || '')}">${escape(window.WorkshopRecordTime(item.updatedAt))}</time> <span>بتوقيت الإمارات</span></span></td><td class="expand-cell">${window.WorkshopAdmin?.canEdit()?`<button type="button" class="edit-button" data-edit="${escape(item.id)}" aria-label="تعديل ${escape(item.title)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16Z"/></svg></button>`:''}<button type="button" class="expand-button" data-item="${escape(item.id)}" aria-label="تفاصيل ${escape(item.title)}" aria-expanded="${expanded.has(item.id)}" aria-controls="detail-${escape(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></td></tr>${details(item)}`;
+      return `<tr class="record-row ${expanded.has(item.id)?'is-open':''}" id="row-${escape(item.id)}"><td class="number-cell"><span class="row-number">${index}</span></td><td class="topic-cell"><h4 class="item-title">${escape(item.title)}</h4><span class="reference" dir="auto">${escape(item.reference)}</span>${item.blocker?`<span class="blocker">${escape(item.blocker)}</span>`:''}</td><td class="status-cell"><div class="badges"><span class="priority priority-${escape(item.priority)}">${priorities[item.priority]}</span></div><span class="stage stage-${escape(item.stage)}">${labels[item.stage]}</span></td><td class="action-cell"><p class="next-action">${escape(item.action)}</p><span class="owner">${escape(item.owner)}</span>${item.actionAt?`<span class="action-at" data-at="${escape(item.actionAt)}">${escape(actionLabels[item.actionAt])}</span>`:''}</td><td class="date-cell"><time class="information-date" datetime="${escape(item.informationDate)}">${escape(shortDate(item.informationDate))}</time><span class="date-note ${isOld?'':'current'}">${isOld?'حالة من السجل الأساسي':'تحديث مسجل'}</span><span class="purchase-sub record-edit-time"><span>آخر تعديل للبند</span>: <time translate="no" datetime="${escape(item.updatedAt || '')}">${escape(window.WorkshopRecordTime(item.updatedAt))}</time> <span>بتوقيت الإمارات</span></span></td><td class="expand-cell">${window.WorkshopAdmin?.canEdit()?`<button type="button" class="edit-button" data-edit="${escape(item.id)}" aria-label="تعديل ${escape(item.title)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16Z"/></svg></button>`:''}<button type="button" class="expand-button" data-item="${escape(item.id)}" aria-label="تفاصيل ${escape(item.title)}" aria-expanded="${expanded.has(item.id)}" aria-controls="detail-${escape(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></td></tr>${details(item)}`;
     }).join('');
-    $('shown-count').textContent = query || selectedGroup !== 'all' ? `${visible.length} / ${items.length}` : items.length;
+    $('shown-count').textContent = query || selectedGroup !== 'all' || selectedArea || selectedFocus !== 'all' ? `${visible.length} / ${items.length}` : items.length;
     $('records-title').firstChild.textContent = groupLabel(data.groups.find(g=>g.id===selectedGroup))+' ';
     const noClosed=overviewView==='closed' && items.length===0;
     $('empty-title').textContent = noClosed ? 'لا توجد متابعات مغلقة بعد' : 'لا توجد متابعات مطابقة';
@@ -52,6 +66,18 @@
     $('clear-filters').textContent = overviewView==='closed' ? 'عرض المتابعات المغلقة' : overviewView==='non-purchase' ? 'عرض المتابعات غير الشرائية' : 'عرض جميع المتابعات';
     $('empty').hidden = visible.length !== 0;
     document.querySelector('.table-wrap').hidden = visible.length === 0;
+  }
+  function renderFocus(items){
+    $('focus-filters').innerHTML = Object.entries(focusLabels).map(([id,label])=>{
+      const count = id==='all' ? items.length : items.filter(item=>matchesFocus(item,id)).length;
+      return `<button type="button" data-focus="${id}" class="filter-button ${selectedFocus===id?'active':''}" aria-pressed="${selectedFocus===id}">${escape(label)}<span class="filter-count">${count}</span></button>`;
+    }).join('');
+  }
+  function renderAreas(){
+    const items=viewItems();
+    const used=Object.entries(areas).filter(([id])=>items.some(item=>item.area===id));
+    $('area-filter').innerHTML = `<option value="">كل المجالات</option>`+used.map(([id,label])=>`<option value="${escape(id)}"${selectedArea===id?' selected':''}>${escape(label)} (${items.filter(item=>item.area===id).length})</option>`).join('');
+    $('area-filter').hidden = used.length<2;
   }
   function renderGroups(){
     const items=viewItems();
@@ -78,7 +104,7 @@
     $('sync-summary').textContent = 'التحديث من Google Sheets';
     $('sync-explanation').textContent = 'تقرأ الشاشة ورقتَي المتابعات والمراجع والسجل كل 30 ثانية أثناء فتحها. عدّل البيانات في Google Sheets؛ زر تحديث العرض يعيد القراءة. حدّث تاريخ المعلومة وآخر تعديل عند توثيق تحديث، وحافظ على معرّف كل بند. قد تتأخر نسخة Google قليلاً بعد التعديل. '+(sync.message || 'المراجعة الدورية للمحادثات غير مفعلة.');
     $('review-time').textContent = 'آخر مراجعة مسجلة للمصادر: '+fullTime(sync.lastReviewAt)+'.';
-    renderGroups();renderRows();
+    renderGroups();renderAreas();renderRows();
   }
   function setConnection(ok){
     connected=ok;
@@ -131,13 +157,18 @@
     renderRows();window.WorkshopMotion?.reveal(document.querySelector('.table-wrap'));
   });
   $('search').addEventListener('input',event=>{query=event.target.value;renderRows();});
+  $('focus-filters').addEventListener('click',event=>{
+    const button=event.target.closest('button[data-focus]');if(!button)return;
+    selectedFocus=button.dataset.focus;renderRows();window.WorkshopMotion?.reveal(document.querySelector('.table-wrap'));
+  });
+  $('area-filter').addEventListener('change',event=>{selectedArea=event.target.value;renderRows();});
   window.addEventListener('workshop-view',event=>{
     const next=event.detail;
     if(next==='procurement' || next===overviewView)return;
-    overviewView=next;selectedGroup='all';query='';$('search').value='';if(data)render();
+    overviewView=next;selectedGroup='all';query='';selectedFocus='all';selectedArea='';$('search').value='';if(data)render();
   });
   $('refresh').addEventListener('click',()=>fetchData(true));
-  $('clear-filters').addEventListener('click',()=>{selectedGroup='all';query='';$('search').value='';renderGroups();renderRows();});
+  $('clear-filters').addEventListener('click',()=>{selectedGroup='all';query='';selectedFocus='all';selectedArea='';$('search').value='';renderGroups();renderAreas();renderRows();});
   function restartPolling(){clearInterval(poller);if(document.visibilityState!=='hidden')poller=setInterval(()=>fetchData(),30000);}
   document.addEventListener('visibilitychange',()=>{restartPolling();if(document.visibilityState!=='hidden')fetchData();});
   window.addEventListener('online',()=>fetchData());

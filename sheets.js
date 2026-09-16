@@ -4,6 +4,10 @@
   const stages={preparation:'قيد الإعداد',approvals:'بانتظار الموافقات',number_pending:'بانتظار رقم طلب الشراء',action:'يحتاج إجراء',pr_team_approval:'بانتظار موافقة فريق طلبات الشراء',warehouse_approval:'بانتظار موافقات المستودع',quotes:'بانتظار العروض',offers_received:'وصلت العروض',evaluation:'تحت التقييم',delivery:'بانتظار التوريد',in_progress:'قيد التنفيذ',coordination:'بانتظار المتابعة',on_hold:'مؤجل',closure:'بانتظار الإغلاق',completed:'مكتمل',cancelled:'ملغى'};
   const kinds={pr:'طلب شراء',unnumbered:'طلب غير مرقم',planning:'خطة مستقبلية',linked:'بند مرتبط',lpo:'أمر توريد',request:'طلب غير مرقم'};
   const bases={estimated:'تقديرية',quoted:'عرض سعر',recorded:'مسجلة'};
+  // أعمدة تشغيلية اختيارية: تعمل الصفحة قبل إضافتها إلى الشيت وبعدها.
+  const areas={procurement:'المشتريات والموازنة',maintenance:'الصيانة والفحص والدعم الفني',rain:'جاهزية الأمطار والقطاعات',inventory:'المخزون والأصول',vehicles:'مركبات الإدارة والسائقون',admin:'الشؤون الإدارية والموظفون'};
+  const actions={me:'عندي',team:'عند الفريق',external:'بانتظار جهة أخرى',unassigned:'لم يحدد'};
+  const optionalHeaders=['المجال','الإجراء عند','العائق'];
   const headers=['معرّف البند','الموضوع','الأولوية','الحالة','الإجراء المطلوب','المسؤول','تاريخ المعلومة','رقم PR','القيمة بالدرهم','بند الموازنة','تفاصيل الحالة','جهة المتابعة','التصنيف','الموعد المرتبط','آخر تعديل بتوقيت الإمارات','المرجع','الملاحظات','نوع طلب الشراء','مرحلة الشراء','نوع الرقم','رقم LPO','أساس القيمة','ملاحظة القيمة'];
   const sourceHeaders=['معرّف البند','نوع المرجع','تاريخ المصدر','العنوان','التفاصيل'];
   const text=value=>String(value??'').trim();
@@ -28,11 +32,16 @@
     if(Number.isNaN(wall.getTime()))return fail('تاريخ غير صالح في Google Sheets.');
     return withTime ? new Date(wall.getTime()-4*3600000).toISOString() : wall.toISOString().slice(0,10);
   }
-  function tableRows(response,expected){
+  function tableRows(response,expected,optional=[]){
     if(response?.status!=='ok' || !response.table || !Array.isArray(response.table.rows))return fail('تعذر قراءة Google Sheets.');
-    const cols=response.table.cols;
-    if(cols.length!==expected.length || expected.some((h,i)=>text(cols[i]?.label)!==h))return fail('عناوين أعمدة Google Sheets لا تطابق ملف المتابعات.');
-    return response.table.rows.map(row=>expected.map((_,i)=>row.c?.[i]?.v??null)).filter(row=>row.some(v=>v!=null&&v!==''));
+    let cols=response.table.cols;
+    // المدى يشمل أعمدة قد لا تكون أُنشئت بعد؛ تُهمل الأعمدة الفارغة في آخره.
+    while(cols.length>expected.length && !text(cols[cols.length-1]?.label))cols=cols.slice(0,-1);
+    const extra=cols.length-expected.length;
+    if(extra<0 || extra>optional.length)return fail('عناوين أعمدة Google Sheets لا تطابق ملف المتابعات.');
+    const all=[...expected,...optional.slice(0,extra)];
+    if(all.some((h,i)=>text(cols[i]?.label)!==h))return fail('عناوين أعمدة Google Sheets لا تطابق ملف المتابعات.');
+    return response.table.rows.map(row=>all.map((_,i)=>row.c?.[i]?.v??null)).filter(row=>row.some(v=>v!=null&&v!==''));
   }
   function merge(snapshot,mainRows,sourceRows){
     const prior=new Map(snapshot.items.map(item=>[item.id,item]));
@@ -48,6 +57,11 @@
       const info=dateValue(row[6]);
       if(!info||!text(row[1]))return fail('الموضوع أو تاريخ المعلومة مفقود في بند '+id+'.');
       Object.assign(item,{title:text(row[1]),priority:enumValue(row[2],priorities,old?.priority,'الأولوية'),stage:enumValue(row[3],stages,old?.stage,'الحالة'),action:text(row[4]),owner:text(row[5]),informationDate:info,status:text(row[10]),followUpWith:text(row[11]),group:enumValue(row[12],groupMap,old?.group,'التصنيف'),dueDate:dateValue(row[13]),reference:text(row[15]),notes:text(row[16])});
+      // المجال والإجراء عند يرجعان إلى النسخة المجهزة عند خلو الخلية، حتى تعمل
+      // الصفحة قبل تعبئة الأعمدة الجديدة؛ أما العائق فالشيت مرجعه عند وجود عموده.
+      if(text(row[23]))item.area=enumValue(row[23],areas,old?.area,'المجال');
+      if(text(row[24]))item.actionAt=enumValue(row[24],actions,old?.actionAt,'الإجراء عند');
+      if(row.length>25){const blocker=text(row[25]);if(blocker)item.blocker=blocker;else delete item.blocker;}
       const edited=dateValue(row[14],true);
       // Import/display rounding must never change an existing record's timestamp.
       item.updatedAt=old?.updatedAt && edited && Math.floor(Date.parse(old.updatedAt)/60000)===Math.floor(Date.parse(edited)/60000)?old.updatedAt:edited;
@@ -123,8 +137,8 @@
     });
   }
   async function load(config,snapshot){
-    const [main,refs]=await Promise.all([query(config.spreadsheetId,config.mainSheetId,'A1:W5001'),query(config.spreadsheetId,config.sourceSheetId,'A1:E20001')]);
-    return merge(snapshot,tableRows(main,headers),tableRows(refs,sourceHeaders));
+    const [main,refs]=await Promise.all([query(config.spreadsheetId,config.mainSheetId,'A1:Z5001'),query(config.spreadsheetId,config.sourceSheetId,'A1:E20001')]);
+    return merge(snapshot,tableRows(main,headers,optionalHeaders),tableRows(refs,sourceHeaders));
   }
-  root.WorkshopSheets={load,merge,tableRows,dateValue,headers,sourceHeaders,stages};
+  root.WorkshopSheets={load,merge,tableRows,dateValue,headers,sourceHeaders,optionalHeaders,stages,areas,actions};
 })(globalThis);

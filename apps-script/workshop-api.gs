@@ -24,6 +24,10 @@ var CONFIG = {
 
 var HEADERS = ['معرّف البند','الموضوع','الأولوية','الحالة','الإجراء المطلوب','المسؤول','تاريخ المعلومة','رقم PR','القيمة بالدرهم','بند الموازنة','تفاصيل الحالة','جهة المتابعة','التصنيف','الموعد المرتبط','آخر تعديل بتوقيت الإمارات','المرجع','الملاحظات','نوع طلب الشراء','مرحلة الشراء','نوع الرقم','رقم LPO','أساس القيمة','ملاحظة القيمة'];
 var SOURCE_HEADERS = ['معرّف البند','نوع المرجع','تاريخ المصدر','العنوان','التفاصيل'];
+// أعمدة تشغيلية تُضاف بتشغيل addOperationalColumns؛ قبل إضافتها يعمل كل شيء بدونها.
+var OPTIONAL_HEADERS = ['المجال','الإجراء عند','العائق'];
+var AREAS = {procurement:'المشتريات والموازنة',maintenance:'الصيانة والفحص والدعم الفني',rain:'جاهزية الأمطار والقطاعات',inventory:'المخزون والأصول',vehicles:'مركبات الإدارة والسائقون',admin:'الشؤون الإدارية والموظفون'};
+var ACTION_AT = {me:'عندي',team:'عند الفريق',external:'بانتظار جهة أخرى',unassigned:'لم يحدد'};
 
 // القيم المسموحة — نسخة مطابقة لما يقبله الموقع عند القراءة.
 var PRIORITIES = {high:'عالية', medium:'متوسطة', low:'منخفضة'};
@@ -33,6 +37,48 @@ var PR_KINDS = {pr:'طلب شراء', unnumbered:'طلب غير مرقم', plann
 var BASES = {estimated:'تقديرية', quoted:'عرض سعر', recorded:'مسجلة'};
 
 /* ————— الإعداد لمرة واحدة ————— */
+
+/** يضيف أعمدة المجال والإجراء عند والعائق إلى ورقة المتابعات. شغّلها مرة واحدة. */
+function addOperationalColumns() {
+  var sheet = mainSheet();
+  var existing = optionalColumns(sheet);
+  var added = [];
+  for (var i = 0; i < OPTIONAL_HEADERS.length; i++) {
+    var header = OPTIONAL_HEADERS[i];
+    if (existing[header]) continue;
+    var column = Math.max(sheet.getLastColumn(), HEADERS.length) + 1;
+    sheet.getRange(1, column).setValue(header);
+    existing[header] = column;
+    added.push(header);
+  }
+  return added.length ? 'أُضيفت الأعمدة: ' + added.join('، ') : 'الأعمدة موجودة مسبقاً.';
+}
+
+/** أعمدة الحقول التشغيلية الموجودة فعلياً في الورقة، بأرقامها. */
+function optionalColumns(sheet) {
+  var width = sheet.getLastColumn();
+  var map = {};
+  if (width <= HEADERS.length) return map;
+  var row = sheet.getRange(1, 1, 1, width).getValues()[0];
+  for (var i = HEADERS.length; i < width; i++) {
+    var label = text(row[i]);
+    if (OPTIONAL_HEADERS.indexOf(label) >= 0) map[label] = i + 1;
+  }
+  return map;
+}
+
+function hasOperational(sheet) {
+  var columns = optionalColumns(sheet);
+  return Boolean(columns[OPTIONAL_HEADERS[0]] && columns[OPTIONAL_HEADERS[1]] && columns[OPTIONAL_HEADERS[2]]);
+}
+
+/** يكتب الحقول التشغيلية في أعمدتها إن وُجدت، ويتجاهلها بهدوء إن لم تُضف بعد. */
+function writeOptional(sheet, row, item) {
+  var columns = optionalColumns(sheet);
+  if (columns['المجال']) sheet.getRange(row, columns['المجال']).setValue(item.area ? label(item.area, AREAS, 'المجال') : '');
+  if (columns['الإجراء عند']) sheet.getRange(row, columns['الإجراء عند']).setValue(item.actionAt ? label(item.actionAt, ACTION_AT, 'الإجراء عند') : '');
+  if (columns['العائق']) sheet.getRange(row, columns['العائق']).setValue(text(item.blocker).slice(0, 500));
+}
 
 /** شغّل هذه مرة واحدة بعد لصق السكربت: تنشئ أوراق الصلاحيات وتضبط المنطقة الزمنية. */
 function setup() {
@@ -142,11 +188,11 @@ function login(username, password) {
   var expires = new Date(Date.now() + CONFIG.sessionHours * 3600000);
   sheetByName(CONFIG.sessionsSheet).appendRow([digest(token), username, now(), expires, now()]);
   cleanSessions();
-  return {ok:true, token:token, expiresAt:expires.toISOString(), user:{username:username, name:values[1] || username, role:values[2]}};
+  return {ok:true, token:token, expiresAt:expires.toISOString(), features:features(), user:{username:username, name:values[1] || username, role:values[2]}};
 }
 
 function sessionInfo(token) {
-  try { var user = requireUser(token); return {ok:true, user:{username:user.username, name:user.name, role:user.role}, expiresAt:user.expiresAt}; }
+  try { var user = requireUser(token); return {ok:true, user:{username:user.username, name:user.name, role:user.role}, features:features(), expiresAt:user.expiresAt}; }
   catch (error) { return {ok:false, error:String(error.message || error)}; }
 }
 
@@ -179,6 +225,10 @@ function requireUser(token) {
   throw new Error('انتهت الجلسة، سجّل الدخول من جديد.');
 }
 
+function features() {
+  try { return {operational: hasOperational(mainSheet())}; } catch (error) { return {operational:false}; }
+}
+
 function cleanSessions() {
   var sheet = sheetByName(CONFIG.sessionsSheet);
   var rows = sheet.getDataRange().getValues();
@@ -205,6 +255,7 @@ function createItem(user, item) {
   values[14] = stamp();
   sheet.appendRow(values);
   formatRow(sheet, sheet.getLastRow(), values[14]);
+  writeOptional(sheet, sheet.getLastRow(), item);
   audit(user, 'إضافة', id, values[1], summary(item));
   return {ok:true, id:id, updatedAt:values[14]};
 }
@@ -220,6 +271,7 @@ function updateItem(user, id, item, expectedUpdatedAt) {
   values[14] = stamp();
   sheet.getRange(row, 1, 1, HEADERS.length).setValues([values]);
   formatRow(sheet, row, values[14]);
+  writeOptional(sheet, row, item);
   audit(user, 'تعديل', values[0], values[1], changes(current, values));
   return {ok:true, id:values[0], updatedAt:values[14]};
 }

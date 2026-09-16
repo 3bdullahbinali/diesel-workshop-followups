@@ -6,7 +6,7 @@
   const kinds = {pr:'طلب شراء', unnumbered:'طلب غير مرقم', planning:'خطة مستقبلية', linked:'بند مرتبط', lpo:'أمر توريد'};
   const bases = {estimated:'تقديرية', quoted:'عرض سعر', recorded:'مسجلة'};
   const store = 'workshop-session';
-  let endpoint = '', session = null, data = null, editing = null, busy = false, confirmTimer = 0;
+  let endpoint = '', session = null, data = null, editing = null, busy = false, confirmTimer = 0, features = {};
 
   const read = () => { try { return JSON.parse(localStorage.getItem(store) || 'null'); } catch { return null; } };
   const write = value => { try { value ? localStorage.setItem(store, JSON.stringify(value)) : localStorage.removeItem(store); } catch {} };
@@ -74,6 +74,11 @@
     options($('admin-priority'), priorities, item?.priority || 'medium');
     options($('admin-stage'), window.WorkshopSheets.stages, item?.stage || 'coordination');
     options($('admin-group'), groups(), item?.group || Object.keys(groups())[0]);
+    options($('admin-area'), window.WorkshopSheets.areas, item?.area || 'procurement');
+    options($('admin-action-at'), window.WorkshopSheets.actions, item?.actionAt || 'unassigned');
+    $('admin-blocker').value = item?.blocker || '';
+    // تُخفى الحقول التشغيلية حتى تُضاف أعمدتها إلى الشيت.
+    for (const field of dialogFields()) field.hidden = !features.operational;
     options($('admin-pr-kind'), kinds, meta?.kind && kinds[meta.kind] ? meta.kind : 'pr');
     options($('admin-pr-stage'), window.WorkshopSheets.stages, meta?.stage || item?.stage || 'preparation');
     options($('admin-pr-basis'), {'': 'غير مسجل', ...bases}, meta?.amountBasis || '');
@@ -98,6 +103,7 @@
     $('admin-pr-enabled').disabled = has;
     purchase();
   }
+  const dialogFields = () => [...$('admin-editor').querySelectorAll('.admin-operational')];
   function purchase() {
     $('admin-purchase').hidden = !$('admin-pr-enabled').checked;
   }
@@ -116,6 +122,11 @@
       dueDate: $('admin-due').value,
       notes: $('admin-notes').value.trim()
     };
+    if (features.operational) {
+      item.area = $('admin-area').value;
+      item.actionAt = $('admin-action-at').value;
+      item.blocker = $('admin-blocker').value.trim();
+    }
     if (!item.title) throw new Error('الموضوع مطلوب.');
     if (!item.action) throw new Error('الإجراء المطلوب مطلوب.');
     if (!item.owner) throw new Error('المسؤول مطلوب.');
@@ -211,6 +222,7 @@
     try {
       const result = await api('login', {username, password});
       session = {token: result.token, user: result.user, expiresAt: result.expiresAt};
+      features = result.features || {};
       write(session);
       sync();
       $('admin-password').value = '';
@@ -238,6 +250,7 @@
     sync();
     try {
       const result = await api('session', {token: saved.token});
+      features = result.features || {};
       session = {token: saved.token, user: result.user, expiresAt: result.expiresAt};
       write(session);
       sync();

@@ -106,6 +106,9 @@
       text('presentation-status', item.status || 'غير مسجل');
       text('presentation-action', item.action || 'غير مسجل');
       text('presentation-owner', item.owner || 'غير مسجل');
+      text('presentation-action-at', item.actionAt ? window.WorkshopSheets.actions[item.actionAt] : '');
+      text('presentation-blocker', item.blocker || '');
+      $('presentation-blocker').hidden = !item.blocker;
       const information = item.informationDate ? new Date(`${item.informationDate}T12:00:00Z`) : null;
       text('presentation-information', information && Number.isFinite(information.getTime()) ? new Intl.DateTimeFormat(I.locale, {day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Dubai'}).format(information) : 'غير مسجل');
       $('presentation-information').dateTime = item.informationDate || '';

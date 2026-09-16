@@ -35,3 +35,13 @@ html[dir=ltr] .reference[dir=ltr]{text-align:left}
 .secondary-statuses{padding:16px 24px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line);color:var(--muted);font-size:.875rem}
 .record-updated { color: var(--green, #124e3e); font-size: 1rem; font-weight: 600; margin: 0 0 1rem; }
 .record-edit-time { display: block; font-size: .875rem; line-height: 1.6; white-space: normal; margin-top: .4rem; }
+.focus-bar{padding:0 0 4px}
+.focus-filters{display:flex;flex-wrap:wrap;gap:7px}
+.area-filter{font:inherit;font-size:.875rem;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:7px;min-height:42px;padding:6px 12px;max-width:260px}
+.action-at{display:block;margin-top:6px;font-size:.75rem;color:#5c7267;background:#f1f5f2;border:1px solid #e2eae5;border-radius:4px;padding:1px 8px;width:fit-content}
+.action-at[data-at=me]{color:#8a5a20;background:#fbf3e4;border-color:#efe0c2}
+.action-at[data-at=external]{color:#3f6188;background:#eef3fa;border-color:#dbe5f1}
+.action-at[data-at=unassigned]{color:#7b8480;background:#f3f4f4;border-color:#e6e8e8}
+.blocker{display:block;margin-top:7px;font-size:.8125rem;line-height:1.7;color:#93493a;background:#fdf1ee;border-inline-start:3px solid #d9a99c;border-radius:4px;padding:5px 10px}
+.detail-blocker p{color:#93493a}
+@media(max-width:700px){.area-filter{max-width:none;width:100%}}
