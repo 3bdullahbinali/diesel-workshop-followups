@@ -296,11 +296,23 @@
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     $('stats-open').focus({preventScroll:true});
   });
+  // المسافة و f لا تُختطفان من زر تحت التركيز، كما في عرض المتابعات.
   dialog.addEventListener('keydown', event => {
-    if (event.key === ' ' || event.key === 'k') { event.preventDefault(); playing ? pause() : play(); }
-    else if (event.key === 'ArrowRight') { event.preventDefault(); pause(); advance(document.documentElement.dir === 'rtl' ? -1 : 1); }
-    else if (event.key === 'ArrowLeft') { event.preventDefault(); pause(); advance(document.documentElement.dir === 'rtl' ? 1 : -1); }
-    else if (event.key === 'f') { event.preventDefault(); toggleFullscreen(); }
+    const onButton = Boolean(event.target.closest('button,select,input,textarea'));
+    if (event.key === ' ' || event.key === 'Spacebar') {
+      if (onButton) return;
+      event.preventDefault();
+      playing ? pause() : play();
+    } else if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+      const forward = (event.key === 'ArrowRight') === (document.documentElement.dir !== 'rtl');
+      event.preventDefault();
+      pause();
+      advance(forward ? 1 : -1);
+    } else if (event.key === 'f' || event.key === 'F') {
+      if (onButton) return;
+      event.preventDefault();
+      toggleFullscreen();
+    }
   });
   document.addEventListener('visibilitychange', () => {
     if (!dialog.open) return;
