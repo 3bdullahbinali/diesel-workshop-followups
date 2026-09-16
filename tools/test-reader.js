@@ -39,5 +39,19 @@ check('سطر محذوف لا يُعدّ مرجعاً', (() => {
   return result.items.length === 1;
 })());
 
+// ورقة الأعمال: تُقرأ بالاسم، وقيمها العربية تتحول إلى مفاتيح.
+const jobRow = (over = {}) => Object.assign(
+  ['job-1','تصليح مضخة','نقدّمه لجهة','قسم الشبكات','بيندنق جوب','قيد التنفيذ','م. سالم','2026-09-10','2026-09-20','x1','ملاحظة','16/09/2026 10:00:00'], over);
+check('قراءة عمل كاملة', (j => j.id==='job-1' && j.party==='outbound' && j.kind==='pending' && j.state==='in_progress'
+  && j.startDate==='2026-09-10' && j.taskId==='x1')(S.jobEntries([jobRow()])[0]));
+check('خلايا اختيارية فارغة مقبولة',
+  S.jobEntries([jobRow({3:'',6:'',7:'',8:'',9:'',10:''})])[0].taskId === null);
+try { S.jobEntries([jobRow({2:'طرف غريب'})]); check('طرف مجهول يُرفض', false, 'لم يُرفض'); }
+catch (error) { check('طرف مجهول يُرفض ويذكر العمل', error.message.includes('job-1'), error.message); }
+try { S.jobEntries([jobRow(), jobRow()]); check('معرّف مكرر يُرفض', false, 'لم يُرفض'); }
+catch (error) { check('معرّف مكرر يُرفض', true); }
+try { S.jobEntries([jobRow({1:''})]); check('موضوع مفقود يُرفض', false, 'لم يُرفض'); }
+catch (error) { check('موضوع مفقود يُرفض', error.message.includes('job-1'), error.message); }
+
 console.log(failures ? `\nفشل ${failures} اختباراً.` : `\nنجحت جميع اختبارات القارئ.`);
 process.exit(failures ? 1 : 0);

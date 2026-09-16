@@ -35,7 +35,7 @@
   }
   function groupLabel(group){
     if(group?.id==='all' && overviewView==='closed')return 'المتابعات المغلقة';
-    return group?.id==='all' && overviewView==='non-purchase' ? 'متابعات غير شرائية' : group?.label || 'جميع المتابعات';
+    return group?.id==='all' && overviewView==='non-purchase' ? 'متابعات عامة' : group?.label || 'جميع المتابعات';
   }
   function orderedItems(){return [...viewItems()].sort(compare);}
   function validPayload(value){
@@ -76,7 +76,7 @@
     $('empty-title').textContent = noClosed ? 'لا توجد متابعات مغلقة بعد' : 'لا توجد متابعات مطابقة';
     $('empty-description').textContent = noClosed ? 'تظهر هنا المتابعات بعد تأكيد إنجازها وتحديث حالتها في السجل إلى «مكتمل».' : 'جرّب رقماً أو كلمة أخرى، أو أعد ضبط البحث والتصنيف.';
     $('clear-filters').hidden = noClosed;
-    $('clear-filters').textContent = overviewView==='closed' ? 'عرض المتابعات المغلقة' : overviewView==='non-purchase' ? 'عرض المتابعات غير الشرائية' : 'عرض جميع المتابعات';
+    $('clear-filters').textContent = overviewView==='closed' ? 'عرض المتابعات المغلقة' : overviewView==='non-purchase' ? 'عرض المتابعات العامة' : 'عرض جميع المتابعات';
     $('empty').hidden = visible.length !== 0;
     document.querySelector('.table-wrap').hidden = visible.length === 0;
   }
@@ -168,6 +168,14 @@
       else if(was.work!==letter.work)news.push({kind:'change',title:letter.title,body:`حالة العمل: ${S.workStates[was.work]} ← ${S.workStates[letter.work]}`});
       else if(was.location!==letter.location)news.push({kind:'change',title:letter.title,body:`موقع الكتاب: ${letter.location||'غير مسجل'}`});
     }
+    const oldJobs=new Map((before?.jobs||[]).map(job=>[job.id,job]));
+    for(const job of after?.jobs||[]){
+      const was=oldJobs.get(job.id);
+      if(!was){news.push({kind:'add',title:'عمل جديد',body:`${S.jobKinds[job.kind]} — ${job.title}`});continue;}
+      if(was.state!==job.state)news.push({kind:'change',title:job.title,body:`حالة العمل: ${S.jobStates[was.state]} ← ${S.jobStates[job.state]}`});
+      else if(was.dueDate!==job.dueDate)news.push({kind:'change',title:job.title,body:`الموعد المتوقع: ${shortDate(job.dueDate)}`});
+      else if(was.owner!==job.owner)news.push({kind:'change',title:job.title,body:`المسؤول: ${job.owner||'غير مسجل'}`});
+    }
     return news;
   }
   function notice(message,isError=false){$('notice').textContent=message;$('notice').hidden=!message;$('notice').className='notice'+(isError?' error':'');}
@@ -223,7 +231,7 @@
   $('area-filter').addEventListener('change',event=>{selectedArea=event.target.value;renderRows();});
   window.addEventListener('workshop-view',event=>{
     const next=event.detail;
-    if(next==='procurement' || next==='letters' || next===overviewView)return;
+    if(next==='procurement' || next==='letters' || next==='jobs' || next===overviewView)return;
     overviewView=next;selectedGroup='all';query='';selectedFocus='all';selectedArea='';$('search').value='';if(data)render();
   });
   $('refresh').addEventListener('click',()=>fetchData(true));

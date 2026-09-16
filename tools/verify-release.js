@@ -43,7 +43,10 @@ const pairs = [
   ['حالة الرد', between(site, 'const replyStates={', '};'), between(service, 'var REPLY_STATES = {', '};')],
   ['حالة الكتاب', between(site, 'const closureStates={', '};'), between(service, 'var CLOSURE_STATES = {', '};')],
   ['مرحلة العمل الفني', between(site, 'const phases={', '};'), between(service, 'var PHASES = {', '};')],
-  ['حالة التسليم', between(site, 'const handovers={', '};'), between(service, 'var HANDOVERS = {', '};')]
+  ['حالة التسليم', between(site, 'const handovers={', '};'), between(service, 'var HANDOVERS = {', '};')],
+  ['طرف العمل', between(site, 'const parties={', '};'), between(service, 'var PARTIES = {', '};')],
+  ['نوع العمل', between(site, 'const jobKinds={', '};'), between(service, 'var JOB_KINDS = {', '};')],
+  ['حالة العمل في الأعمال', between(site, 'const jobStates={', '};'), between(service, 'var JOB_STATES = {', '};')]
 ];
 // تُقارن الأزواج مفتاحاً بقيمة بعد إزالة المسافات وعلامات الاقتباس.
 const normalise = block => block == null ? null :
@@ -58,6 +61,7 @@ const headerPairs = [
   ['رؤوس المراجع', between(site, 'const sourceHeaders=[', '];'), between(service, 'var SOURCE_HEADERS = [', '];')],
   ['رؤوس المراسلات', between(site, 'const letterHeaders=[', '];'), between(service, 'var LETTER_HEADERS = [', '];')],
   ['رؤوس المعدات', between(site, 'const equipmentHeaders=[', '];'), between(service, 'var EQUIPMENT_HEADERS = [', '];')],
+  ['رؤوس الأعمال', between(site, 'const jobHeaders=[', '];'), between(service, 'var JOB_HEADERS = [', '];')],
   ['الأعمدة الاختيارية', between(site, 'const optionalHeaders=[', '];'), between(service, 'var OPTIONAL_HEADERS = [', '];')]
 ];
 for (const [label, a, b] of headerPairs) {

@@ -6,26 +6,27 @@
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#124e3e">
   <meta name="description" content="متابعات شعبة ورشة الديزل: الأولويات والإجراءات وآخر التحديثات المؤكدة.">
-  <link rel="icon" href="./favicon.svg?v=2026-09-16-1068" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css?v=2026-09-16-1068">
-  <link rel="stylesheet" href="./motion.css?v=2026-09-16-1068">
-  <link rel="stylesheet" href="./presentation.css?v=2026-09-16-1068">
-  <link rel="stylesheet" href="./admin.css?v=2026-09-16-1068">
+  <link rel="icon" href="./favicon.svg?v=2026-09-16-1082" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css?v=2026-09-16-1082">
+  <link rel="stylesheet" href="./motion.css?v=2026-09-16-1082">
+  <link rel="stylesheet" href="./presentation.css?v=2026-09-16-1082">
+  <link rel="stylesheet" href="./admin.css?v=2026-09-16-1082">
   <title>متابعات شعبة ورشة الديزل</title>
-  <script src="./translations-en.js?v=2026-09-16-1068" defer></script>
-  <script src="./procurement-en.js?v=2026-09-16-1068" defer></script>
-  <script src="./i18n.js?v=2026-09-16-1068" defer></script>
-  <script src="./record-time.js?v=2026-09-16-1068" defer></script>
-  <script src="./motion.js?v=2026-09-16-1068" defer></script>
-  <script src="./procurement-model.js?v=2026-09-16-1068" defer></script>
-  <script src="./purchase-orders.js?v=2026-09-16-1068" defer></script>
-  <script src="./presentation.js?v=2026-09-16-1068" defer></script>
-  <script src="./procurement.js?v=2026-09-16-1068" defer></script>
-  <script src="./sheets.js?v=2026-09-16-1068" defer></script>
-  <script src="./app.js?v=2026-09-16-1068" defer></script>
-  <script src="./notifications.js?v=2026-09-16-1068" defer></script>
-  <script src="./letters.js?v=2026-09-16-1068" defer></script>
-  <script src="./admin.js?v=2026-09-16-1068" defer></script>
+  <script src="./translations-en.js?v=2026-09-16-1082" defer></script>
+  <script src="./procurement-en.js?v=2026-09-16-1082" defer></script>
+  <script src="./i18n.js?v=2026-09-16-1082" defer></script>
+  <script src="./record-time.js?v=2026-09-16-1082" defer></script>
+  <script src="./motion.js?v=2026-09-16-1082" defer></script>
+  <script src="./procurement-model.js?v=2026-09-16-1082" defer></script>
+  <script src="./purchase-orders.js?v=2026-09-16-1082" defer></script>
+  <script src="./presentation.js?v=2026-09-16-1082" defer></script>
+  <script src="./procurement.js?v=2026-09-16-1082" defer></script>
+  <script src="./sheets.js?v=2026-09-16-1082" defer></script>
+  <script src="./app.js?v=2026-09-16-1082" defer></script>
+  <script src="./notifications.js?v=2026-09-16-1082" defer></script>
+  <script src="./letters.js?v=2026-09-16-1082" defer></script>
+  <script src="./jobs.js?v=2026-09-16-1082" defer></script>
+  <script src="./admin.js?v=2026-09-16-1082" defer></script>
 </head>
 <body>
   <div class="ambient-background" aria-hidden="true"><div class="ambient-art"></div></div>
@@ -57,10 +58,11 @@
     </section>
     <div class="view-tabs" role="tablist" aria-label="عرض السجل">
       <button type="button" id="overview-tab" role="tab" aria-controls="overview-panel" aria-selected="true" data-view="overview">جميع المتابعات <span id="overview-tab-count">—</span></button>
-      <button type="button" id="non-purchase-tab" role="tab" aria-controls="overview-panel" aria-selected="false" data-view="non-purchase">متابعات غير شرائية <span id="non-purchase-tab-count">—</span></button>
+      <button type="button" id="non-purchase-tab" role="tab" aria-controls="overview-panel" aria-selected="false" data-view="non-purchase">متابعات عامة <span id="non-purchase-tab-count">—</span></button>
       <button type="button" id="procurement-tab" role="tab" aria-controls="procurement-panel" aria-selected="false" data-view="procurement">طلبات الشراء <span id="procurement-tab-count">—</span></button>
       <button type="button" id="closed-tab" role="tab" aria-controls="overview-panel" aria-selected="false" data-view="closed">المتابعات المغلقة <span id="closed-tab-count">—</span></button>
       <button type="button" id="letters-tab" role="tab" aria-controls="letters-panel" aria-selected="false" data-view="letters" hidden>المراسلات <span id="letters-tab-count">—</span></button>
+      <button type="button" id="jobs-tab" role="tab" aria-controls="jobs-panel" aria-selected="false" data-view="jobs" hidden>الأعمال <span id="jobs-tab-count">—</span></button>
     </div>
     <div id="overview-panel" role="tabpanel" aria-labelledby="overview-tab">
     <section class="metrics" aria-label="ملخص السجل">
@@ -96,6 +98,16 @@
         <div class="toolbar"><div class="group-filters" id="letters-filters" role="group" aria-label="اتجاه الكتاب"></div><label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="letters-search" type="search" autocomplete="off" placeholder="ابحث بالموضوع أو رقم الكتاب أو الجهة" aria-label="البحث في المراسلات"></label><button class="admin-button admin-primary" id="letters-add" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>إضافة كتاب</span></button></div>
         <div class="letter-grid" id="letters-grid" aria-live="polite"></div>
         <div class="empty-state" id="letters-empty" hidden><h4>لا توجد مراسلات في هذا العرض</h4><p>غيّر الاتجاه أو جرّب كلمة أخرى في البحث.</p></div>
+      </div>
+    </section>
+    <section id="jobs-panel" role="tabpanel" aria-labelledby="jobs-tab" hidden>
+      <div class="records-section">
+        <div class="records-heading"><h3>البيندنق جوب والأعمال القائمة <span id="jobs-count"></span></h3><span class="sort-hint"><span id="jobs-open-count">0</span> عمل قائم</span></div>
+        <p class="purchase-note">الأعمال التي نقدّمها لجهات أخرى، والأعمال التي تقدّمها لنا جهة، والأعمال الداخلية. المعدة المستلمة تظهر تحت العمل المرتبط بها، وكل عمل يمكن ربطه ببند في سجل المتابعات.</p>
+        <div class="focus-bar"><div class="group-filters focus-filters" id="jobs-parties" role="group" aria-label="طرف العمل"></div></div>
+        <div class="toolbar"><div class="group-filters" id="jobs-states" role="group" aria-label="حالة العمل"></div><label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="jobs-search" type="search" autocomplete="off" placeholder="ابحث بالموضوع أو الجهة أو المسؤول" aria-label="البحث في الأعمال"></label><button class="admin-button admin-primary" id="jobs-add" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>إضافة عمل</span></button></div>
+        <div id="jobs-groups" aria-live="polite"></div>
+        <div class="empty-state" id="jobs-empty" hidden><h4>لا توجد أعمال في هذا العرض</h4><p>غيّر الطرف أو الحالة، أو جرّب كلمة أخرى في البحث.</p></div>
       </div>
     </section>
     <footer><svg class="page-scene" viewBox="0 0 900 100" preserveAspectRatio="xMinYMax meet" aria-hidden="true" focusable="false"><defs><clipPath id="page-drum"><rect x="562" y="46" width="176" height="42" rx="5"/></clipPath></defs><g class="sc-line"><path class="sc-ground" d="M6 94h888"/><path class="sc-hose" d="M-24 86C30 86 68 81 92 73 110 67 120 61 130 56"/><path class="sc-hose-flow sc-water" d="M-24 86C30 86 68 81 92 73 110 67 120 61 130 56"/><path class="sc-clamp" d="M26 82v10M64 77v10"/><rect class="sc-part" x="128" y="42" width="12" height="22" rx="2"/><circle class="sc-part" cx="204" cy="52" r="38"/><path class="sc-volute" d="M 204.0 25.0 L 206.4 25.0 L 208.8 25.2 L 211.1 25.6 L 213.5 26.2 L 215.7 27.1 L 217.9 28.1 L 220.0 29.3 L 222.1 30.7 L 223.9 32.3 L 225.7 34.1 L 227.3 36.0 L 228.7 38.0 L 229.9 40.2 L 230.9 42.5 L 231.8 44.9 L 232.4 47.3 L 232.8 49.8 L 233.0 52.4 L 233.0 54.9 L 232.7 57.5 L 232.2 60.0 L 231.5 62.5 L 230.6 64.9 L 229.5 67.3 L 228.1 69.5 L 226.6 71.6 L 224.8 73.6 L 222.9 75.5 L 220.9 77.1 L 218.6 78.6 L 216.3 79.9 L 213.8 81.0 L 211.3 81.8 L 208.6 82.5 L 205.9 82.9 L 203.2 83.0 L 200.5 83.0 L 197.8 82.6 L 195.1 82.1 L 192.4 81.3 L 189.8 80.3 L 187.3 79.0 L 185.0 77.5 L 182.7 75.8 L 180.6 73.9 L 178.7 71.9 L 177.0 69.6 L 175.4 67.3 L 174.1 64.7 L 173.0 62.1 L 172.1 59.3 L 171.5 56.5 L 171.1 53.7 L 170.9 50.8 L 171.1 47.8 L 171.5 44.9 L 172.1 42.1 L 173.0 39.3 L 174.1 36.5 L 175.5 33.9 L 177.1 31.4 L 178.9 29.1 L 181.0 26.9 L 183.2 24.8 L 185.6 23.0 L 188.2 21.4 L 190.9 20.1 L 193.7 18.9 L 196.6 18.0 L 199.6 17.4 L 202.7 17.0 L 205.8 16.9 L 208.9 17.1 L 211.9 17.6 L 215.0 18.3 L 217.9 19.3 L 220.8 20.5 L 223.5 22.0 L 226.2 23.8 L 228.6 25.8"/><g class="sc-impeller"><path d="M 212.0 52.0 Q 220.2 55.1 224.3 66.5 M 209.0 58.3 Q 211.7 66.6 205.3 77.0 M 202.2 59.8 Q 197.4 67.1 185.3 68.6 M 196.8 55.5 Q 188.1 56.3 179.4 47.7 M 196.8 48.5 Q 190.7 42.2 192.0 30.1 M 202.2 44.2 Q 203.4 35.5 213.6 28.9 M 209.0 45.7 Q 216.5 41.2 228.0 45.1"/><circle cx="204" cy="52" r="6"/></g><path class="sc-part" d="M192 10h24v14h-24z"/><path class="sc-pipe sc-water-pipe" d="M204 12h236"/><path class="sc-flow sc-water" d="M204 12h230"/><path class="sc-part" d="M434 4h16v16h-16z"/><rect class="sc-part" x="248" y="32" width="86" height="40" rx="6"/><path class="sc-detail" d="M 260 38 v 28 M 274 38 v 28 M 288 38 v 28 M 302 38 v 28 M 316 38 v 28"/><path class="sc-part" d="M242 44h6v16h-6zM242 52h6"/><circle class="sc-part" cx="352" cy="52" r="15"/><g class="sc-fan"><path d="M 361.0 52.0 Q 359.4 56.0 359.0 61.8 M 352.0 61.0 Q 348.0 59.4 342.2 59.0 M 343.0 52.0 Q 344.6 48.0 345.0 42.2 M 352.0 43.0 Q 356.0 44.6 361.8 45.0"/></g><g class="sc-gear-a"><path d="M 429.2 76.6 L 436.3 78.3 L 436.1 79.5 L 428.8 79.3 A 15 15 0 0 1 426.8 84.1 L 426.8 84.1 L 432.1 89.2 L 431.4 90.1 L 425.2 86.3 A 15 15 0 0 1 421.0 89.5 L 421.0 89.5 L 423.1 96.5 L 422.0 96.9 L 418.5 90.5 A 15 15 0 0 1 413.4 91.2 L 413.4 91.2 L 411.7 98.3 L 410.5 98.1 L 410.7 90.8 A 15 15 0 0 1 405.9 88.8 L 405.9 88.8 L 400.8 94.1 L 399.9 93.4 L 403.7 87.2 A 15 15 0 0 1 400.5 83.0 L 400.5 83.0 L 393.5 85.1 L 393.1 84.0 L 399.5 80.5 A 15 15 0 0 1 398.8 75.4 L 398.8 75.4 L 391.7 73.7 L 391.9 72.5 L 399.2 72.7 A 15 15 0 0 1 401.2 67.9 L 401.2 67.9 L 395.9 62.8 L 396.6 61.9 L 402.8 65.7 A 15 15 0 0 1 407.0 62.5 L 407.0 62.5 L 404.9 55.5 L 406.0 55.1 L 409.5 61.5 A 15 15 0 0 1 414.6 60.8 L 414.6 60.8 L 416.3 53.7 L 417.5 53.9 L 417.3 61.2 A 15 15 0 0 1 422.1 63.2 L 422.1 63.2 L 427.2 57.9 L 428.1 58.6 L 424.3 64.8 A 15 15 0 0 1 427.5 69.0 L 427.5 69.0 L 434.5 66.9 L 434.9 68.0 L 428.5 71.5 A 15 15 0 0 1 429.2 76.6 Z"/></g><circle class="sc-dot" cx="414" cy="76" r="4"/><g class="sc-gear-b"><path d="M 457.6 80.1 L 463.5 84.3 L 462.9 85.3 L 456.3 82.2 A 10 10 0 0 1 452.7 85.3 L 452.7 85.3 L 454.6 92.3 L 453.4 92.7 L 450.4 86.1 A 10 10 0 0 1 445.6 86.1 L 445.6 86.1 L 442.6 92.7 L 441.4 92.3 L 443.3 85.3 A 10 10 0 0 1 439.7 82.2 L 439.7 82.2 L 433.1 85.3 L 432.5 84.3 L 438.4 80.1 A 10 10 0 0 1 437.6 75.4 L 437.6 75.4 L 430.6 73.6 L 430.8 72.3 L 438.0 73.0 A 10 10 0 0 1 440.4 68.9 L 440.4 68.9 L 436.2 62.9 L 437.2 62.1 L 442.3 67.3 A 10 10 0 0 1 446.8 65.7 L 446.8 65.7 L 447.4 58.4 L 448.6 58.4 L 449.2 65.7 A 10 10 0 0 1 453.7 67.3 L 453.7 67.3 L 458.8 62.1 L 459.8 62.9 L 455.6 68.9 A 10 10 0 0 1 458.0 73.0 L 458.0 73.0 L 465.2 72.3 L 465.4 73.6 L 458.4 75.4 A 10 10 0 0 1 457.6 80.1 Z"/></g><circle class="sc-dot" cx="448" cy="76" r="3"/><path class="sc-base" d="M160 88h300v6H160z"/><path class="sc-drop" d="M220 76v5"/><path class="sc-hose" d="M930 6c-72 0-124 3-166 9-16 2-26 4-32 6"/><path class="sc-hose-flow sc-diesel" d="M930 6c-72 0-124 3-166 9-16 2-26 4-32 6"/><path class="sc-part" d="M700 12h30v15h-30zM706 27h9v9h-9z"/><path class="sc-stream sc-diesel" d="M710 36v12"/><path class="sc-part" d="M698 38h22v8h-22z"/><rect class="sc-tank" x="562" y="46" width="176" height="42" rx="5"/><g clip-path="url(#page-drum)"><g class="sc-level"><g transform="translate(540 42)"><g class="sc-wave"><path d="M 0 8 q 10 -2.5 20 0 t 20 0 q 10 -2.5 20 0 t 20 0 q 10 -2.5 20 0 t 20 0 q 10 -2.5 20 0 t 20 0 q 10 -2.5 20 0 t 20 0 q 10 -2.5 20 0 t 20 0 q 10 -2.5 20 0 t 20 0 q 10 -2.5 20 0 t 20 0 L 320 420 L 0 420 Z"/></g></g></g><circle class="sc-bubble" cx="610" cy="84" r="2"/><circle class="sc-bubble sc-bubble-c" cx="686" cy="82" r="2.5"/></g><path class="sc-detail" d="M742 56h8M742 70h8"/><path class="sc-base" d="M584 86h132v8H584z"/></g></svg><p>السجل الأساسي: 27 أغسطس 2026. الحالات التي لم يرد لها تحديث أحدث تبقى موضحة بتاريخها.</p><p>شعبة ورشة الديزل</p></footer>
@@ -215,6 +227,30 @@
         <button type="button" class="admin-danger" id="letter-delete" data-armed="false" hidden><span id="letter-delete-label">حذف الكتاب</span></button>
       </div>
       <p class="admin-hint">يُحفظ الكتاب في ورقة «المراسلات» داخل نفس ملف Google Sheets.</p>
+    </form>
+  </dialog>
+  <dialog id="job-editor" class="admin-dialog admin-wide" aria-labelledby="job-editor-title">
+    <form id="job-editor-form" class="admin-form" novalidate>
+      <h2 id="job-editor-title">إضافة عمل</h2>
+      <div class="admin-grid">
+        <label class="admin-field admin-wide-field"><span>موضوع العمل</span><input id="job-title" maxlength="300" required></label>
+        <label class="admin-field"><span>الطرف</span><select id="job-party"></select></label>
+        <label class="admin-field"><span>الجهة المقابلة</span><input id="job-counterpart" maxlength="200"></label>
+        <label class="admin-field"><span>نوع العمل</span><select id="job-kind"></select></label>
+        <label class="admin-field"><span>الحالة</span><select id="job-state"></select></label>
+        <label class="admin-field"><span>المسؤول</span><input id="job-owner" maxlength="120"></label>
+        <label class="admin-field"><span>المتابعة المرتبطة</span><select id="job-task"></select></label>
+        <label class="admin-field"><span>تاريخ البدء</span><input id="job-start" type="date"></label>
+        <label class="admin-field"><span>الموعد المتوقع</span><input id="job-due" type="date"></label>
+        <label class="admin-field admin-wide-field"><span>الملاحظات</span><textarea id="job-notes" rows="2" maxlength="2000"></textarea></label>
+      </div>
+      <p class="admin-error" id="job-editor-error" role="alert" hidden></p>
+      <div class="admin-actions">
+        <button type="submit" class="admin-primary" id="job-save"><span id="job-save-label">حفظ</span></button>
+        <button type="button" id="job-editor-cancel">إلغاء</button>
+        <button type="button" class="admin-danger" id="job-delete" data-armed="false" hidden><span id="job-delete-label">حذف العمل</span></button>
+      </div>
+      <p class="admin-hint">يُحفظ العمل في ورقة «الأعمال» داخل نفس ملف Google Sheets. المعدة المستلمة تُسجل في بند المتابعة المرتبط.</p>
     </form>
   </dialog>
   <noscript><p class="noscript">يلزم تفعيل JavaScript لعرض السجل والتحديثات التلقائية.</p></noscript>

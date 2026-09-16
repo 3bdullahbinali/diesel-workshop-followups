@@ -12,6 +12,12 @@
   const letterSheetName='المراسلات';
   const letterHeaders=['معرّف الكتاب','الاتجاه','الموضوع','رقم الكتاب','الجهة','معرّف المتابعة','آخر موقع','تاريخ التحقق','حالة العمل','حالة الرد','حالة الكتاب','الإجراء التالي','موعد المتابعة','رقم كتاب الرد','الملاحظات','آخر تعديل بتوقيت الإمارات'];
   const directions={out:'صادر',in:'وارد'};
+  // الأعمال: البيندنق جوب والأعمال القائمة لنا وللجهات الأخرى.
+  const jobSheetName='الأعمال';
+  const jobHeaders=['معرّف العمل','الموضوع','الطرف','الجهة','نوع العمل','الحالة','المسؤول','تاريخ البدء','الموعد المتوقع','معرّف المتابعة','الملاحظات','آخر تعديل بتوقيت الإمارات'];
+  const parties={outbound:'نقدّمه لجهة',inbound:'تقدّمه لنا جهة',internal:'داخلي'};
+  const jobKinds={pending:'بيندنق جوب',ongoing:'عمل قائم',periodic:'صيانة دورية',support:'دعم وتوفير معدات'};
+  const jobStates={not_started:'لم يبدأ',in_progress:'قيد التنفيذ',awaiting_parts:'بانتظار قطع غيار',awaiting_party:'بانتظار الجهة',done:'اكتمل',cancelled:'ملغى'};
   // المعدات المستلمة للصيانة: ورقة اختيارية تُقرأ بالاسم وتُربط ببنود السجل.
   const equipmentSheetName='المعدات';
   const equipmentHeaders=['معرّف البند','الجهة صاحبة المعدة','رقم المعدة','تاريخ الاستلام','المستلم في الورشة','مرحلة العمل الفني','حالة التسليم','تاريخ الإعادة','المستلم من الجهة','الملاحظات','آخر تعديل بتوقيت الإمارات'];
@@ -163,16 +169,20 @@
     const readLetters=query(config.spreadsheetId,letterSheetName,'A1:P2001',8000)
       .then(response=>letterEntries(tableRows(response,letterHeaders)))
       .catch(()=>null);
+    const readJobs=query(config.spreadsheetId,jobSheetName,'A1:L2001',8000)
+      .then(response=>jobEntries(tableRows(response,jobHeaders)))
+      .catch(()=>null);
     const readEquipment=query(config.spreadsheetId,equipmentSheetName,'A1:K2001',8000)
       .then(response=>equipmentEntries(tableRows(response,equipmentHeaders)))
       .catch(()=>null);
     const readOrders=config.orderSheetId==null?Promise.resolve([]):query(config.spreadsheetId,config.orderSheetId,'A1:K5001').then(r=>tableRows(r,root.WorkshopOrders.orderHeaders));
     const readLines=config.deliverySheetId==null?Promise.resolve([]):query(config.spreadsheetId,config.deliverySheetId,'A1:J20001').then(r=>tableRows(r,root.WorkshopOrders.lineHeaders));
     // المدى يمتد إلى Z ليشمل أعمدة المجال والإجراء عند والعائق إن أُضيفت.
-    const [main,refs,english,orders,lines,letters,equipment]=await Promise.all([query(config.spreadsheetId,config.mainSheetId,'A1:Z5001'),query(config.spreadsheetId,config.sourceSheetId,'A1:E20001'),translations,readOrders,readLines,readLetters,readEquipment]);
+    const [main,refs,english,orders,lines,letters,equipment,jobs]=await Promise.all([query(config.spreadsheetId,config.mainSheetId,'A1:Z5001'),query(config.spreadsheetId,config.sourceSheetId,'A1:E20001'),translations,readOrders,readLines,readLetters,readEquipment,readJobs]);
     const result=root.WorkshopOrders.attach(merge(snapshot,tableRows(main,headers,optionalHeaders),tableRows(refs,sourceHeaders)),orders,lines);
     result.translations=english;
     result.letters=letters;
+    result.jobs=jobs;
     // تُربط المعدة ببندها، ويبقى البند ظاهراً حتى لو لم تُسجَّل له معدة.
     result.equipmentEnabled=Array.isArray(equipment);
     if(Array.isArray(equipment)){
@@ -184,6 +194,29 @@
       }
     }
     return result;
+  }
+  function jobEntries(rows){
+    const seen=new Set();
+    return rows.map(row=>{
+      const id=text(row[0]);
+      if(!/^[a-zA-Z0-9_-]+$/.test(id)||seen.has(id))return fail('معرّف عمل مفقود أو مكرر في ورقة الأعمال.');
+      seen.add(id);
+      if(!text(row[1]))return fail('موضوع العمل مفقود: '+id+'.');
+      return {
+        id,
+        title:text(row[1]),
+        party:enumValue(row[2],parties,null,'طرف العمل في '+id),
+        counterpart:text(row[3]),
+        kind:enumValue(row[4],jobKinds,null,'نوع العمل في '+id),
+        state:enumValue(row[5],jobStates,null,'حالة العمل في '+id),
+        owner:text(row[6]),
+        startDate:dateValue(row[7]),
+        dueDate:dateValue(row[8]),
+        taskId:text(row[9])||null,
+        notes:text(row[10]),
+        updatedAt:dateValue(row[11],true)
+      };
+    });
   }
   function equipmentEntries(rows){
     const seen=new Set();
@@ -245,5 +278,5 @@
     }
     return Object.fromEntries(entries);
   }
-  root.WorkshopSheets={load,merge,tableRows,dateValue,translationEntries,letterEntries,headers,sourceHeaders,optionalHeaders,letterHeaders,letterSheetName,equipmentHeaders,equipmentSheetName,stages,areas,actions,directions,workStates,replyStates,closureStates,phases,handovers,equipmentEntries};
+  root.WorkshopSheets={load,merge,tableRows,dateValue,translationEntries,letterEntries,headers,sourceHeaders,optionalHeaders,letterHeaders,letterSheetName,equipmentHeaders,equipmentSheetName,jobHeaders,jobSheetName,stages,areas,actions,directions,workStates,replyStates,closureStates,phases,handovers,equipmentEntries,parties,jobKinds,jobStates,jobEntries};
 })(globalThis);

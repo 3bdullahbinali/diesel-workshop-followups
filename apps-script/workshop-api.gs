@@ -45,6 +45,12 @@ var DIRECTIONS = {out:'صادر', in:'وارد'};
 var WORK_STATES = {not_started:'لم يبدأ', in_progress:'قيد التنفيذ', done:'اكتمل العمل', awaiting_party:'بانتظار إجراء الجهة', filed:'للعلم والحفظ'};
 var REPLY_STATES = {none:'لم يُعد الرد', not_required:'لا يتطلب رداً', draft:'مسودة بانتظار المراجعة', sent:'تم إرسال الرد', awaiting:'بانتظار رد الجهة', received:'تم استلام الرد'};
 var CLOSURE_STATES = {open:'مفتوح', pending:'بانتظار الإغلاق', closed:'مغلق'};
+// الأعمال: البيندنق جوب والأعمال القائمة، ورقة يقرأها الموقع باسمها.
+var JOB_SHEET = 'الأعمال';
+var JOB_HEADERS = ['معرّف العمل','الموضوع','الطرف','الجهة','نوع العمل','الحالة','المسؤول','تاريخ البدء','الموعد المتوقع','معرّف المتابعة','الملاحظات','آخر تعديل بتوقيت الإمارات'];
+var PARTIES = {outbound:'نقدّمه لجهة', inbound:'تقدّمه لنا جهة', internal:'داخلي'};
+var JOB_KINDS = {pending:'بيندنق جوب', ongoing:'عمل قائم', periodic:'صيانة دورية', support:'دعم وتوفير معدات'};
+var JOB_STATES = {not_started:'لم يبدأ', in_progress:'قيد التنفيذ', awaiting_parts:'بانتظار قطع غيار', awaiting_party:'بانتظار الجهة', done:'اكتمل', cancelled:'ملغى'};
 // المعدات المستلمة للصيانة: ورقة يقرأها الموقع باسمها أيضاً.
 var EQUIPMENT_SHEET = 'المعدات';
 var EQUIPMENT_HEADERS = ['معرّف البند','الجهة صاحبة المعدة','رقم المعدة','تاريخ الاستلام','المستلم في الورشة','مرحلة العمل الفني','حالة التسليم','تاريخ الإعادة','المستلم من الجهة','الملاحظات','آخر تعديل بتوقيت الإمارات'];
@@ -163,6 +169,105 @@ function fillOperationalValues() {
   sheet.getRange(2, columns['الإجراء عند'], last - 1, 1).setValues(owners);
   return 'مُلئ ' + filled + ' بنداً · بقي كما هو ' + skipped +
     (unknown.length ? ' · بلا توزيع محضّر: ' + unknown.join('، ') : '');
+}
+
+/** ينشئ ورقة الأعمال. شغّلها مرة واحدة لتفعيل تبويب الأعمال. */
+function addJobsSheet() {
+  if (sheetByName(JOB_SHEET)) return 'ورقة الأعمال موجودة مسبقاً.';
+  var sheet = ensureSheet(JOB_SHEET, JOB_HEADERS, false);
+  sheet.setFrozenRows(1);
+  return 'أُنشئت ورقة الأعمال. أضف الأعمال من تبويب الأعمال في الموقع.';
+}
+
+function jobsSheet(required) {
+  var sheet = sheetByName(JOB_SHEET);
+  if (!sheet && required) throw new Error('شغّل addJobsSheet أولاً لتفعيل الأعمال.');
+  if (sheet) {
+    var first = sheet.getRange(1, 1, 1, JOB_HEADERS.length).getValues()[0];
+    for (var i = 0; i < JOB_HEADERS.length; i++) {
+      if (text(first[i]) !== JOB_HEADERS[i]) throw new Error('عناوين ورقة الأعمال لا تطابق المتوقع: ' + JOB_HEADERS[i]);
+    }
+  }
+  return sheet;
+}
+
+function jobValues(job, current) {
+  job = job || {};
+  var row = [];
+  for (var i = 0; i < JOB_HEADERS.length; i++) row.push(current ? current[i] : '');
+  row[1] = required(job.title, 'موضوع العمل');
+  row[2] = label(job.party, PARTIES, 'طرف العمل');
+  row[3] = text(job.counterpart);
+  row[4] = label(job.kind, JOB_KINDS, 'نوع العمل');
+  row[5] = label(job.state, JOB_STATES, 'حالة العمل');
+  row[6] = text(job.owner);
+  row[7] = dateCell(job.startDate, 'تاريخ البدء', false);
+  row[8] = dateCell(job.dueDate, 'الموعد المتوقع', false);
+  row[9] = text(job.taskId);
+  row[10] = text(job.notes);
+  if (row[9] && !rowById(mainSheet(), row[9])) throw new Error('المتابعة المرتبطة غير موجودة: ' + row[9]);
+  return row;
+}
+
+function jobRow(sheet, id) {
+  var last = sheet.getLastRow();
+  if (last < 2) return 0;
+  var ids = sheet.getRange(2, 1, last - 1, 1).getValues();
+  for (var i = 0; i < ids.length; i++) if (String(ids[i][0]).trim() === String(id || '').trim()) return i + 2;
+  return 0;
+}
+
+function createJob(user, job) {
+  var sheet = jobsSheet(true);
+  var values = jobValues(job, null);
+  var top = 0;
+  if (sheet.getLastRow() > 1) {
+    var ids = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+    for (var i = 0; i < ids.length; i++) {
+      var match = /^job-(\d+)$/.exec(String(ids[i][0]).trim());
+      if (match) top = Math.max(top, Number(match[1]));
+    }
+  }
+  values[0] = 'job-' + (top + 1);
+  values[11] = stamp();
+  sheet.appendRow(values);
+  var row = sheet.getLastRow();
+  sheet.getRange(row, 8).setNumberFormat('dd/mm/yyyy');
+  sheet.getRange(row, 9).setNumberFormat('dd/mm/yyyy');
+  sheet.getRange(row, 12).setNumberFormat('@').setValue(values[11]);
+  audit(user, 'إضافة عمل', values[0], values[2], PARTIES[job.party] + ' · ' + JOB_KINDS[job.kind]);
+  return {ok:true, id:values[0]};
+}
+
+function updateJob(user, id, job, expectedUpdatedAt) {
+  var sheet = jobsSheet(true);
+  var row = jobRow(sheet, id);
+  if (!row) throw new Error('العمل غير موجود في السجل.');
+  var current = sheet.getRange(row, 1, 1, JOB_HEADERS.length).getValues()[0];
+  guardConflict(current[11], expectedUpdatedAt);
+  var values = jobValues(job, current);
+  values[0] = String(current[0]);
+  values[11] = stamp();
+  sheet.getRange(row, 1, 1, JOB_HEADERS.length).setValues([values]);
+  sheet.getRange(row, 12).setNumberFormat('@').setValue(values[11]);
+  var parts = [];
+  for (var i = 0; i < JOB_HEADERS.length; i++) {
+    if (i === 11) continue;
+    if (cellText(current[i]) !== cellText(values[i])) parts.push(JOB_HEADERS[i] + ': «' + cellText(current[i]) + '» ← «' + cellText(values[i]) + '»');
+  }
+  audit(user, 'تعديل عمل', values[0], values[1], parts.length ? parts.join(' · ') : 'بلا تغيير في الحقول.');
+  return {ok:true, id:values[0]};
+}
+
+function deleteJob(user, id, expectedUpdatedAt) {
+  var sheet = jobsSheet(true);
+  var row = jobRow(sheet, id);
+  if (!row) throw new Error('العمل غير موجود في السجل.');
+  var current = sheet.getRange(row, 1, 1, JOB_HEADERS.length).getValues()[0];
+  guardConflict(current[11], expectedUpdatedAt);
+  sheet.deleteRow(row);
+  audit(user, 'حذف عمل', String(id), String(current[1]), 'حُذف العمل من ورقة الأعمال.');
+  return {ok:true, id:String(id)};
 }
 
 /** ينشئ ورقة المعدات. شغّلها مرة واحدة لتفعيل استلام المعدات وتسليمها. */
@@ -459,6 +564,8 @@ function doGet() {
     report.operational = hasOperational(sheet);
     var letters = sheetByName(LETTER_SHEET);
     report.letters = letters ? Math.max(letters.getLastRow() - 1, 0) : 'الورقة غير منشأة';
+    var jobs = sheetByName(JOB_SHEET);
+    report.jobs = jobs ? Math.max(jobs.getLastRow() - 1, 0) : 'الورقة غير منشأة';
     var gear = sheetByName(EQUIPMENT_SHEET);
     report.equipment = gear ? Math.max(gear.getLastRow() - 1, 0) : 'الورقة غير منشأة';
     var users = sheetByName(CONFIG.usersSheet);
@@ -497,6 +604,12 @@ function handle(body) {
   var user = requireUser(body.token);
   if (action === 'create') return createItem(user, body.item);
   if (action === 'update') return updateItem(user, body.id, body.item, body.expectedUpdatedAt);
+  if (action === 'job-create') return createJob(user, body.job);
+  if (action === 'job-update') return updateJob(user, body.id, body.job, body.expectedUpdatedAt);
+  if (action === 'job-delete') {
+    if (user.role !== 'admin') throw new Error('الحذف متاح لصلاحية المدير فقط.');
+    return deleteJob(user, body.id, body.expectedUpdatedAt);
+  }
   if (action === 'letter-create') return createLetter(user, body.letter);
   if (action === 'letter-update') return updateLetter(user, body.id, body.letter, body.expectedUpdatedAt);
   if (action === 'letter-delete') {
@@ -572,10 +685,11 @@ function requireUser(token) {
 }
 
 function features() {
-  var report = {operational:false, letters:false, equipment:false};
+  var report = {operational:false, letters:false, equipment:false, jobs:false};
   try { report.operational = hasOperational(mainSheet()); } catch (error) {}
   try { report.letters = Boolean(lettersSheet(false)); } catch (error) {}
   try { report.equipment = Boolean(equipmentSheet(false)); } catch (error) {}
+  try { report.jobs = Boolean(jobsSheet(false)); } catch (error) {}
   return report;
 }
 

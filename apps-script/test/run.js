@@ -122,6 +122,35 @@ post({action:'update',token,id:withGear.id,item:{title:'مضخة مستلمة ل
 check('إلغاء التفعيل يزيل السجل', gear.getLastRow()===1, 'rows='+gear.getLastRow());
 
 
+console.log('\n— الأعمال —');
+check('الإضافة قبل إنشاء الورقة تُرفض', post({action:'job-create',token,job:{title:'x',party:'outbound',kind:'pending',state:'not_started'}}).ok===false);
+check('addJobsSheet ينشئها', api.addJobsSheet().includes('أُنشئت'));
+check('تكرارها لا يضاعفها', api.addJobsSheet().includes('موجودة'));
+check('الخدمة تبلّغ بتفعيلها', post({action:'session',token}).features.jobs===true);
+const jsheet = book.getSheetByName('الأعمال');
+const job = post({action:'job-create',token,job:{title:'تصليح مضخة لقطاع 3',party:'outbound',counterpart:'قسم شبكات الصرف',kind:'pending',state:'in_progress',owner:'م. سالم',startDate:'2026-09-10',dueDate:'2026-09-25',taskId:'base-1',notes:'المعدة في الورشة'}});
+check('إضافة عمل', job.ok===true && job.id==='job-1', JSON.stringify(job));
+check('كُتب الطرف والنوع والحالة بالعربية', jsheet.rows[1][2]==='نقدّمه لجهة'&&jsheet.rows[1][4]==='بيندنق جوب'&&jsheet.rows[1][5]==='قيد التنفيذ', JSON.stringify(jsheet.rows[1].slice(2,6)));
+check('كُتبت التواريخ كتواريخ', jsheet.rows[1][7] instanceof Date && jsheet.rows[1][8] instanceof Date);
+check('كُتب وقت التعديل', /^\d{2}\/\d{2}\/\d{4} /.test(String(jsheet.rows[1][11])), String(jsheet.rows[1][11]));
+check('ربط بمتابعة غير موجودة يُرفض', post({action:'job-create',token,job:{title:'y',party:'inbound',kind:'ongoing',state:'not_started',taskId:'لا-يوجد'}}).ok===false);
+check('طرف غير معروف يُرفض', post({action:'job-create',token,job:{title:'y',party:'مجهول',kind:'ongoing',state:'not_started'}}).ok===false);
+check('نوع غير معروف يُرفض', post({action:'job-create',token,job:{title:'y',party:'inbound',kind:'مجهول',state:'not_started'}}).ok===false);
+check('موضوع فارغ يُرفض', post({action:'job-create',token,job:{title:'',party:'inbound',kind:'ongoing',state:'not_started'}}).ok===false);
+const second = post({action:'job-create',token,job:{title:'نقل مضخة لفريق آخر',party:'internal',kind:'support',state:'not_started'}});
+check('المعرّف التالي يتسلسل', second.id==='job-2', JSON.stringify(second));
+const jupd = post({action:'job-update',token,id:'job-1',job:{title:'تصليح مضخة لقطاع 3',party:'outbound',counterpart:'قسم شبكات الصرف',kind:'pending',state:'awaiting_parts',owner:'م. سالم'},expectedUpdatedAt:null});
+check('تعديل عمل', jupd.ok===true, JSON.stringify(jupd));
+check('التحديث يعدّل نفس الصف لا يضيف', jsheet.getLastRow()===3, 'rows='+jsheet.getLastRow());
+check('تغيّرت الحالة فعلاً', jsheet.rows[1][5]==='بانتظار قطع غيار', String(jsheet.rows[1][5]));
+check('سُجّل التعديل بالتفصيل', String(book.getSheetByName('سجل التعديلات').rows.at(-1)[5]).includes('الحالة'));
+check('طابع قديم يُرفض', post({action:'job-update',token,id:'job-1',job:{title:'x',party:'outbound',kind:'pending',state:'done'},expectedUpdatedAt:'2020-01-01T00:00:00.000Z'}).ok===false);
+check('عمل غير موجود يُرفض', post({action:'job-update',token,id:'job-99',job:{title:'x',party:'outbound',kind:'pending',state:'done'}}).ok===false);
+check('المحرر لا يحذف عملاً', post({action:'job-delete',token:editor.token,id:'job-1'}).ok===false);
+check('المدير يحذف', post({action:'job-delete',token,id:'job-1'}).ok===true);
+check('نقص الصف', jsheet.getLastRow()===2, 'rows='+jsheet.getLastRow());
+
+
 console.log('\n— ملء التوزيع المحضّر —');
 {
   const cols = api.optionalColumnsOf ? null : null; void cols;

@@ -81,6 +81,32 @@ html[dir=rtl] .letter-top .edit-button{margin:0 auto 0 0}
 .link-button{font:inherit;color:var(--green);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
 @media(max-width:700px){.letter-grid{grid-template-columns:1fr;padding:0 14px 18px}.letter-meta{grid-template-columns:1fr}}
 
+/* الأعمال: البيندنق جوب والأعمال القائمة. */
+.job-group{padding:0 20px 8px}
+.job-group-heading{font-size:.9375rem;margin:0 0 12px;display:flex;align-items:center;gap:9px;color:var(--green)}
+.job-group-heading span{font-size:.8125rem;font-weight:400;color:var(--muted);background:#f1f4f2;border-radius:20px;padding:1px 10px}
+.job-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px;padding:0 0 18px}
+.job-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.job-card h4{font-size:1rem;line-height:1.65;margin:0 0 5px}
+.job-top{display:flex;align-items:center;gap:9px;margin-bottom:11px}
+.job-party{font-size:.75rem;font-weight:700;border-radius:4px;padding:2px 9px;background:#eaf1fb;color:#396493}
+.job-party[data-party=inbound]{background:#f3efe5;color:#7d6524}
+.job-party[data-party=internal]{background:#eef2f0;color:#4c6459}
+.job-state{font-size:.75rem;border-radius:4px;padding:2px 9px;background:#f1f4f2;color:#55665e}
+.job-state[data-state=awaiting_parts],.job-state[data-state=awaiting_party]{background:#faece5;color:#93492e}
+.job-state[data-state=done]{background:#e6f0e9;color:#2f6146}
+.job-top .edit-button{margin:0 0 0 auto}
+html[dir=rtl] .job-top .edit-button{margin:0 auto 0 0}
+.job-counterpart{font-size:.875rem;color:var(--muted);margin:0 0 12px}
+.job-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}
+.job-meta dt{font-size:.75rem;color:var(--muted)}
+.job-meta dd{margin:3px 0 0;font-size:.875rem;overflow-wrap:anywhere}
+.job-late{color:#93492e;font-weight:700}
+.job-gear{margin:0 0 10px;font-size:.8125rem;line-height:1.8;background:#f6f8f7;border:1px solid var(--line);border-radius:8px;padding:8px 11px}
+.job-gear span{display:block;font-size:.75rem;color:var(--muted)}
+.job-link,.job-notes{font-size:.8125rem;color:var(--muted);margin:11px 0 0;line-height:1.8}
+@media(max-width:700px){.job-group{padding:0 14px 6px}.job-grid{grid-template-columns:1fr}.job-meta{grid-template-columns:1fr}}
+
 /* المعدات المستلمة للصيانة. */
 .gear-badge{font-size:.75rem;border-radius:4px;padding:0 7px;background:#eef3fa;color:#3f6188;white-space:nowrap}
 .detail-equipment{border-inline-start:3px solid #7fa2c4;padding-inline-start:14px}

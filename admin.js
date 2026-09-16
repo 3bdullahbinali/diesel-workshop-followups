@@ -283,6 +283,102 @@
       letterWorking(false);
     }
   }
+  /* ————— الأعمال ————— */
+  let editingJob = null, jobConfirmTimer = 0;
+  function jobTasks() {
+    return Object.fromEntries([['', 'بدون ربط']].concat((data?.items || []).map(item => [item.id, item.title])));
+  }
+  function fillJob(job) {
+    const S = window.WorkshopSheets;
+    options($('job-party'), S.parties, job?.party || 'outbound');
+    options($('job-kind'), S.jobKinds, job?.kind || 'pending');
+    options($('job-state'), S.jobStates, job?.state || 'not_started');
+    options($('job-task'), jobTasks(), job?.taskId || '');
+    $('job-title').value = job?.title || '';
+    $('job-counterpart').value = job?.counterpart || '';
+    $('job-owner').value = job?.owner || 'فريق شعبة ورشة الديزل';
+    $('job-start').value = job?.startDate || '';
+    $('job-due').value = job?.dueDate || '';
+    $('job-notes').value = job?.notes || '';
+  }
+  function collectJob() {
+    const job = {
+      title: $('job-title').value.trim(),
+      party: $('job-party').value,
+      counterpart: $('job-counterpart').value.trim(),
+      kind: $('job-kind').value,
+      state: $('job-state').value,
+      owner: $('job-owner').value.trim(),
+      startDate: $('job-start').value,
+      dueDate: $('job-due').value,
+      taskId: $('job-task').value,
+      notes: $('job-notes').value.trim()
+    };
+    if (!job.title) throw new Error('موضوع العمل مطلوب.');
+    return job;
+  }
+  function openJobEditor(job) {
+    editingJob = job || null;
+    say('job-editor-error', '');
+    $('job-editor-title').textContent = I.t(job ? 'تعديل عمل' : 'إضافة عمل');
+    $('job-delete').hidden = !(job && canDelete());
+    resetJobConfirm();
+    fillJob(job);
+    $('job-editor').showModal();
+    $('job-title').focus();
+  }
+  function resetJobConfirm() {
+    clearTimeout(jobConfirmTimer);
+    jobConfirmTimer = 0;
+    $('job-delete').dataset.armed = 'false';
+    $('job-delete-label').textContent = I.t('حذف العمل');
+  }
+  function jobWorking(on, label) {
+    busy = on;
+    for (const button of $('job-editor').querySelectorAll('button')) button.disabled = on;
+    $('job-save-label').textContent = I.t(on ? label : 'حفظ');
+  }
+  async function saveJob(event) {
+    event.preventDefault();
+    if (busy) return;
+    let job;
+    try { job = collectJob(); } catch (error) { say('job-editor-error', error.message); return; }
+    say('job-editor-error', '');
+    jobWorking(true, 'جارٍ الحفظ…');
+    try {
+      if (editingJob) await call('job-update', {id: editingJob.id, job, expectedUpdatedAt: editingJob.updatedAt});
+      else await call('job-create', {job});
+      const message = editingJob ? 'تم حفظ العمل.' : 'تمت إضافة العمل.';
+      $('job-editor').close();
+      await window.WorkshopApp?.refresh();
+      window.WorkshopApp?.notice(message);
+    } catch (error) {
+      say('job-editor-error', error.message);
+    } finally {
+      jobWorking(false);
+    }
+  }
+  async function removeJob() {
+    if (busy || !editingJob) return;
+    if ($('job-delete').dataset.armed !== 'true') {
+      $('job-delete').dataset.armed = 'true';
+      $('job-delete-label').textContent = I.t('تأكيد الحذف نهائياً');
+      jobConfirmTimer = setTimeout(resetJobConfirm, 6000);
+      return;
+    }
+    resetJobConfirm();
+    jobWorking(true, 'جارٍ الحذف…');
+    try {
+      await call('job-delete', {id: editingJob.id, expectedUpdatedAt: editingJob.updatedAt});
+      $('job-editor').close();
+      await window.WorkshopApp?.refresh();
+      window.WorkshopApp?.notice('تم حذف العمل.');
+    } catch (error) {
+      say('job-editor-error', error.message);
+    } finally {
+      jobWorking(false);
+    }
+  }
   function openEditor(item) {
     editing = item || null;
     say('admin-editor-error', '');
@@ -404,6 +500,10 @@
     openLetter(id) {
       if (!canEdit()) return;
       openLetterEditor(id ? window.WorkshopLetters?.find(id) : null);
+    },
+    openJob(id) {
+      if (!canEdit()) return;
+      openJobEditor(id ? window.WorkshopJobs?.find(id) : null);
     }
   };
   window.addEventListener('workshop-data', event => { data = event.detail; });
@@ -436,6 +536,10 @@
     $('letter-delete').addEventListener('click', removeLetter);
     $('letter-editor-cancel').addEventListener('click', () => $('letter-editor').close());
     $('letter-editor').addEventListener('close', resetLetterConfirm);
+    $('job-editor-form').addEventListener('submit', saveJob);
+    $('job-delete').addEventListener('click', removeJob);
+    $('job-editor-cancel').addEventListener('click', () => $('job-editor').close());
+    $('job-editor').addEventListener('close', resetJobConfirm);
     await restore();
   })();
 })();
