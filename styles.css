@@ -54,3 +54,29 @@ html[dir=ltr] .reference[dir=ltr]{text-align:left}
 .detail-blocker p{color:#93493a}
 @media(max-width:700px){.area-filter{max-width:none;width:100%}}
 
+
+/* متابعة المراسلات. */
+.letter-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px;padding:0 20px 22px}
+.letter-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.letter-card h4{font-size:1rem;line-height:1.65;margin:0 0 5px}
+.letter-top{display:flex;align-items:center;gap:9px;margin-bottom:11px}
+.letter-direction{font-size:.75rem;font-weight:700;border-radius:4px;padding:2px 9px;background:#eaf1fb;color:#396493}
+.letter-direction[data-direction=in]{background:#f3efe5;color:#7d6524}
+.letter-reference{font-size:.8125rem;color:var(--muted);overflow-wrap:anywhere}
+.letter-top .edit-button{margin:0 0 0 auto}
+html[dir=rtl] .letter-top .edit-button{margin:0 auto 0 0}
+.letter-party{font-size:.875rem;color:var(--muted);margin:0 0 12px}
+.letter-states{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.letter-state{font-size:.75rem;border-radius:4px;padding:2px 9px;background:#f1f4f2;color:#55665e}
+.letter-state[data-kind=reply]{background:#f8f2e4;color:#816224}
+.letter-state[data-closure=closed]{background:#e6f0e9;color:#2f6146}
+.letter-state[data-closure=pending]{background:#faece5;color:#93492e}
+.letter-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}
+.letter-meta dt{font-size:.75rem;color:var(--muted)}
+.letter-meta dd{margin:3px 0 0;font-size:.875rem;overflow-wrap:anywhere}
+.letter-action{border-top:1px solid var(--line);padding-top:11px}
+.letter-action h5{font-size:.75rem;color:var(--muted);margin:0 0 4px;font-weight:400}
+.letter-action p{margin:0;font-size:.9375rem;line-height:1.75}
+.letter-link,.letter-notes{font-size:.8125rem;color:var(--muted);margin:11px 0 0;line-height:1.8}
+.link-button{font:inherit;color:var(--green);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
+@media(max-width:700px){.letter-grid{grid-template-columns:1fr;padding:0 14px 18px}.letter-meta{grid-template-columns:1fr}}

@@ -80,6 +80,29 @@ check('نقص صف من الورقة', main.getLastRow()===before-1);
 check('أُضيف سطر «محذوف» في المراجع', refs.rows.some(r=>r[0]==='web-1'&&r[1]==='محذوف'));
 check('حذف بند غير موجود يُرفض', post({action:'delete',token,id:'لا-يوجد'}).ok===false);
 
+console.log('\n— المراسلات —');
+check('الإضافة قبل إنشاء الورقة تُرفض', post({action:'letter-create',token,letter:{direction:'out',title:'x',work:'not_started',reply:'none',closure:'open'}}).ok===false);
+check('addLettersSheet ينشئها', api.addLettersSheet().includes('أُنشئت'));
+check('تكرارها لا يضاعفها', api.addLettersSheet().includes('موجودة'));
+check('الخدمة تبلّغ بتفعيلها', post({action:'session',token}).features.letters===true);
+const made = post({action:'letter-create',token,letter:{direction:'out',title:'طلب مناقلة للخراطيم',reference:'2026/1445',party:'إدارة الموازنة',taskId:'base-1',location:'لدى الموازنة',verifiedDate:'2026-09-16',work:'awaiting_party',reply:'awaiting',closure:'open',action:'متابعة الرد',dueDate:'2026-09-20',notes:''}});
+check('إضافة كتاب', made.ok===true && made.id==='letter-1', JSON.stringify(made));
+const lsheet = book.getSheetByName('المراسلات');
+const lrow = lsheet.rows[1];
+check('كُتب الاتجاه والحالات بالعربية', lrow[1]==='صادر'&&lrow[8]==='بانتظار إجراء الجهة'&&lrow[10]==='مفتوح', JSON.stringify([lrow[1],lrow[8],lrow[10]]));
+check('كُتب وقت التعديل', /^\d{2}\/\d{2}\/\d{4} /.test(String(lrow[15])), String(lrow[15]));
+check('ربط بمتابعة غير موجودة يُرفض', post({action:'letter-create',token,letter:{direction:'in',title:'y',taskId:'لا-يوجد',work:'not_started',reply:'none',closure:'open'}}).ok===false);
+check('حالة غير معروفة تُرفض', post({action:'letter-create',token,letter:{direction:'in',title:'y',work:'خطأ',reply:'none',closure:'open'}}).ok===false);
+const lupd = post({action:'letter-update',token,id:'letter-1',letter:{direction:'out',title:'طلب مناقلة للخراطيم',party:'إدارة الموازنة',work:'done',reply:'received',closure:'closed',action:'حُفظ'},expectedUpdatedAt:null});
+check('تعديل كتاب', lupd.ok===true, JSON.stringify(lupd));
+check('تغيّرت الحالات فعلاً', lsheet.rows[1][9]==='تم استلام الرد'&&lsheet.rows[1][10]==='مغلق');
+check('سُجّل التعديل بالتفصيل', String(book.getSheetByName('سجل التعديلات').rows.at(-1)[5]).includes('حالة الرد'));
+check('طابع قديم يُرفض', post({action:'letter-update',token,id:'letter-1',letter:{direction:'out',title:'x',work:'done',reply:'received',closure:'closed'},expectedUpdatedAt:'2020-01-01T00:00:00.000Z'}).ok===false);
+check('المحرر لا يحذف كتاباً', post({action:'letter-delete',token:editor.token,id:'letter-1'}).ok===false);
+check('المدير يحذف', post({action:'letter-delete',token,id:'letter-1'}).ok===true);
+check('نقص الصف', lsheet.getLastRow()===1);
+
+
 console.log('\n— الفحص الذاتي والخروج —');
 const status = get();
 check('doGet يرى الورقة', status.ok===true && status.sheet==='المتابعات', JSON.stringify(status));

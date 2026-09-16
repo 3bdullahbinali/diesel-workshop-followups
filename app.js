@@ -165,7 +165,7 @@
   $('area-filter').addEventListener('change',event=>{selectedArea=event.target.value;renderRows();});
   window.addEventListener('workshop-view',event=>{
     const next=event.detail;
-    if(next==='procurement' || next===overviewView)return;
+    if(next==='procurement' || next==='letters' || next===overviewView)return;
     overviewView=next;selectedGroup='all';query='';selectedFocus='all';selectedArea='';$('search').value='';if(data)render();
   });
   $('refresh').addEventListener('click',()=>fetchData(true));

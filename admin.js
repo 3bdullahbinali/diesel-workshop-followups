@@ -147,6 +147,110 @@
     }
     return item;
   }
+  /* ————— المراسلات ————— */
+  let editingLetter = null, letterConfirmTimer = 0;
+  function letterTasks() {
+    return Object.fromEntries([['', 'بدون ربط']].concat((data?.items || []).map(item => [item.id, item.title])));
+  }
+  function fillLetter(letter) {
+    const S = window.WorkshopSheets;
+    options($('letter-direction'), S.directions, letter?.direction || 'out');
+    options($('letter-work'), S.workStates, letter?.work || 'not_started');
+    options($('letter-reply'), S.replyStates, letter?.reply || 'none');
+    options($('letter-closure'), S.closureStates, letter?.closure || 'open');
+    options($('letter-task'), letterTasks(), letter?.taskId || '');
+    $('letter-title').value = letter?.title || '';
+    $('letter-reference').value = letter?.reference || '';
+    $('letter-party').value = letter?.party || '';
+    $('letter-location').value = letter?.location || '';
+    $('letter-verified').value = letter?.verifiedDate || '';
+    $('letter-due').value = letter?.dueDate || '';
+    $('letter-reply-reference').value = letter?.replyReference || '';
+    $('letter-action').value = letter?.action || '';
+    $('letter-notes').value = letter?.notes || '';
+  }
+  function collectLetter() {
+    const letter = {
+      direction: $('letter-direction').value,
+      title: $('letter-title').value.trim(),
+      reference: $('letter-reference').value.trim(),
+      party: $('letter-party').value.trim(),
+      taskId: $('letter-task').value,
+      location: $('letter-location').value.trim(),
+      verifiedDate: $('letter-verified').value,
+      work: $('letter-work').value,
+      reply: $('letter-reply').value,
+      closure: $('letter-closure').value,
+      action: $('letter-action').value.trim(),
+      dueDate: $('letter-due').value,
+      replyReference: $('letter-reply-reference').value.trim(),
+      notes: $('letter-notes').value.trim()
+    };
+    if (!letter.title) throw new Error('موضوع الكتاب مطلوب.');
+    return letter;
+  }
+  function openLetterEditor(letter) {
+    editingLetter = letter || null;
+    say('letter-editor-error', '');
+    $('letter-editor-title').textContent = I.t(letter ? 'تعديل كتاب' : 'إضافة كتاب');
+    $('letter-delete').hidden = !(letter && canDelete());
+    resetLetterConfirm();
+    fillLetter(letter);
+    $('letter-editor').showModal();
+    $('letter-title').focus();
+  }
+  function resetLetterConfirm() {
+    clearTimeout(letterConfirmTimer);
+    letterConfirmTimer = 0;
+    $('letter-delete').dataset.armed = 'false';
+    $('letter-delete-label').textContent = I.t('حذف الكتاب');
+  }
+  function letterWorking(on, label) {
+    busy = on;
+    for (const button of $('letter-editor').querySelectorAll('button')) button.disabled = on;
+    $('letter-save-label').textContent = I.t(on ? label : 'حفظ');
+  }
+  async function saveLetter(event) {
+    event.preventDefault();
+    if (busy) return;
+    let letter;
+    try { letter = collectLetter(); } catch (error) { say('letter-editor-error', error.message); return; }
+    say('letter-editor-error', '');
+    letterWorking(true, 'جارٍ الحفظ…');
+    try {
+      if (editingLetter) await call('letter-update', {id: editingLetter.id, letter, expectedUpdatedAt: editingLetter.updatedAt});
+      else await call('letter-create', {letter});
+      const message = editingLetter ? 'تم حفظ الكتاب.' : 'تمت إضافة الكتاب.';
+      $('letter-editor').close();
+      await window.WorkshopApp?.refresh();
+      window.WorkshopApp?.notice(message);
+    } catch (error) {
+      say('letter-editor-error', error.message);
+    } finally {
+      letterWorking(false);
+    }
+  }
+  async function removeLetter() {
+    if (busy || !editingLetter) return;
+    if ($('letter-delete').dataset.armed !== 'true') {
+      $('letter-delete').dataset.armed = 'true';
+      $('letter-delete-label').textContent = I.t('تأكيد الحذف نهائياً');
+      letterConfirmTimer = setTimeout(resetLetterConfirm, 6000);
+      return;
+    }
+    resetLetterConfirm();
+    letterWorking(true, 'جارٍ الحذف…');
+    try {
+      await call('letter-delete', {id: editingLetter.id, expectedUpdatedAt: editingLetter.updatedAt});
+      $('letter-editor').close();
+      await window.WorkshopApp?.refresh();
+      window.WorkshopApp?.notice('تم حذف الكتاب.');
+    } catch (error) {
+      say('letter-editor-error', error.message);
+    } finally {
+      letterWorking(false);
+    }
+  }
   function openEditor(item) {
     editing = item || null;
     say('admin-editor-error', '');
@@ -264,6 +368,10 @@
     open(id) {
       const item = data?.items.find(record => record.id === id);
       if (item && canEdit()) openEditor(item);
+    },
+    openLetter(id) {
+      if (!canEdit()) return;
+      openLetterEditor(id ? window.WorkshopLetters?.find(id) : null);
     }
   };
   window.addEventListener('workshop-data', event => { data = event.detail; });
@@ -291,6 +399,10 @@
       $(id).addEventListener('click', () => $(id.replace('-cancel', '')).close());
     }
     $('admin-editor').addEventListener('close', resetConfirm);
+    $('letter-editor-form').addEventListener('submit', saveLetter);
+    $('letter-delete').addEventListener('click', removeLetter);
+    $('letter-editor-cancel').addEventListener('click', () => $('letter-editor').close());
+    $('letter-editor').addEventListener('close', resetLetterConfirm);
     await restore();
   })();
 })();

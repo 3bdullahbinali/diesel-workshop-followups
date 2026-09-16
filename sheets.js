@@ -8,6 +8,13 @@
   const areas={procurement:'المشتريات والموازنة',maintenance:'الصيانة والفحص والدعم الفني',rain:'جاهزية الأمطار والقطاعات',inventory:'المخزون والأصول',vehicles:'مركبات الإدارة والسائقون',admin:'الشؤون الإدارية والموظفون'};
   const actions={me:'عندي',team:'عند الفريق',external:'بانتظار جهة أخرى',unassigned:'لم يحدد'};
   const optionalHeaders=['المجال','الإجراء عند','العائق'];
+  // المراسلات: ورقة اختيارية تُقرأ بالاسم، فلا تحتاج معرّفاً في الإعداد.
+  const letterSheetName='المراسلات';
+  const letterHeaders=['معرّف الكتاب','الاتجاه','الموضوع','رقم الكتاب','الجهة','معرّف المتابعة','آخر موقع','تاريخ التحقق','حالة العمل','حالة الرد','حالة الكتاب','الإجراء التالي','موعد المتابعة','رقم كتاب الرد','الملاحظات','آخر تعديل بتوقيت الإمارات'];
+  const directions={out:'صادر',in:'وارد'};
+  const workStates={not_started:'لم يبدأ',in_progress:'قيد التنفيذ',done:'اكتمل العمل',awaiting_party:'بانتظار إجراء الجهة',filed:'للعلم والحفظ'};
+  const replyStates={none:'لم يُعد الرد',not_required:'لا يتطلب رداً',draft:'مسودة بانتظار المراجعة',sent:'تم إرسال الرد',awaiting:'بانتظار رد الجهة',received:'تم استلام الرد'};
+  const closureStates={open:'مفتوح',pending:'بانتظار الإغلاق',closed:'مغلق'};
   const headers=['معرّف البند','الموضوع','الأولوية','الحالة','الإجراء المطلوب','المسؤول','تاريخ المعلومة','رقم PR','القيمة بالدرهم','بند الموازنة','تفاصيل الحالة','جهة المتابعة','التصنيف','الموعد المرتبط','آخر تعديل بتوقيت الإمارات','المرجع','الملاحظات','نوع طلب الشراء','مرحلة الشراء','نوع الرقم','رقم LPO','أساس القيمة','ملاحظة القيمة'];
   const sourceHeaders=['معرّف البند','نوع المرجع','تاريخ المصدر','العنوان','التفاصيل'];
   const text=value=>String(value??'').trim();
@@ -130,7 +137,10 @@
       root[name]=response=>finish(null,response);
       const timer=setTimeout(()=>finish(new Error('تعذر الوصول إلى ملف Google Sheets.')),timeout);
       const url=new URL('https://docs.google.com/spreadsheets/d/'+encodeURIComponent(sheetId)+'/gviz/tq');
-      url.search=new URLSearchParams({gid:String(tabId),headers:'1',range,tqx:'out:json;responseHandler:'+name,tq:'select *',_t:String(Date.now())});
+      const params={headers:'1',range,tqx:'out:json;responseHandler:'+name,tq:'select *',_t:String(Date.now())};
+      // رقم = معرّف ورقة، ونص = اسمها كما يظهر في الشيت.
+      if(/^\d+$/.test(String(tabId)))params.gid=String(tabId);else params.sheet=String(tabId);
+      url.search=new URLSearchParams(params);
       script.src=url.href;script.referrerPolicy='no-referrer';
       script.onerror=()=>finish(new Error('تعذر الوصول إلى ملف Google Sheets.'));
       document.head.appendChild(script);
@@ -141,13 +151,46 @@
       query(config.spreadsheetId,config.translationSheetId,'A1:B5001',6000)
         .then(response=>translationEntries(tableRows(response,['النص العربي','English'])))
         .catch(()=>null); // A translation outage must not suppress current operational records.
+    // غياب ورقة المراسلات لا يمنع عرض السجل؛ يختفي تبويبها فقط.
+    const readLetters=query(config.spreadsheetId,letterSheetName,'A1:P2001',8000)
+      .then(response=>letterEntries(tableRows(response,letterHeaders)))
+      .catch(()=>null);
     const readOrders=config.orderSheetId==null?Promise.resolve([]):query(config.spreadsheetId,config.orderSheetId,'A1:K5001').then(r=>tableRows(r,root.WorkshopOrders.orderHeaders));
     const readLines=config.deliverySheetId==null?Promise.resolve([]):query(config.spreadsheetId,config.deliverySheetId,'A1:J20001').then(r=>tableRows(r,root.WorkshopOrders.lineHeaders));
     // المدى يمتد إلى Z ليشمل أعمدة المجال والإجراء عند والعائق إن أُضيفت.
-    const [main,refs,english,orders,lines]=await Promise.all([query(config.spreadsheetId,config.mainSheetId,'A1:Z5001'),query(config.spreadsheetId,config.sourceSheetId,'A1:E20001'),translations,readOrders,readLines]);
+    const [main,refs,english,orders,lines,letters]=await Promise.all([query(config.spreadsheetId,config.mainSheetId,'A1:Z5001'),query(config.spreadsheetId,config.sourceSheetId,'A1:E20001'),translations,readOrders,readLines,readLetters]);
     const result=root.WorkshopOrders.attach(merge(snapshot,tableRows(main,headers,optionalHeaders),tableRows(refs,sourceHeaders)),orders,lines);
     result.translations=english;
+    result.letters=letters;
     return result;
+  }
+  function letterEntries(rows){
+    const seen=new Set();
+    return rows.map(row=>{
+      const id=text(row[0]);
+      if(!/^[a-zA-Z0-9_-]+$/.test(id)||seen.has(id))return fail('معرّف كتاب مفقود أو مكرر في ورقة المراسلات.');
+      seen.add(id);
+      if(!text(row[2]))return fail('موضوع الكتاب مفقود: '+id+'.');
+      const letter={
+        id,
+        direction:enumValue(row[1],directions,null,'اتجاه الكتاب'),
+        title:text(row[2]),
+        reference:text(row[3]),
+        party:text(row[4]),
+        taskId:text(row[5])||null,
+        location:text(row[6]),
+        verifiedDate:dateValue(row[7]),
+        work:enumValue(row[8],workStates,null,'حالة العمل'),
+        reply:enumValue(row[9],replyStates,null,'حالة الرد'),
+        closure:enumValue(row[10],closureStates,null,'حالة الكتاب'),
+        action:text(row[11]),
+        dueDate:dateValue(row[12]),
+        replyReference:text(row[13]),
+        notes:text(row[14]),
+        updatedAt:dateValue(row[15],true)
+      };
+      return letter;
+    });
   }
   function translationEntries(rows){
     const entries=new Map();
@@ -160,5 +203,5 @@
     }
     return Object.fromEntries(entries);
   }
-  root.WorkshopSheets={load,merge,tableRows,dateValue,translationEntries,headers,sourceHeaders,optionalHeaders,stages,areas,actions};
+  root.WorkshopSheets={load,merge,tableRows,dateValue,translationEntries,letterEntries,headers,sourceHeaders,optionalHeaders,letterHeaders,letterSheetName,stages,areas,actions,directions,workStates,replyStates,closureStates};
 })(globalThis);

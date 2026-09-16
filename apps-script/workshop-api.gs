@@ -38,6 +38,13 @@ var STAGES = {preparation:'قيد الإعداد',approvals:'بانتظار ال
 var GROUPS = {'purchase-action':'طلبات تحتاج إجراء', quotes:'بانتظار العروض', coordination:'التنسيق والجاهزية', vehicles:'المركبات', future:'خطط مستقبلية'};
 var PR_KINDS = {pr:'طلب شراء', unnumbered:'طلب غير مرقم', planning:'خطة مستقبلية', linked:'بند مرتبط', lpo:'أمر توريد'};
 var BASES = {estimated:'تقديرية', quoted:'عرض سعر', recorded:'مسجلة'};
+// المراسلات: ورقة يقرأها الموقع باسمها، فلا تحتاج معرّفاً في إعداده.
+var LETTER_SHEET = 'المراسلات';
+var LETTER_HEADERS = ['معرّف الكتاب','الاتجاه','الموضوع','رقم الكتاب','الجهة','معرّف المتابعة','آخر موقع','تاريخ التحقق','حالة العمل','حالة الرد','حالة الكتاب','الإجراء التالي','موعد المتابعة','رقم كتاب الرد','الملاحظات','آخر تعديل بتوقيت الإمارات'];
+var DIRECTIONS = {out:'صادر', in:'وارد'};
+var WORK_STATES = {not_started:'لم يبدأ', in_progress:'قيد التنفيذ', done:'اكتمل العمل', awaiting_party:'بانتظار إجراء الجهة', filed:'للعلم والحفظ'};
+var REPLY_STATES = {none:'لم يُعد الرد', not_required:'لا يتطلب رداً', draft:'مسودة بانتظار المراجعة', sent:'تم إرسال الرد', awaiting:'بانتظار رد الجهة', received:'تم استلام الرد'};
+var CLOSURE_STATES = {open:'مفتوح', pending:'بانتظار الإغلاق', closed:'مغلق'};
 
 /* ————— الإعداد لمرة واحدة ————— */
 
@@ -55,6 +62,113 @@ function addOperationalColumns() {
     added.push(header);
   }
   return added.length ? 'أُضيفت الأعمدة: ' + added.join('، ') : 'الأعمدة موجودة مسبقاً.';
+}
+
+/** ينشئ ورقة المراسلات. شغّلها مرة واحدة لتفعيل تبويب المراسلات في الموقع. */
+function addLettersSheet() {
+  var sheet = sheetByName(LETTER_SHEET);
+  if (sheet) return 'ورقة المراسلات موجودة مسبقاً.';
+  sheet = ensureSheet(LETTER_SHEET, LETTER_HEADERS, false);
+  sheet.setFrozenRows(1);
+  return 'أُنشئت ورقة المراسلات. أضف الكتب من الموقع بعد إعادة النشر.';
+}
+
+function lettersSheet(required) {
+  var sheet = sheetByName(LETTER_SHEET);
+  if (!sheet && required) throw new Error('شغّل addLettersSheet أولاً لتفعيل المراسلات.');
+  if (sheet) {
+    var first = sheet.getRange(1, 1, 1, LETTER_HEADERS.length).getValues()[0];
+    for (var i = 0; i < LETTER_HEADERS.length; i++) {
+      if (text(first[i]) !== LETTER_HEADERS[i]) throw new Error('عناوين ورقة المراسلات لا تطابق المتوقع: ' + LETTER_HEADERS[i]);
+    }
+  }
+  return sheet;
+}
+
+function letterValues(letter, current) {
+  letter = letter || {};
+  var row = [];
+  for (var i = 0; i < LETTER_HEADERS.length; i++) row.push(current ? current[i] : '');
+  row[1] = label(letter.direction, DIRECTIONS, 'اتجاه الكتاب');
+  row[2] = required(letter.title, 'موضوع الكتاب');
+  row[3] = text(letter.reference);
+  row[4] = text(letter.party);
+  row[5] = text(letter.taskId);
+  row[6] = text(letter.location);
+  row[7] = dateCell(letter.verifiedDate, 'تاريخ التحقق', false);
+  row[8] = label(letter.work, WORK_STATES, 'حالة العمل');
+  row[9] = label(letter.reply, REPLY_STATES, 'حالة الرد');
+  row[10] = label(letter.closure, CLOSURE_STATES, 'حالة الكتاب');
+  row[11] = text(letter.action);
+  row[12] = dateCell(letter.dueDate, 'موعد المتابعة', false);
+  row[13] = text(letter.replyReference);
+  row[14] = text(letter.notes);
+  if (row[5] && !rowById(mainSheet(), row[5])) throw new Error('المتابعة المرتبطة غير موجودة: ' + row[5]);
+  return row;
+}
+
+function letterRow(sheet, id) {
+  var last = sheet.getLastRow();
+  if (last < 2) return 0;
+  var ids = sheet.getRange(2, 1, last - 1, 1).getValues();
+  for (var i = 0; i < ids.length; i++) if (String(ids[i][0]).trim() === String(id || '').trim()) return i + 2;
+  return 0;
+}
+
+function createLetter(user, letter) {
+  var sheet = lettersSheet(true);
+  var values = letterValues(letter, null);
+  var ids = sheet.getLastRow() < 2 ? [] : sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues().map(function (r) { return String(r[0]).trim(); });
+  var top = 0;
+  for (var i = 0; i < ids.length; i++) {
+    var match = /^letter-(\d+)$/.exec(ids[i]);
+    if (match) top = Math.max(top, Number(match[1]));
+  }
+  values[0] = 'letter-' + (top + 1);
+  values[15] = stamp();
+  sheet.appendRow(values);
+  var row = sheet.getLastRow();
+  sheet.getRange(row, 8).setNumberFormat('dd/mm/yyyy');
+  sheet.getRange(row, 13).setNumberFormat('dd/mm/yyyy');
+  sheet.getRange(row, 16).setNumberFormat('@').setValue(values[15]);
+  audit(user, 'إضافة كتاب', values[0], values[2], DIRECTIONS[letter.direction] || '');
+  return {ok:true, id:values[0]};
+}
+
+function updateLetter(user, id, letter, expectedUpdatedAt) {
+  var sheet = lettersSheet(true);
+  var row = letterRow(sheet, id);
+  if (!row) throw new Error('الكتاب غير موجود في السجل.');
+  var current = sheet.getRange(row, 1, 1, LETTER_HEADERS.length).getValues()[0];
+  guardConflict(current[15], expectedUpdatedAt);
+  var values = letterValues(letter, current);
+  values[0] = String(current[0]);
+  values[15] = stamp();
+  sheet.getRange(row, 1, 1, LETTER_HEADERS.length).setValues([values]);
+  sheet.getRange(row, 16).setNumberFormat('@').setValue(values[15]);
+  audit(user, 'تعديل كتاب', values[0], values[2], letterChanges(current, values));
+  return {ok:true, id:values[0]};
+}
+
+function deleteLetter(user, id, expectedUpdatedAt) {
+  var sheet = lettersSheet(true);
+  var row = letterRow(sheet, id);
+  if (!row) throw new Error('الكتاب غير موجود في السجل.');
+  var current = sheet.getRange(row, 1, 1, LETTER_HEADERS.length).getValues()[0];
+  guardConflict(current[15], expectedUpdatedAt);
+  sheet.deleteRow(row);
+  audit(user, 'حذف كتاب', String(id), String(current[2]), 'حُذف الكتاب من ورقة المراسلات.');
+  return {ok:true, id:String(id)};
+}
+
+function letterChanges(before, after) {
+  var parts = [];
+  for (var i = 0; i < LETTER_HEADERS.length; i++) {
+    if (i === 15) continue;
+    var a = cellText(before[i]), b = cellText(after[i]);
+    if (a !== b) parts.push(LETTER_HEADERS[i] + ': «' + a + '» ← «' + b + '»');
+  }
+  return parts.length ? parts.join(' · ') : 'بلا تغيير في الحقول.';
 }
 
 /** أعمدة الحقول التشغيلية الموجودة فعلياً في الورقة، بأرقامها. */
@@ -188,6 +302,8 @@ function doGet() {
     report.sheet = sheet.getName();
     report.records = Math.max(sheet.getLastRow() - 1, 0);
     report.operational = hasOperational(sheet);
+    var letters = sheetByName(LETTER_SHEET);
+    report.letters = letters ? Math.max(letters.getLastRow() - 1, 0) : 'الورقة غير منشأة';
     var users = sheetByName(CONFIG.usersSheet);
     report.users = users ? Math.max(users.getLastRow() - 1, 0) : 0;
     report.ready = report.users > 0;
@@ -224,6 +340,12 @@ function handle(body) {
   var user = requireUser(body.token);
   if (action === 'create') return createItem(user, body.item);
   if (action === 'update') return updateItem(user, body.id, body.item, body.expectedUpdatedAt);
+  if (action === 'letter-create') return createLetter(user, body.letter);
+  if (action === 'letter-update') return updateLetter(user, body.id, body.letter, body.expectedUpdatedAt);
+  if (action === 'letter-delete') {
+    if (user.role !== 'admin') throw new Error('الحذف متاح لصلاحية المدير فقط.');
+    return deleteLetter(user, body.id, body.expectedUpdatedAt);
+  }
   if (action === 'delete') {
     if (user.role !== 'admin') throw new Error('الحذف متاح لصلاحية المدير فقط.');
     return deleteItem(user, body.id, body.expectedUpdatedAt);
@@ -293,7 +415,10 @@ function requireUser(token) {
 }
 
 function features() {
-  try { return {operational: hasOperational(mainSheet())}; } catch (error) { return {operational:false}; }
+  var report = {operational:false, letters:false};
+  try { report.operational = hasOperational(mainSheet()); } catch (error) {}
+  try { report.letters = Boolean(lettersSheet(false)); } catch (error) {}
+  return report;
 }
 
 function cleanSessions() {

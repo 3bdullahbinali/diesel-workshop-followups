@@ -351,6 +351,7 @@
     if (reducedMotion.matches) { animation?.cancel(); if (dialog.open && !kiosk) pause(); }
   });
   window.addEventListener('workshop-view', event => {
+    if (event.detail === 'letters') return;   // العرض للمتابعات لا للمراسلات
     view = event.detail;
     index = 0;
     elapsed = 0;
