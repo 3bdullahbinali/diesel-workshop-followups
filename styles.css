@@ -35,6 +35,14 @@ html[dir=ltr] .reference[dir=ltr]{text-align:left}
 .secondary-statuses{padding:16px 24px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line);color:var(--muted);font-size:.875rem}
 .record-updated { color: var(--green, #124e3e); font-size: 1rem; font-weight: 600; margin: 0 0 1rem; }
 .record-edit-time { display: block; font-size: .875rem; line-height: 1.6; white-space: normal; margin-top: .4rem; }
+
+
+
+/* Purchase orders and line-level receipts. */
+.stage-lpo_pending{background:#eaf0fb;color:#294778}.stage-partial_delivery{background:#fff0d2;color:#75530f}.stage-received{background:#dcefe4;color:#145033}.stage-closed_unreceived{background:#eee8e2;color:#58463c}
+.lpo-details{min-width:0}.lpo-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px;margin:12px 0}.lpo-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.lpo-heading h5{font:700 1rem Arial,sans-serif;margin:0;color:var(--green)}.lpo-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0}.lpo-meta dt{font-size:.8125rem;color:var(--muted)}.lpo-meta dd{margin:4px 0 0;font-size:.9375rem}.delivery-table-wrap{overflow-x:auto;max-width:100%;border:1px solid var(--line);border-radius:6px}.delivery-table{width:100%;min-width:600px;border-collapse:collapse;text-align:start;table-layout:auto}.purchase-detail .delivery-table td,.purchase-detail .delivery-table th{display:table-cell;width:auto;background:white;border-top:1px solid var(--line);padding:10px;vertical-align:top;font-size:.875rem}.purchase-detail .delivery-table thead th{background:#f1f6f2;white-space:nowrap}.delivery-table thead{display:table-header-group}.delivery-table tbody{display:table-row-group}.delivery-table th:first-child{width:34%;font-weight:400}.delivery-table th span,.delivery-table th small{display:block;margin-top:4px}.delivery-table td:not(:first-child){font-variant-numeric:tabular-nums}.delivery-table th small{color:var(--muted)}
+
+/* حقول العمل اليومي: الإجراء عند والمجال والعائق. */
 .focus-bar{padding:0 0 4px}
 .focus-filters{display:flex;flex-wrap:wrap;gap:7px}
 .area-filter{font:inherit;font-size:.875rem;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:7px;min-height:42px;padding:6px 12px;max-width:260px}
@@ -45,3 +53,4 @@ html[dir=ltr] .reference[dir=ltr]{text-align:left}
 .blocker{display:block;margin-top:7px;font-size:.8125rem;line-height:1.7;color:#93493a;background:#fdf1ee;border-inline-start:3px solid #d9a99c;border-radius:4px;padding:5px 10px}
 .detail-blocker p{color:#93493a}
 @media(max-width:700px){.area-filter{max-width:none;width:100%}}
+

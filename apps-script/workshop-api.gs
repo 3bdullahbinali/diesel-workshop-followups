@@ -34,7 +34,7 @@ var ACTION_AT = {me:'عندي',team:'عند الفريق',external:'بانتظا
 
 // القيم المسموحة — نسخة مطابقة لما يقبله الموقع عند القراءة.
 var PRIORITIES = {high:'عالية', medium:'متوسطة', low:'منخفضة'};
-var STAGES = {preparation:'قيد الإعداد',approvals:'بانتظار الموافقات',number_pending:'بانتظار رقم طلب الشراء',action:'يحتاج إجراء',pr_team_approval:'بانتظار موافقة فريق طلبات الشراء',warehouse_approval:'بانتظار موافقات المستودع',quotes:'بانتظار العروض',offers_received:'وصلت العروض',evaluation:'تحت التقييم',delivery:'بانتظار التوريد',in_progress:'قيد التنفيذ',coordination:'بانتظار المتابعة',on_hold:'مؤجل',closure:'بانتظار الإغلاق',completed:'مكتمل',cancelled:'ملغى'};
+var STAGES = {preparation:'قيد الإعداد',approvals:'بانتظار الموافقات',number_pending:'بانتظار رقم طلب الشراء',action:'يحتاج إجراء',pr_team_approval:'بانتظار موافقة فريق طلبات الشراء',warehouse_approval:'بانتظار موافقات المستودع',quotes:'بانتظار العروض',offers_received:'وصلت العروض',evaluation:'تحت التقييم',lpo_pending:'بانتظار LPO',delivery:'بانتظار التوريد',partial_delivery:'استلام جزئي',received:'مستلم بالكامل ومغلق',closed_unreceived:'مغلق — المتبقي غير مستلم',in_progress:'قيد التنفيذ',coordination:'بانتظار المتابعة',on_hold:'مؤجل',closure:'بانتظار الإغلاق',completed:'مكتمل',cancelled:'ملغى'};
 var GROUPS = {'purchase-action':'طلبات تحتاج إجراء', quotes:'بانتظار العروض', coordination:'التنسيق والجاهزية', vehicles:'المركبات', future:'خطط مستقبلية'};
 var PR_KINDS = {pr:'طلب شراء', unnumbered:'طلب غير مرقم', planning:'خطة مستقبلية', linked:'بند مرتبط', lpo:'أمر توريد'};
 var BASES = {estimated:'تقديرية', quoted:'عرض سعر', recorded:'مسجلة'};

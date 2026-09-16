@@ -1,15 +1,16 @@
 'use strict';
 (function(root){
-  const stages=[['all','جميع الطلبات'],['preparation','قيد الإعداد'],['approvals','بانتظار الموافقات'],['number_pending','بانتظار رقم طلب الشراء'],['warehouse_approval','بانتظار موافقات المستودع'],['quotes','بانتظار العروض'],['offers_evaluation','تحت التقييم'],['delivery','بانتظار التوريد'],['on_hold','مؤجل'],['cancelled','ملغى']];
-  const primaryStages=stages.filter(([id])=>!['on_hold','cancelled'].includes(id));
-  const secondaryStages=stages.filter(([id])=>['on_hold','cancelled'].includes(id));
+  const stages=[['all','جميع الطلبات'],['preparation','قيد الإعداد'],['approvals','بانتظار الموافقات'],['number_pending','بانتظار رقم طلب الشراء'],['pr_team_approval','بانتظار موافقة فريق طلبات الشراء'],['warehouse_approval','بانتظار موافقات المستودع'],['quotes','بانتظار العروض'],['offers_evaluation','تحت التقييم'],['lpo_pending','بانتظار LPO'],['delivery','بانتظار التوريد'],['partial_delivery','استلام جزئي'],['closure','بانتظار الإغلاق'],['received','مستلم بالكامل ومغلق'],['completed','مكتمل'],['closed_unreceived','مغلق — المتبقي غير مستلم'],['action','يحتاج إجراء'],['coordination','بانتظار المتابعة'],['in_progress','قيد التنفيذ'],['on_hold','مؤجل'],['cancelled','ملغى']];
+  const secondaryIds=['pr_team_approval','completed','closed_unreceived','action','coordination','in_progress','on_hold','cancelled'];
+  const primaryStages=stages.filter(([id])=>!secondaryIds.includes(id));
+  const secondaryStages=stages.filter(([id])=>secondaryIds.includes(id));
   // Combine the display category while retaining the actual evidence-backed stage.
   const stageLabels={...Object.fromEntries(stages),offers_received:'وصلت العروض',evaluation:'تحت التقييم'};
   const displayStage=stage=>['offers_received','evaluation'].includes(stage)?'offers_evaluation':stage;
   // Unnumbered, linked, deferred and cancelled purchase records remain purchase-related.
   const isPurchaseRelated=item=>Boolean(item.procurement);
   // Awaiting closure and cancelled purchase requests are not confirmed completion.
-  const isClosed=item=>item.stage==='completed';
+  const isClosed=item=>['completed','received','closed_unreceived'].includes(item.stage);
   function getRows(data){
     const linked=data.items.filter(x=>x.procurement?.kind==='linked');
     return data.items.filter(x=>x.procurement && x.procurement.kind!=='linked').map(item=>({item,meta:item.procurement,linked:linked.filter(x=>x.procurement.parentItemId===item.id)})).sort((a,b)=>{

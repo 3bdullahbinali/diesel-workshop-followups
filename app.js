@@ -92,7 +92,7 @@
     $('record-updated-time').textContent = window.WorkshopRecordTime(data.updatedAt);
     $('record-updated-time').dateTime = data.updatedAt || '';
     $('total').textContent = items.length;
-    $('high').textContent = items.filter(x=>x.priority==='high' && (overviewView==='closed' || x.stage!=='completed')).length;
+    $('high').textContent = items.filter(x=>x.priority==='high' && (overviewView==='closed' || !window.WorkshopProcurement.isClosed(x))).length;
     $('quotes').textContent = items.filter(x=>x.stage==='quotes').length;
     const latestMonth = data.latestInformationDate.slice(0,7);
     $('recent').textContent = items.filter(x=>x.informationDate.slice(0,7)===latestMonth).length;
@@ -130,6 +130,7 @@
       const value=await window.WorkshopSheets.load(sheetConfig,snapshot);
       if(!validPayload(value))throw new Error('invalid');
       const changed=!data || JSON.stringify(data)!==JSON.stringify(value);
+      if(value.translations && JSON.stringify(value.translations)!==JSON.stringify(data?.translations)) I.setTranslations(value.translations);
       const first=!data;data=value;lastFetch=new Date();
       if(changed){render();window.dispatchEvent(new CustomEvent('workshop-data',{detail:data}));}
       setConnection(true);
