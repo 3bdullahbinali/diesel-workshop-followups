@@ -1,0 +1,46 @@
+/* أدوات التعديل من الموقع: تظهر فقط عند ضبط رابط الخدمة وتسجيل الدخول. */
+.admin-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:9px 16px;border:1px solid #cbd8d0;border-radius:8px;background:#fff;color:#1d4b3c;font:inherit;font-weight:600;cursor:pointer}
+.admin-button:hover{border-color:#124e3e;background:#f4f8f5}
+.admin-button svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.admin-button.admin-primary{background:#124e3e;border-color:#124e3e;color:#fff}
+.admin-button.admin-primary:hover{background:#1b6250}
+.admin-session{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:6px 14px;border:1px solid #d7e2da;border-radius:8px;background:#f6faf7;font-size:.875rem;color:#2f5547}
+.admin-session svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.admin-role{font-size:.75rem;color:#6d8478;border:1px solid #dbe5de;border-radius:4px;padding:1px 7px}
+.admin-session button{font:inherit;font-size:.8125rem;color:#8a4a38;background:none;border:0;border-inline-start:1px solid #dbe5de;padding:2px 0 2px 12px;margin-inline-start:4px;cursor:pointer}
+html[dir=rtl] .admin-session button{padding:2px 12px 2px 0}
+.admin-session button:hover{text-decoration:underline}
+.edit-button{width:34px;min-height:36px;display:flex;align-items:center;justify-content:center;color:#5b7467;border:1px solid var(--line);border-radius:6px;background:#fff;margin-top:6px;cursor:pointer}
+.edit-button:hover{border-color:#124e3e;color:#124e3e}
+.edit-button svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+.admin-dialog{width:min(560px,94vw);max-height:92vh;border:0;border-radius:14px;padding:0;background:#fff;color:#1b352d;box-shadow:0 30px 70px #0b302933}
+.admin-dialog.admin-wide{width:min(880px,94vw)}
+.admin-dialog::backdrop{background:#0b302970}
+.admin-form{padding:26px 28px 24px;overflow:auto;max-height:92vh}
+.admin-form h2{font-size:1.25rem;margin:0 0 6px;color:#123f32}
+.admin-hint{margin:0 0 16px;font-size:.8125rem;color:#6b7c74;line-height:1.7}
+.admin-form .admin-hint:last-child{margin:14px 0 0}
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;margin-bottom:16px}
+.admin-field{display:flex;flex-direction:column;gap:5px;font-size:.8125rem;color:#4a6154}
+.admin-wide-field{grid-column:1/-1}
+.admin-field input,.admin-field select,.admin-field textarea{font:inherit;font-size:.9375rem;color:#1b352d;padding:9px 12px;border:1px solid #cfdcd4;border-radius:7px;background:#fff;min-height:42px;width:100%;box-sizing:border-box}
+.admin-field textarea{min-height:70px;resize:vertical;line-height:1.7}
+.admin-field input:focus,.admin-field select:focus,.admin-field textarea:focus{outline:2px solid #2d7a63;outline-offset:1px;border-color:#2d7a63}
+.admin-check{display:flex;align-items:center;gap:9px;font-size:.875rem;color:#2f5547;margin-bottom:16px;cursor:pointer}
+.admin-check input{width:18px;height:18px;accent-color:#124e3e}
+.admin-check input:disabled{cursor:default}
+.admin-error{margin:0 0 14px;padding:10px 14px;border:1px solid #e6bbb4;background:#fff3ef;color:#943d30;border-radius:7px;font-size:.875rem;line-height:1.7}
+.admin-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.admin-actions button{font:inherit;font-size:.9375rem;min-height:44px;padding:10px 20px;border-radius:8px;border:1px solid #cbd8d0;background:#fff;color:#2f5547;cursor:pointer}
+.admin-actions button:hover:not(:disabled){border-color:#124e3e}
+.admin-actions button:disabled{opacity:.55;cursor:default}
+.admin-actions .admin-primary{background:#124e3e;border-color:#124e3e;color:#fff;font-weight:700;min-width:120px}
+.admin-actions .admin-danger{margin-inline-start:auto;color:#943d30;border-color:#e0bdb5}
+.admin-actions .admin-danger[data-armed=true]{background:#943d30;border-color:#943d30;color:#fff;font-weight:700}
+@media(max-width:700px){
+  .admin-grid{grid-template-columns:1fr}
+  .admin-form{padding:22px 18px 20px}
+  .admin-actions .admin-danger{margin-inline-start:0;width:100%}
+}
+@media print{.admin-button,.admin-session,.edit-button{display:none!important}}

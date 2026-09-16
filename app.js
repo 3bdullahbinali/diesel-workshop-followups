@@ -41,7 +41,7 @@
     window.WorkshopPresentation?.setItems(overviewView, visible.map(({item})=>item), groupLabel(data.groups.find(g=>g.id===selectedGroup)));
     $('rows').innerHTML = visible.map(({item,index})=>{
       const isOld = item.evidence === 'baseline';
-      return `<tr class="record-row ${expanded.has(item.id)?'is-open':''}" id="row-${escape(item.id)}"><td class="number-cell"><span class="row-number">${index}</span></td><td class="topic-cell"><h4 class="item-title">${escape(item.title)}</h4><span class="reference" dir="auto">${escape(item.reference)}</span></td><td class="status-cell"><div class="badges"><span class="priority priority-${escape(item.priority)}">${priorities[item.priority]}</span></div><span class="stage stage-${escape(item.stage)}">${labels[item.stage]}</span></td><td class="action-cell"><p class="next-action">${escape(item.action)}</p><span class="owner">${escape(item.owner)}</span></td><td class="date-cell"><time class="information-date" datetime="${escape(item.informationDate)}">${escape(shortDate(item.informationDate))}</time><span class="date-note ${isOld?'':'current'}">${isOld?'حالة من السجل الأساسي':'تحديث مسجل'}</span><span class="purchase-sub record-edit-time"><span>آخر تعديل للبند</span>: <time translate="no" datetime="${escape(item.updatedAt || '')}">${escape(window.WorkshopRecordTime(item.updatedAt))}</time> <span>بتوقيت الإمارات</span></span></td><td class="expand-cell"><button type="button" class="expand-button" data-item="${escape(item.id)}" aria-label="تفاصيل ${escape(item.title)}" aria-expanded="${expanded.has(item.id)}" aria-controls="detail-${escape(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></td></tr>${details(item)}`;
+      return `<tr class="record-row ${expanded.has(item.id)?'is-open':''}" id="row-${escape(item.id)}"><td class="number-cell"><span class="row-number">${index}</span></td><td class="topic-cell"><h4 class="item-title">${escape(item.title)}</h4><span class="reference" dir="auto">${escape(item.reference)}</span></td><td class="status-cell"><div class="badges"><span class="priority priority-${escape(item.priority)}">${priorities[item.priority]}</span></div><span class="stage stage-${escape(item.stage)}">${labels[item.stage]}</span></td><td class="action-cell"><p class="next-action">${escape(item.action)}</p><span class="owner">${escape(item.owner)}</span></td><td class="date-cell"><time class="information-date" datetime="${escape(item.informationDate)}">${escape(shortDate(item.informationDate))}</time><span class="date-note ${isOld?'':'current'}">${isOld?'حالة من السجل الأساسي':'تحديث مسجل'}</span><span class="purchase-sub record-edit-time"><span>آخر تعديل للبند</span>: <time translate="no" datetime="${escape(item.updatedAt || '')}">${escape(window.WorkshopRecordTime(item.updatedAt))}</time> <span>بتوقيت الإمارات</span></span></td><td class="expand-cell">${window.WorkshopAdmin?.canEdit()?`<button type="button" class="edit-button" data-edit="${escape(item.id)}" aria-label="تعديل ${escape(item.title)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16Z"/></svg></button>`:''}<button type="button" class="expand-button" data-item="${escape(item.id)}" aria-label="تفاصيل ${escape(item.title)}" aria-expanded="${expanded.has(item.id)}" aria-controls="detail-${escape(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></td></tr>${details(item)}`;
     }).join('');
     $('shown-count').textContent = query || selectedGroup !== 'all' ? `${visible.length} / ${items.length}` : items.length;
     $('records-title').firstChild.textContent = groupLabel(data.groups.find(g=>g.id===selectedGroup))+' ';
@@ -117,6 +117,8 @@
     }finally{fetching=false;$('refresh').disabled=false;}
   }
   $('rows').addEventListener('click',event=>{
+    const edit=event.target.closest('button[data-edit]');
+    if(edit){window.WorkshopAdmin?.open(edit.dataset.edit);return;}
     const button=event.target.closest('button[data-item]');if(!button)return;
     const id=button.dataset.item;const open=!expanded.has(id);if(open)expanded.add(id);else expanded.delete(id);
     button.setAttribute('aria-expanded',String(open));$('detail-'+id).hidden=!open;$('row-'+id).classList.toggle('is-open',open);
@@ -143,5 +145,8 @@
   function renderToday(){ $('today').textContent = new Intl.DateTimeFormat(I.locale,{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Dubai'}).format(new Date());
   }
   window.addEventListener('workshop-language',()=>{renderToday();if(data){render();setConnection(connected);}});
+  window.addEventListener('workshop-session',()=>{if(data)renderRows();});
+  // أدوات التعديل تحتاج إعادة القراءة وإظهار الرسائل بعد كل حفظ.
+  window.WorkshopApp={refresh:()=>fetchData(true),notice};
   renderToday();fetchData();restartPolling();
 })();

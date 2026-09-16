@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./motion.css">
   <link rel="stylesheet" href="./presentation.css?v=display-5">
+  <link rel="stylesheet" href="./admin.css?v=admin-1">
   <title>متابعات شعبة ورشة الديزل</title>
   <script src="./translations-en.js?v=display-5" defer></script>
   <script src="./i18n.js" defer></script>
@@ -20,6 +21,7 @@
   <script src="./procurement.js?v=display-5" defer></script>
   <script src="./sheets.js" defer></script>
   <script src="./app.js?v=display-5" defer></script>
+  <script src="./admin.js?v=admin-1" defer></script>
 </head>
 <body>
   <div class="ambient-background" aria-hidden="true"><div class="ambient-art"></div></div>
@@ -35,6 +37,9 @@
     <section class="page-heading" aria-label="مقدمة المتابعات">
       <div><div class="eyebrow">سجل العمل</div><h2>المتابعات</h2><p id="scope">جارٍ تحميل السجل…</p></div>
       <div class="page-actions">
+        <button class="admin-button" id="admin-open" type="button" hidden aria-haspopup="dialog" aria-controls="admin-login"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21a8 8 0 0 1 16 0"/></svg><span>تسجيل الدخول</span></button>
+        <span class="admin-session" id="admin-session" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21a8 8 0 0 1 16 0"/></svg><span id="admin-name"></span><span class="admin-role" id="admin-role"></span><button type="button" id="admin-logout">خروج</button></span>
+        <button class="admin-button admin-primary" id="admin-add" type="button" hidden aria-haspopup="dialog" aria-controls="admin-editor"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>إضافة متابعة</span></button>
         <button class="presentation-launch" id="presentation-open" type="button" aria-haspopup="dialog" aria-controls="presentation"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="m10 8 5 3-5 3ZM8 21h8M12 17v4"/></svg><span>عرض تلقائي</span></button>
         <button class="refresh-button" id="refresh" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6.1 7a7 7 0 0 1 11.6-1L20 9M4 15l2.3 3A7 7 0 0 0 17.9 17"/></svg><span>تحديث العرض</span></button>
         <button class="motion-toggle" id="motion-toggle" type="button" aria-pressed="false" aria-label="تشغيل الحركة" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path class="motion-pause" d="M9 5v14M15 5v14"/><path class="motion-play" d="m9 5 10 7-10 7Z"/></svg><span id="motion-label">الحركة متوقفة</span></button>
@@ -104,6 +109,54 @@
       </footer>
       <p id="presentation-announcement" class="sr-only" role="status" aria-live="polite"></p>
     </div>
+  </dialog>
+  <dialog id="admin-login" class="admin-dialog" aria-labelledby="admin-login-title">
+    <form id="admin-login-form" class="admin-form" novalidate>
+      <h2 id="admin-login-title">تسجيل الدخول</h2>
+      <p class="admin-hint">الدخول لمن يحدّث السجل فقط. قراءة المتابعات متاحة للجميع بلا تسجيل.</p>
+      <label class="admin-field"><span>اسم المستخدم</span><input id="admin-username" name="username" autocomplete="username" autocapitalize="off" spellcheck="false" required></label>
+      <label class="admin-field"><span>كلمة المرور</span><input id="admin-password" name="password" type="password" autocomplete="current-password" required></label>
+      <p class="admin-error" id="admin-login-error" role="alert" hidden></p>
+      <div class="admin-actions"><button type="submit" class="admin-primary" id="admin-login-submit"><span id="admin-login-label">دخول</span></button><button type="button" id="admin-login-cancel">إلغاء</button></div>
+    </form>
+  </dialog>
+  <dialog id="admin-editor" class="admin-dialog admin-wide" aria-labelledby="admin-editor-title">
+    <form id="admin-editor-form" class="admin-form" novalidate>
+      <h2 id="admin-editor-title">إضافة متابعة</h2>
+      <div class="admin-grid">
+        <label class="admin-field admin-wide-field"><span>الموضوع</span><input id="admin-title" maxlength="300" required></label>
+        <label class="admin-field"><span>الأولوية</span><select id="admin-priority"></select></label>
+        <label class="admin-field"><span>الحالة</span><select id="admin-stage"></select></label>
+        <label class="admin-field"><span>التصنيف</span><select id="admin-group"></select></label>
+        <label class="admin-field"><span>المسؤول</span><input id="admin-owner" maxlength="120" required></label>
+        <label class="admin-field"><span>تاريخ المعلومة</span><input id="admin-information" type="date" required></label>
+        <label class="admin-field"><span>الموعد المرتبط</span><input id="admin-due" type="date"></label>
+        <label class="admin-field admin-wide-field"><span>الإجراء المطلوب</span><textarea id="admin-action" rows="3" maxlength="2000" required></textarea></label>
+        <label class="admin-field admin-wide-field"><span>تفاصيل الحالة</span><textarea id="admin-status" rows="3" maxlength="2000"></textarea></label>
+        <label class="admin-field"><span>جهة المتابعة</span><input id="admin-follow" maxlength="200"></label>
+        <label class="admin-field"><span>المرجع</span><input id="admin-reference" maxlength="300"></label>
+        <label class="admin-field admin-wide-field"><span>الملاحظات</span><textarea id="admin-notes" rows="2" maxlength="2000"></textarea></label>
+      </div>
+      <label class="admin-check"><input type="checkbox" id="admin-pr-enabled"><span>بند مرتبط بطلب شراء</span></label>
+      <div class="admin-grid" id="admin-purchase" hidden>
+        <label class="admin-field"><span>نوع طلب الشراء</span><select id="admin-pr-kind"></select></label>
+        <label class="admin-field"><span>مرحلة الشراء</span><select id="admin-pr-stage"></select></label>
+        <label class="admin-field"><span>رقم PR</span><input id="admin-pr-number" maxlength="60"></label>
+        <label class="admin-field"><span>نوع الرقم</span><input id="admin-pr-numbertype" maxlength="40"></label>
+        <label class="admin-field"><span>رقم LPO</span><input id="admin-pr-lpo" maxlength="60"></label>
+        <label class="admin-field"><span>القيمة بالدرهم</span><input id="admin-pr-amount" inputmode="decimal" maxlength="20"></label>
+        <label class="admin-field"><span>أساس القيمة</span><select id="admin-pr-basis"></select></label>
+        <label class="admin-field"><span>بند الموازنة</span><input id="admin-pr-budget" maxlength="60"></label>
+        <label class="admin-field admin-wide-field"><span>ملاحظة القيمة</span><input id="admin-pr-note" maxlength="200"></label>
+      </div>
+      <p class="admin-error" id="admin-editor-error" role="alert" hidden></p>
+      <div class="admin-actions">
+        <button type="submit" class="admin-primary" id="admin-save"><span id="admin-save-label">حفظ</span></button>
+        <button type="button" id="admin-editor-cancel">إلغاء</button>
+        <button type="button" class="admin-danger" id="admin-delete" data-armed="false" hidden><span id="admin-delete-label">حذف البند</span></button>
+      </div>
+      <p class="admin-hint">يُحفظ التعديل في ملف Google Sheets مباشرة، ويظهر لبقية الأجهزة خلال 30 ثانية.</p>
+    </form>
   </dialog>
   <noscript><p class="noscript">يلزم تفعيل JavaScript لعرض السجل والتحديثات التلقائية.</p></noscript>
 </body>

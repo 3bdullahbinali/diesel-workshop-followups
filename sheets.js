@@ -36,6 +36,8 @@
   }
   function merge(snapshot,mainRows,sourceRows){
     const prior=new Map(snapshot.items.map(item=>[item.id,item]));
+    // سطر «محذوف» في ورقة المراجع يوثّق حذفاً مقصوداً من الموقع.
+    const removed=new Set(sourceRows.filter(row=>text(row[1])==='محذوف').map(row=>text(row[0])));
     const groupMap=Object.fromEntries(snapshot.groups.filter(g=>g.id!=='all').map(g=>[g.id,g.label]));
     const seen=new Set();
     const items=mainRows.map(row=>{
@@ -71,11 +73,13 @@
     });
     if(!items.length)return fail('ورقة المتابعات فارغة.');
     // Never silently lose a baseline or merged record after a malformed edit.
-    for(const id of prior.keys())if(!seen.has(id))return fail('بند من السجل المجهز مفقود في Google Sheets: '+id+'.');
+    for(const id of prior.keys())if(!seen.has(id)&&!removed.has(id))return fail('بند من السجل المجهز مفقود في Google Sheets: '+id+'.');
     const byId=new Map(items.map(item=>[item.id,item]));
     const sourceMap=new Map(),historyMap=new Map();
     for(const row of sourceRows){
-      const id=text(row[0]),item=byId.get(id),type=text(row[1]);
+      const id=text(row[0]),type=text(row[1]);
+      if(type==='محذوف')continue;
+      const item=byId.get(id);
       if(!item)return fail('مرجع مرتبط بمعرّف غير موجود: '+id+'.');
       const date=dateValue(row[2]);
       if(type==='مرجع'){
