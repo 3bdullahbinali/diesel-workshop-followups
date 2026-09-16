@@ -1,5 +1,10 @@
 /* English display translations; Arabic records preserve their identity. */
 window.WorkshopEnglish = {
+  "الصادر": "Outgoing",
+  "الوارد": "Incoming",
+  "الكتب المغلقة": "Closed correspondence",
+  "تصنيف الكتب": "Correspondence category",
+  "غيّر التصنيف أو جرّب كلمة أخرى في البحث.": "Change the category or try a different search term.",
   "القيمة المسجلة للطلبات": "Recorded request value",
   "درهم": "AED",
   "طلباً بقيمة مسجلة": "requests with a recorded value",

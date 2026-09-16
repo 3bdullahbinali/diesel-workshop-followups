@@ -6,18 +6,20 @@
   const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const normal = value => String(value ?? '').toLowerCase().replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/[ً-ٟ]/g,'').trim();
   const shortDate = value => value ? String(value).slice(0,10).split('-').reverse().join(' / ') : 'غير مسجل';
-  let letters = null, items = [], direction = 'all', state = 'all', query = '';
+  let letters = null, items = [], selected = 'out', query = '';
+  const views = [['out','الصادر'],['in','الوارد'],['closed','الكتب المغلقة']];
 
   const open = letter => letter.closure !== 'closed';
+  const inView = (letter, view) => view === 'closed'
+    ? !open(letter)
+    : open(letter) && letter.direction === view;
   function matches(letter) {
-    if (direction !== 'all' && letter.direction !== direction) return false;
-    if (state === 'open' && letter.closure === 'closed') return false;
-    if (state !== 'all' && state !== 'open' && letter.closure !== state) return false;
+    if (!inView(letter, selected)) return false;
     if (!query) return true;
     return normal(I.search([letter.title, letter.reference, letter.party, letter.location, letter.action])).includes(normal(query));
   }
   function counts() {
-    return {all: letters.length, out: letters.filter(l => l.direction === 'out').length, in: letters.filter(l => l.direction === 'in').length};
+    return Object.fromEntries(views.map(([view]) => [view, letters.filter(letter => inView(letter, view)).length]));
   }
   function card(letter) {
     const task = items.find(item => item.id === letter.taskId);
@@ -50,12 +52,9 @@
     if (!letters) return;
     const visible = letters.filter(matches);
     const total = counts();
-    $('letters-filters').innerHTML = [['all','جميع الكتب'],['out','صادر'],['in','وارد']].map(([id,label]) =>
-      `<button type="button" data-direction="${id}" class="filter-button ${direction===id?'active':''}" aria-pressed="${direction===id}">${escape(label)}<span class="filter-count">${total[id]}</span></button>`).join('');
-    const byState = {all:letters.length, open:letters.filter(open).length, pending:letters.filter(l=>l.closure==='pending').length, closed:letters.filter(l=>l.closure==='closed').length};
-    $('letters-states').innerHTML = [['all','كل الحالات'],['open','مفتوحة'],['pending','بانتظار الإغلاق'],['closed','مغلقة']].map(([id,label]) =>
-      `<button type="button" data-state="${id}" class="filter-button ${state===id?'active':''}" aria-pressed="${state===id}">${escape(label)}<span class="filter-count">${byState[id]}</span></button>`).join('');
-    $('letters-count').textContent = query || direction !== 'all' || state !== 'all' ? `${visible.length} / ${letters.length}` : letters.length;
+    $('letters-filters').innerHTML = views.map(([id,label]) =>
+      `<button type="button" data-letter-view="${id}" class="filter-button ${selected===id?'active':''}" aria-pressed="${selected===id}">${escape(label)}<span class="filter-count">${total[id]}</span></button>`).join('');
+    $('letters-count').textContent = `${visible.length} / ${letters.length}`;
     $('letters-grid').innerHTML = visible.map(card).join('');
     $('letters-grid').hidden = visible.length === 0;
     $('letters-empty').hidden = visible.length !== 0;
@@ -82,15 +81,9 @@
   window.addEventListener('workshop-language', render);
   window.addEventListener('workshop-translations', render);
   $('letters-filters').addEventListener('click', event => {
-    const button = event.target.closest('button[data-direction]');
+    const button = event.target.closest('button[data-letter-view]');
     if (!button) return;
-    direction = button.dataset.direction;
-    render();
-  });
-  $('letters-states').addEventListener('click', event => {
-    const button = event.target.closest('button[data-state]');
-    if (!button) return;
-    state = button.dataset.state;
+    selected = button.dataset.letterView;
     render();
   });
   $('letters-search').addEventListener('input', event => { query = event.target.value; render(); });

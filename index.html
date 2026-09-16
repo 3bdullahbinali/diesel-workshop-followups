@@ -6,29 +6,29 @@
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#124e3e">
   <meta name="description" content="متابعات شعبة ورشة الديزل: الأولويات والإجراءات وآخر التحديثات المؤكدة.">
-  <link rel="icon" href="./favicon.svg?v=2026-09-16-1122" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css?v=2026-09-16-1122">
-  <link rel="stylesheet" href="./motion.css?v=2026-09-16-1122">
-  <link rel="stylesheet" href="./presentation.css?v=2026-09-16-1122">
-  <link rel="stylesheet" href="./admin.css?v=2026-09-16-1122">
-  <link rel="stylesheet" href="./statistics.css?v=2026-09-16-1122">
+  <link rel="icon" href="./favicon.svg?v=2026-09-16-1151" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css?v=2026-09-16-1151">
+  <link rel="stylesheet" href="./motion.css?v=2026-09-16-1151">
+  <link rel="stylesheet" href="./presentation.css?v=2026-09-16-1151">
+  <link rel="stylesheet" href="./admin.css?v=2026-09-16-1151">
+  <link rel="stylesheet" href="./statistics.css?v=2026-09-16-1151">
   <title>متابعات شعبة ورشة الديزل</title>
-  <script src="./translations-en.js?v=2026-09-16-1122" defer></script>
-  <script src="./procurement-en.js?v=2026-09-16-1122" defer></script>
-  <script src="./i18n.js?v=2026-09-16-1122" defer></script>
-  <script src="./record-time.js?v=2026-09-16-1122" defer></script>
-  <script src="./motion.js?v=2026-09-16-1122" defer></script>
-  <script src="./procurement-model.js?v=2026-09-16-1122" defer></script>
-  <script src="./purchase-orders.js?v=2026-09-16-1122" defer></script>
-  <script src="./presentation.js?v=2026-09-16-1122" defer></script>
-  <script src="./procurement.js?v=2026-09-16-1122" defer></script>
-  <script src="./sheets.js?v=2026-09-16-1122" defer></script>
-  <script src="./app.js?v=2026-09-16-1122" defer></script>
-  <script src="./notifications.js?v=2026-09-16-1122" defer></script>
-  <script src="./letters.js?v=2026-09-16-1122" defer></script>
-  <script src="./jobs.js?v=2026-09-16-1122" defer></script>
-  <script src="./statistics.js?v=2026-09-16-1122" defer></script>
-  <script src="./admin.js?v=2026-09-16-1122" defer></script>
+  <script src="./translations-en.js?v=2026-09-16-1151" defer></script>
+  <script src="./procurement-en.js?v=2026-09-16-1151" defer></script>
+  <script src="./i18n.js?v=2026-09-16-1151" defer></script>
+  <script src="./record-time.js?v=2026-09-16-1151" defer></script>
+  <script src="./motion.js?v=2026-09-16-1151" defer></script>
+  <script src="./procurement-model.js?v=2026-09-16-1151" defer></script>
+  <script src="./purchase-orders.js?v=2026-09-16-1151" defer></script>
+  <script src="./presentation.js?v=2026-09-16-1151" defer></script>
+  <script src="./procurement.js?v=2026-09-16-1151" defer></script>
+  <script src="./sheets.js?v=2026-09-16-1151" defer></script>
+  <script src="./app.js?v=2026-09-16-1151" defer></script>
+  <script src="./notifications.js?v=2026-09-16-1151" defer></script>
+  <script src="./letters.js?v=2026-09-16-1151" defer></script>
+  <script src="./jobs.js?v=2026-09-16-1151" defer></script>
+  <script src="./statistics.js?v=2026-09-16-1151" defer></script>
+  <script src="./admin.js?v=2026-09-16-1151" defer></script>
 </head>
 <body>
   <div class="ambient-background" aria-hidden="true"><div class="ambient-art"></div></div>
@@ -97,10 +97,9 @@
       <div class="records-section">
         <div class="records-heading"><h3>متابعة المراسلات <span id="letters-count"></span></h3><span class="sort-hint"><span id="letters-open-count">0</span> كتاب مفتوح</span></div>
         <p class="purchase-note">الصادر والوارد وموقع الكتاب. إنجاز العمل وحالة الرد وإغلاق الكتاب ثلاث حالات مستقلة: اكتمال العمل لا يعني إرسال الرد، وإرسال الرد لا يعني إغلاق الكتاب.</p>
-        <div class="focus-bar"><div class="group-filters focus-filters" id="letters-states" role="group" aria-label="حالة الكتاب"></div></div>
-        <div class="toolbar"><div class="group-filters" id="letters-filters" role="group" aria-label="اتجاه الكتاب"></div><label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="letters-search" type="search" autocomplete="off" placeholder="ابحث بالموضوع أو رقم الكتاب أو الجهة" aria-label="البحث في المراسلات"></label><button class="admin-button admin-primary" id="letters-add" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>إضافة كتاب</span></button></div>
+        <div class="toolbar"><div class="group-filters" id="letters-filters" role="group" aria-label="تصنيف الكتب"></div><label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="letters-search" type="search" autocomplete="off" placeholder="ابحث بالموضوع أو رقم الكتاب أو الجهة" aria-label="البحث في المراسلات"></label><button class="admin-button admin-primary" id="letters-add" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>إضافة كتاب</span></button></div>
         <div class="letter-grid" id="letters-grid" aria-live="polite"></div>
-        <div class="empty-state" id="letters-empty" hidden><h4>لا توجد مراسلات في هذا العرض</h4><p>غيّر الاتجاه أو جرّب كلمة أخرى في البحث.</p></div>
+        <div class="empty-state" id="letters-empty" hidden><h4>لا توجد مراسلات في هذا العرض</h4><p>غيّر التصنيف أو جرّب كلمة أخرى في البحث.</p></div>
       </div>
     </section>
     <section id="jobs-panel" role="tabpanel" aria-labelledby="jobs-tab" hidden>
