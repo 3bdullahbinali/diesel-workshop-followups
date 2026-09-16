@@ -1,7 +1,8 @@
 /**
  * واجهة الكتابة لسجل متابعات شعبة ورشة الديزل.
  *
- * تُنشر من محرر Apps Script المرتبط بملف المتابعات:
+ * يعمل من مشروع مستقل على script.google.com أو من مشروع مرتبط بالملف؛
+ * الوصول إلى الجدول عبر المعرّف في CONFIG.spreadsheetId.
  *   نشر ← عملية نشر جديدة ← تطبيق ويب ← التنفيذ باسمي ← الوصول: أي شخص.
  * ثم يوضع رابط /exec في admin-config.json داخل مستودع الموقع.
  *
@@ -10,6 +11,8 @@
  */
 
 var CONFIG = {
+  // معرّف ملف المتابعات في Google Sheets (من رابط الملف).
+  spreadsheetId: '1f8rYNHHe6KjvgQgThMXRi3cOrHGLJWmvLYURqzdbh_0',
   mainSheetId: 208260119,      // gid ورقة المتابعات
   sourceSheetId: 1153309683,   // gid ورقة المراجع والسجل
   usersSheet: 'المستخدمون',
@@ -82,8 +85,8 @@ function writeOptional(sheet, row, item) {
 
 /** شغّل هذه مرة واحدة بعد لصق السكربت: تنشئ أوراق الصلاحيات وتضبط المنطقة الزمنية. */
 function setup() {
-  var book = SpreadsheetApp.getActive();
-  if (book.getSpreadsheetTimeZone() !== CONFIG.timeZone) book.setSpreadsheetTimeZone(CONFIG.timeZone);
+  var file = book();
+  if (file.getSpreadsheetTimeZone() !== CONFIG.timeZone) file.setSpreadsheetTimeZone(CONFIG.timeZone);
   ensureSheet(CONFIG.usersSheet, ['اسم المستخدم','الاسم','الصلاحية','مفعّل','الملح','بصمة كلمة المرور','آخر دخول','محاولات فاشلة','موقوف حتى'], true);
   ensureSheet(CONFIG.sessionsSheet, ['بصمة الجلسة','اسم المستخدم','بدأت','تنتهي','آخر نشاط'], true);
   ensureSheet(CONFIG.auditSheet, ['الوقت','المستخدم','الإجراء','معرّف البند','الموضوع','التفاصيل'], false);
@@ -129,8 +132,24 @@ function saveUser(username, name, role, password) {
 
 /* ————— نقطة الدخول ————— */
 
+/** افتح رابط /exec في المتصفح للتأكد أن الخدمة ترى الملف قبل ربط الموقع. */
 function doGet() {
-  return json({ok:true, service:'متابعات شعبة ورشة الديزل', time:now()});
+  var report = {ok:true, service:'متابعات شعبة ورشة الديزل', time:now()};
+  try {
+    var sheet = mainSheet();
+    report.sheet = sheet.getName();
+    report.records = Math.max(sheet.getLastRow() - 1, 0);
+    report.operational = hasOperational(sheet);
+    var users = sheetByName(CONFIG.usersSheet);
+    report.users = users ? Math.max(users.getLastRow() - 1, 0) : 0;
+    report.ready = report.users > 0;
+    if (!report.users) report.next = 'شغّل setup ثم addUser من محرر Apps Script.';
+    else if (!report.operational) report.next = 'اختياري: شغّل addOperationalColumns لإضافة أعمدة المجال والإجراء عند والعائق.';
+  } catch (error) {
+    report.ok = false;
+    report.error = String(error && error.message ? error.message : error);
+  }
+  return json(report);
 }
 
 function doPost(e) {
@@ -404,7 +423,7 @@ function mainSheet() { return sheetById(CONFIG.mainSheetId, HEADERS, 'ورقة �
 function sourceSheet() { return sheetById(CONFIG.sourceSheetId, SOURCE_HEADERS, 'ورقة المراجع والسجل'); }
 
 function sheetById(id, headers, name) {
-  var sheets = SpreadsheetApp.getActive().getSheets();
+  var sheets = book().getSheets();
   for (var i = 0; i < sheets.length; i++) if (sheets[i].getSheetId() === id) {
     var first = sheets[i].getRange(1, 1, 1, headers.length).getValues()[0];
     for (var c = 0; c < headers.length; c++) {
@@ -415,13 +434,21 @@ function sheetById(id, headers, name) {
   throw new Error('لم يُعثر على ' + name + '.');
 }
 
-function sheetByName(name) { return SpreadsheetApp.getActive().getSheetByName(name); }
+function sheetByName(name) { return book().getSheetByName(name); }
+
+/** ملف المتابعات: بالمعرّف أولاً، ويرجع إلى الملف المرتبط إن كان السكربت بداخله. */
+function book() {
+  if (CONFIG.spreadsheetId) return SpreadsheetApp.openById(CONFIG.spreadsheetId);
+  var active = SpreadsheetApp.getActiveSpreadsheet();
+  if (!active) throw new Error('ضع معرّف ملف المتابعات في CONFIG.spreadsheetId.');
+  return active;
+}
 
 function ensureSheet(name, headers, hidden) {
-  var book = SpreadsheetApp.getActive();
-  var sheet = book.getSheetByName(name);
+  var file = book();
+  var sheet = file.getSheetByName(name);
   if (!sheet) {
-    sheet = book.insertSheet(name);
+    sheet = file.insertSheet(name);
     sheet.appendRow(headers);
     sheet.setFrozenRows(1);
     if (hidden) sheet.hideSheet();
