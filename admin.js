@@ -224,13 +224,13 @@
     if (!letter.title) throw new Error('موضوع الكتاب مطلوب.');
     return letter;
   }
-  function openLetterEditor(letter) {
+  function openLetterEditor(letter, taskId) {
     editingLetter = letter || null;
     say('letter-editor-error', '');
     $('letter-editor-title').textContent = I.t(letter ? 'تعديل كتاب' : 'إضافة كتاب');
     $('letter-delete').hidden = !(letter && canDelete());
     resetLetterConfirm();
-    fillLetter(letter);
+    fillLetter(letter || (taskId ? {taskId} : null));
     $('letter-editor').showModal();
     $('letter-title').focus();
   }
@@ -320,13 +320,13 @@
     if (!job.title) throw new Error('موضوع العمل مطلوب.');
     return job;
   }
-  function openJobEditor(job) {
+  function openJobEditor(job, taskId) {
     editingJob = job || null;
     say('job-editor-error', '');
     $('job-editor-title').textContent = I.t(job ? 'تعديل عمل' : 'إضافة عمل');
     $('job-delete').hidden = !(job && canDelete());
     resetJobConfirm();
-    fillJob(job);
+    fillJob(job || (taskId ? {taskId} : null));
     $('job-editor').showModal();
     $('job-title').focus();
   }
@@ -503,13 +503,13 @@
       const item = data?.items.find(record => record.id === id);
       if (item && canEdit()) openEditor(item);
     },
-    openLetter(id) {
+    openLetter(id, taskId) {
       if (!canEdit()) return;
-      openLetterEditor(id ? window.WorkshopLetters?.find(id) : null);
+      openLetterEditor(id ? window.WorkshopLetters?.find(id) : null, data?.items.some(item=>item.id===taskId)?taskId:null);
     },
-    openJob(id) {
+    openJob(id, taskId) {
       if (!canEdit()) return;
-      openJobEditor(id ? window.WorkshopJobs?.find(id) : null);
+      openJobEditor(id ? window.WorkshopJobs?.find(id) : null, data?.items.some(item=>item.id===taskId)?taskId:null);
     }
   };
   window.addEventListener('workshop-data', event => { data = event.detail; });

@@ -1,5 +1,15 @@
 /* English display translations; Arabic records preserve their identity. */
 window.WorkshopEnglish = {
+  "المتابعات العامة": "General follow-ups",
+  "تابع الإجراء، وراجع المراسلات والأعمال المرتبطة به.": "Track the next action and review its linked correspondence and work.",
+  "أقسام المتابعات العامة": "General follow-up sections",
+  "كتب تراسل": "Tarasul correspondence",
+  "المراسلات والأعمال المرتبطة": "Linked correspondence and work",
+  "إضافة كتاب مرتبط": "Add linked correspondence",
+  "إضافة عمل مرتبط": "Add linked work",
+  "فتح الكتاب": "Open correspondence",
+  "فتح العمل": "Open work",
+  "لا توجد مراسلات أو أعمال مرتبطة بهذه المتابعة بعد.": "No correspondence or work is linked to this follow-up yet.",
   "الصادر": "Outgoing",
   "الوارد": "Incoming",
   "الكتب المغلقة": "Closed correspondence",

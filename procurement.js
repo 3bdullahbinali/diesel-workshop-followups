@@ -13,12 +13,19 @@
   const panels={procurement:'procurement-panel',letters:'letters-panel',jobs:'jobs-panel',stats:'stats-panel'};
   function selectView(view,updateHash=true){
     const purchase=view==='procurement';
+    const general=['non-purchase','letters','jobs'].includes(view);
     const changed=selectedView!==view;
     selectedView=view;
     const shown=panels[view]||'overview-panel';
     for(const id of ['overview-panel','procurement-panel','letters-panel','jobs-panel','stats-panel'])$(id).hidden=id!==shown;
-    for(const tab of tabs){const active=tab.dataset.view===view;tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;}
-    $('overview-panel').setAttribute('aria-labelledby',panels[view]?'overview-tab':view+'-tab');
+    $('general-navigation').hidden=!general;
+    for(const tab of tabs){
+      const main=tab.parentElement.id==='main-views';
+      const active=tab.dataset.view===(main&&general?'non-purchase':view);
+      tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;
+    }
+    $('non-purchase-tab').setAttribute('aria-controls',general?shown:'overview-panel');
+    $('overview-panel').setAttribute('aria-labelledby',view==='non-purchase'?'general-followups-tab':panels[view]?'overview-tab':view+'-tab');
     if(updateHash)history.replaceState(null,'',purchase?'#purchase-orders':'#'+view);
     window.dispatchEvent(new CustomEvent('workshop-view',{detail:view}));
     if(changed)window.WorkshopMotion?.reveal($(shown));
@@ -30,8 +37,9 @@
     tab.addEventListener('click',()=>selectView(tab.dataset.view));
     tab.addEventListener('keydown',event=>{
       if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
-      event.preventDefault();let i=tabs.indexOf(tab);i=event.key==='Home'?0:event.key==='End'?tabs.length-1:((event.key==='ArrowLeft')===(document.documentElement.dir==='rtl'))?(i+1)%tabs.length:(i+tabs.length-1)%tabs.length;
-      selectView(tabs[i].dataset.view);tabs[i].focus();
+      const peers=tabs.filter(peer=>peer.parentElement===tab.parentElement&&!peer.hidden);
+      event.preventDefault();let i=peers.indexOf(tab);i=event.key==='Home'?0:event.key==='End'?peers.length-1:((event.key==='ArrowLeft')===(document.documentElement.dir==='rtl'))?(i+1)%peers.length:(i+peers.length-1)%peers.length;
+      selectView(peers[i].dataset.view);peers[i].focus();
     });
   }
   function requestReference(meta){
@@ -48,7 +56,7 @@
   function detailRow(row){
     const {item,meta,linked}=row;
     const sources=item.sources.map(s=>`<li><span class="source-title">${escape(s.title)}</span><span class="source-locator">${escape(s.locator)} · <bdi>${escape(date(s.date))}</bdi></span></li>`).join('');
-    return `<tr id="pr-detail-${escape(item.id)}" class="purchase-detail" ${expanded.has(item.id)?'':'hidden'}><td colspan="6"><div class="detail-grid"><div><h4>الحالة المسجلة</h4><p>${escape(item.status)}</p></div><div><h4>جهة المتابعة</h4><p>${escape(item.followUpWith)}</p></div>${orderDetails(meta)}${item.notes?`<div class="detail-full"><h4>الملاحظات</h4><p>${escape(item.notes)}</p></div>`:''}${linked.length?`<div class="detail-full"><h4>بنود فنية مرتبطة بنفس الطلب</h4>${linked.map(x=>`<p>${escape(x.title)} — ${escape(x.action)}</p>`).join('')}</div>`:''}<div class="detail-full"><h4>المراجع</h4><ul class="sources">${sources}</ul></div></div></td></tr>`;
+    return `<tr id="pr-detail-${escape(item.id)}" class="purchase-detail" ${expanded.has(item.id)?'':'hidden'}><td colspan="6"><div class="detail-grid"><div><h4>الحالة المسجلة</h4><p>${escape(item.status)}</p></div><div><h4>جهة المتابعة</h4><p>${escape(item.followUpWith)}</p></div>${orderDetails(meta)}${window.WorkshopRelations?.forItem(item,feed)||''}${item.notes?`<div class="detail-full"><h4>الملاحظات</h4><p>${escape(item.notes)}</p></div>`:''}${linked.length?`<div class="detail-full"><h4>بنود فنية مرتبطة بنفس الطلب</h4>${linked.map(x=>`<p>${escape(x.title)} — ${escape(x.action)}</p>`).join('')}</div>`:''}<div class="detail-full"><h4>المراجع</h4><ul class="sources">${sources}</ul></div></div></td></tr>`;
   }
   function renderRows(){
     if(!feed)return;
@@ -76,6 +84,7 @@
     feed=event.detail;rows=model.getRows(feed);const stats=model.metrics(rows);
     $('overview-tab-count').textContent=feed.items.length;$('procurement-tab-count').textContent=rows.length;
     $('non-purchase-tab-count').textContent=feed.items.filter(item=>!model.isPurchaseRelated(item)).length;
+    $('general-followups-count').textContent=$('non-purchase-tab-count').textContent;
     $('closed-tab-count').textContent=feed.items.filter(model.isClosed).length;
     $('pr-numbered').textContent=stats.numbered;$('pr-unnumbered').textContent=stats.unnumbered;$('pr-quotes').textContent=stats.quotes;$('pr-received').textContent=stats.received;
     renderFilters();renderRows();
@@ -84,10 +93,18 @@
   $('pr-search').addEventListener('input',event=>{query=event.target.value;renderRows();});
   $('pr-clear').addEventListener('click',()=>{stage='all';query='';$('pr-search').value='';renderFilters();renderRows();});
   $('pr-records').addEventListener('click',event=>{
+    if(window.WorkshopRelations?.handle(event))return;
     const edit=event.target.closest('button[data-edit]');
     if(edit){window.WorkshopAdmin?.open(edit.dataset.edit);return;}
     const button=event.target.closest('[data-pr-item]');if(!button)return;const id=button.dataset.prItem,open=!expanded.has(id);if(open)expanded.add(id);else expanded.delete(id);button.setAttribute('aria-expanded',String(open));$('pr-detail-'+id).hidden=!open;if(open)window.WorkshopMotion?.reveal($('pr-detail-'+id).querySelector('.detail-grid'),'detail');});
   const viewFromHash=()=>location.hash==='#purchase-orders'?'procurement':location.hash==='#letters'?'letters':location.hash==='#jobs'?'jobs':location.hash==='#stats'?'stats':location.hash==='#non-purchase'?'non-purchase':location.hash==='#closed'?'closed':'overview';
+  window.WorkshopPurchases={reveal(id){
+    if(!rows.some(row=>row.item.id===id))return;
+    stage='all';query='';$('pr-search').value='';expanded.add(id);
+    selectView('procurement');renderFilters();renderRows();
+    const target=$('pr-detail-'+id);
+    target?.scrollIntoView({block:'center',behavior:'smooth'});
+  }};
   window.addEventListener('hashchange',()=>selectView(viewFromHash(),false));
   // Reformat locale-dependent dates and refresh bilingual search results immediately.
   window.addEventListener('workshop-session',()=>{if(feed)renderRows();});

@@ -74,7 +74,16 @@
   window.WorkshopLetters = {
     get list() { return letters || []; },
     find(id) { return (letters || []).find(letter => letter.id === id) || null; },
-    render
+    render,
+    reveal(id) {
+      const letter=(letters||[]).find(value=>value.id===id);
+      if(!letter)return;
+      selected=letter.closure==='closed'?'closed':letter.direction;query='';$('letters-search').value='';
+      window.WorkshopViews?.select('letters');render();
+      const target=document.querySelector('[data-letter="'+CSS.escape(id)+'"]');
+      target?.setAttribute('tabindex','-1');target?.focus({preventScroll:true});
+      target?.scrollIntoView({block:'center',behavior:'smooth'});
+    }
   };
   window.addEventListener('workshop-data', event => adopt(event.detail));
   window.addEventListener('workshop-session', render);
@@ -92,10 +101,7 @@
     if (edit) { window.WorkshopAdmin?.openLetter(edit.dataset.editLetter); return; }
     const goto = event.target.closest('button[data-goto]');
     if (goto) {
-      document.querySelector('.view-tabs [data-view=overview]')?.click();
-      const row = document.getElementById('row-' + goto.dataset.goto);
-      row?.scrollIntoView({block:'center', behavior:'smooth'});
-      row?.querySelector('.expand-button')?.focus();
+      window.WorkshopRelations?.revealItem(goto.dataset.goto);
     }
   });
   $('letters-add').addEventListener('click', () => window.WorkshopAdmin?.openLetter(null));

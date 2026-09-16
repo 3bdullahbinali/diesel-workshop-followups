@@ -6,29 +6,30 @@
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#124e3e">
   <meta name="description" content="متابعات شعبة ورشة الديزل: الأولويات والإجراءات وآخر التحديثات المؤكدة.">
-  <link rel="icon" href="./favicon.svg?v=2026-09-16-1151" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css?v=2026-09-16-1151">
-  <link rel="stylesheet" href="./motion.css?v=2026-09-16-1151">
-  <link rel="stylesheet" href="./presentation.css?v=2026-09-16-1151">
-  <link rel="stylesheet" href="./admin.css?v=2026-09-16-1151">
-  <link rel="stylesheet" href="./statistics.css?v=2026-09-16-1151">
+  <link rel="icon" href="./favicon.svg?v=2026-09-16-1163" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css?v=2026-09-16-1163">
+  <link rel="stylesheet" href="./motion.css?v=2026-09-16-1163">
+  <link rel="stylesheet" href="./presentation.css?v=2026-09-16-1163">
+  <link rel="stylesheet" href="./admin.css?v=2026-09-16-1163">
+  <link rel="stylesheet" href="./statistics.css?v=2026-09-16-1163">
   <title>متابعات شعبة ورشة الديزل</title>
-  <script src="./translations-en.js?v=2026-09-16-1151" defer></script>
-  <script src="./procurement-en.js?v=2026-09-16-1151" defer></script>
-  <script src="./i18n.js?v=2026-09-16-1151" defer></script>
-  <script src="./record-time.js?v=2026-09-16-1151" defer></script>
-  <script src="./motion.js?v=2026-09-16-1151" defer></script>
-  <script src="./procurement-model.js?v=2026-09-16-1151" defer></script>
-  <script src="./purchase-orders.js?v=2026-09-16-1151" defer></script>
-  <script src="./presentation.js?v=2026-09-16-1151" defer></script>
-  <script src="./procurement.js?v=2026-09-16-1151" defer></script>
-  <script src="./sheets.js?v=2026-09-16-1151" defer></script>
-  <script src="./app.js?v=2026-09-16-1151" defer></script>
-  <script src="./notifications.js?v=2026-09-16-1151" defer></script>
-  <script src="./letters.js?v=2026-09-16-1151" defer></script>
-  <script src="./jobs.js?v=2026-09-16-1151" defer></script>
-  <script src="./statistics.js?v=2026-09-16-1151" defer></script>
-  <script src="./admin.js?v=2026-09-16-1151" defer></script>
+  <script src="./translations-en.js?v=2026-09-16-1163" defer></script>
+  <script src="./procurement-en.js?v=2026-09-16-1163" defer></script>
+  <script src="./i18n.js?v=2026-09-16-1163" defer></script>
+  <script src="./record-time.js?v=2026-09-16-1163" defer></script>
+  <script src="./motion.js?v=2026-09-16-1163" defer></script>
+  <script src="./procurement-model.js?v=2026-09-16-1163" defer></script>
+  <script src="./purchase-orders.js?v=2026-09-16-1163" defer></script>
+  <script src="./presentation.js?v=2026-09-16-1163" defer></script>
+  <script src="./procurement.js?v=2026-09-16-1163" defer></script>
+  <script src="./sheets.js?v=2026-09-16-1163" defer></script>
+  <script src="./relations.js?v=2026-09-16-1163" defer></script>
+  <script src="./app.js?v=2026-09-16-1163" defer></script>
+  <script src="./notifications.js?v=2026-09-16-1163" defer></script>
+  <script src="./letters.js?v=2026-09-16-1163" defer></script>
+  <script src="./jobs.js?v=2026-09-16-1163" defer></script>
+  <script src="./statistics.js?v=2026-09-16-1163" defer></script>
+  <script src="./admin.js?v=2026-09-16-1163" defer></script>
 </head>
 <body>
   <div class="ambient-background" aria-hidden="true"><div class="ambient-art"></div></div>
@@ -58,15 +59,22 @@
       <div class="sync-main"><span id="connection-dot" class="connection-dot pending" aria-hidden="true"></span><strong id="connection-label">جارٍ الاتصال بالسجل</strong><span id="fetch-time"></span></div>
       <details class="sync-details"><summary id="sync-summary">كيف يتم التحديث؟</summary><div class="sync-explanation"><p id="sync-explanation">تتجدد البيانات المعروضة كل 30 ثانية أثناء فتح الشاشة.</p><p id="review-time"></p><p>تاريخ كل بند هو تاريخ آخر معلومة مؤيدة عنه. إرسال رسالة أو إعداد مسودة لا يعني اكتمال الإجراء.</p></div></details>
     </section>
-    <div class="view-tabs" role="tablist" aria-label="عرض السجل">
+    <div id="main-views" class="view-tabs" role="tablist" aria-label="عرض السجل">
       <button type="button" id="overview-tab" role="tab" aria-controls="overview-panel" aria-selected="true" data-view="overview">جميع المتابعات <span id="overview-tab-count">—</span></button>
       <button type="button" id="non-purchase-tab" role="tab" aria-controls="overview-panel" aria-selected="false" data-view="non-purchase">متابعات عامة <span id="non-purchase-tab-count">—</span></button>
       <button type="button" id="procurement-tab" role="tab" aria-controls="procurement-panel" aria-selected="false" data-view="procurement">طلبات الشراء <span id="procurement-tab-count">—</span></button>
       <button type="button" id="closed-tab" role="tab" aria-controls="overview-panel" aria-selected="false" data-view="closed">المتابعات المغلقة <span id="closed-tab-count">—</span></button>
-      <button type="button" id="letters-tab" role="tab" aria-controls="letters-panel" aria-selected="false" data-view="letters" hidden>المراسلات <span id="letters-tab-count">—</span></button>
-      <button type="button" id="jobs-tab" role="tab" aria-controls="jobs-panel" aria-selected="false" data-view="jobs" hidden>الأعمال <span id="jobs-tab-count">—</span></button>
       <button type="button" id="stats-tab" role="tab" aria-controls="stats-panel" aria-selected="false" data-view="stats">الإحصائيات</button>
     </div>
+    <section id="general-navigation" class="general-navigation" aria-labelledby="general-heading" hidden>
+      <h3 id="general-heading">المتابعات العامة</h3>
+      <p>تابع الإجراء، وراجع المراسلات والأعمال المرتبطة به.</p>
+      <div id="general-views" class="view-tabs general-views" role="tablist" aria-label="أقسام المتابعات العامة">
+        <button type="button" id="general-followups-tab" role="tab" aria-controls="overview-panel" aria-selected="false" data-view="non-purchase">المتابعات <span id="general-followups-count">—</span></button>
+        <button type="button" id="letters-tab" role="tab" aria-controls="letters-panel" aria-selected="false" data-view="letters" hidden>كتب تراسل <span id="letters-tab-count">—</span></button>
+        <button type="button" id="jobs-tab" role="tab" aria-controls="jobs-panel" aria-selected="false" data-view="jobs" hidden>الأعمال <span id="jobs-tab-count">—</span></button>
+      </div>
+    </section>
     <div id="overview-panel" role="tabpanel" aria-labelledby="overview-tab">
     <section class="metrics" aria-label="ملخص السجل">
       <div class="metric metric-main"><span class="metric-label">إجمالي المتابعات</span><strong id="total">—</strong><span id="composition" class="metric-note">يشمل كامل السجل</span></div>

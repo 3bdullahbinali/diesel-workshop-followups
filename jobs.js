@@ -80,7 +80,16 @@
   window.WorkshopJobs = {
     get list() { return jobs || []; },
     find(id) { return (jobs || []).find(job => job.id === id) || null; },
-    render
+    render,
+    reveal(id) {
+      const job=(jobs||[]).find(value=>value.id===id);
+      if(!job)return;
+      party='all';state='all';query='';$('jobs-search').value='';
+      window.WorkshopViews?.select('jobs');render();
+      const target=document.querySelector('[data-job="'+CSS.escape(id)+'"]');
+      target?.setAttribute('tabindex','-1');target?.focus({preventScroll:true});
+      target?.scrollIntoView({block:'center',behavior:'smooth'});
+    }
   };
   window.addEventListener('workshop-data', event => adopt(event.detail));
   window.addEventListener('workshop-session', render);
@@ -104,10 +113,7 @@
     if (edit) { window.WorkshopAdmin?.openJob(edit.dataset.editJob); return; }
     const goto = event.target.closest('button[data-goto]');
     if (goto) {
-      document.querySelector('.view-tabs [data-view=overview]')?.click();
-      const row = document.getElementById('row-' + goto.dataset.goto);
-      row?.scrollIntoView({block:'center', behavior:'smooth'});
-      row?.querySelector('.expand-button')?.focus();
+      window.WorkshopRelations?.revealItem(goto.dataset.goto);
     }
   });
   $('jobs-add').addEventListener('click', () => window.WorkshopAdmin?.openJob(null));

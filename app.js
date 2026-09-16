@@ -56,13 +56,13 @@
     const blocked = item.blocker ? `<div class="detail-full detail-blocker"><h4>العائق</h4><p>${escape(item.blocker)}</p></div>` : '';
     const old = item.history?.length ? `<div class="detail-full"><h4>الحالة السابقة</h4>${item.history.map(h=>`<p><bdi>${escape(shortDate(h.date))}</bdi> — ${escape(h.status)}</p>`).join('')}</div>` : '';
     const base = item.baseIds?.length ? `بند السجل الأساسي: ${item.baseIds.join(' + ')}` : 'متابعة أحدث أُضيفت إلى السجل';
-    return `<tr class="detail-row" id="detail-${escape(item.id)}" ${expanded.has(item.id)?'':'hidden'}><td colspan="6"><div class="detail-grid"><div><h4>آخر حالة مسجلة</h4><p>${escape(item.status)}</p><p class="detail-meta">${escape(base)}${item.dueDate ? ' · الموعد المرتبط: '+escape(shortDate(item.dueDate)):''}</p></div><div><h4>جهة المتابعة</h4><p>${escape(item.followUpWith)}</p><p class="detail-meta">المسؤول: ${escape(item.owner)}</p><p class="detail-meta">الإجراء عند: ${escape(actionLabels[item.actionAt]||'لم يحدد')}${item.area?' · المجال: '+escape(areas[item.area]):''}</p></div>${gear}${blocked}${item.notes?`<div class="detail-full"><h4>الملاحظات والتفاصيل</h4><p>${escape(item.notes)}</p></div>`:''}<div class="detail-full"><h4>المراجع — للرجوع والبحث</h4><ul class="sources">${source}</ul></div>${old}</div></td></tr>`;
+    return `<tr class="detail-row" id="detail-${escape(item.id)}" ${expanded.has(item.id)?'':'hidden'}><td colspan="6"><div class="detail-grid"><div><h4>آخر حالة مسجلة</h4><p>${escape(item.status)}</p><p class="detail-meta">${escape(base)}${item.dueDate ? ' · الموعد المرتبط: '+escape(shortDate(item.dueDate)):''}</p></div><div><h4>جهة المتابعة</h4><p>${escape(item.followUpWith)}</p><p class="detail-meta">المسؤول: ${escape(item.owner)}</p><p class="detail-meta">الإجراء عند: ${escape(actionLabels[item.actionAt]||'لم يحدد')}${item.area?' · المجال: '+escape(areas[item.area]):''}</p></div>${gear}${blocked}${window.WorkshopRelations?.forItem(item,data)||''}${item.notes?`<div class="detail-full"><h4>الملاحظات والتفاصيل</h4><p>${escape(item.notes)}</p></div>`:''}<div class="detail-full"><h4>المراجع — للرجوع والبحث</h4><ul class="sources">${source}</ul></div>${old}</div></td></tr>`;
   }
   function renderRows(){
     if(!data)return;
     const items = orderedItems();
     const indexed = items.map((item,i)=>({item,index:i+1}));
-    const base = indexed.filter(({item}) => (selectedGroup === 'all' || item.group === selectedGroup) && (!selectedArea || item.area === selectedArea) && (!query || normal(I.search([item.title,item.reference,item.owner,item.status,item.action,item.notes,item.blocker])).includes(normal(query))));
+    const base = indexed.filter(({item}) => (selectedGroup === 'all' || item.group === selectedGroup) && (!selectedArea || item.area === selectedArea) && (!query || normal(I.search([item.title,item.reference,item.owner,item.status,item.action,item.notes,item.blocker,...(window.WorkshopRelations?.searchValues(item,data)||[])])).includes(normal(query))));
     const visible = base.filter(({item}) => matchesFocus(item,selectedFocus));
     renderFocus(base.map(({item})=>item));
     window.WorkshopPresentation?.setItems(overviewView, visible.map(({item})=>item), groupLabel(data.groups.find(g=>g.id===selectedGroup)));
@@ -214,6 +214,7 @@
     }finally{fetching=false;$('refresh').disabled=false;}
   }
   $('rows').addEventListener('click',event=>{
+    if(window.WorkshopRelations?.handle(event))return;
     const edit=event.target.closest('button[data-edit]');
     if(edit){window.WorkshopAdmin?.open(edit.dataset.edit);return;}
     const button=event.target.closest('button[data-item]');if(!button)return;
@@ -249,6 +250,14 @@
   window.addEventListener('workshop-language',()=>{renderToday();if(data){render();setConnection(connected);}});
   window.addEventListener('workshop-session',()=>{if(data)renderRows();});
   // أدوات التعديل تحتاج إعادة القراءة وإظهار الرسائل بعد كل حفظ.
-  window.WorkshopApp={refresh:()=>fetchData(true),notice};
+  window.WorkshopApp={refresh:()=>fetchData(true),notice,reveal(id){
+    const item=data?.items.find(value=>value.id===id);if(!item)return;
+    const view=window.WorkshopProcurement.isPurchaseRelated(item)?'overview':'non-purchase';
+    window.WorkshopViews?.select(view);overviewView=view;
+    selectedGroup='all';query='';selectedFocus='all';selectedArea='';$('search').value='';
+    expanded.add(id);render();
+    const target=$('row-'+id);target?.scrollIntoView({block:'center',behavior:'smooth'});
+    target?.querySelector('.expand-button')?.focus({preventScroll:true});
+  }};
   renderToday();fetchData();restartPolling();
 })();
