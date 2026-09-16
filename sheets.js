@@ -1,7 +1,7 @@
 'use strict';
 (function(root){
   const priorities={high:'عالية',medium:'متوسطة',low:'منخفضة'};
-  const stages={preparation:'قيد الإعداد',approvals:'بانتظار الموافقات',number_pending:'بانتظار رقم طلب الشراء',action:'يحتاج إجراء',pr_team_approval:'بانتظار موافقة فريق طلبات الشراء',warehouse_approval:'بانتظار موافقات المستودع',quotes:'بانتظار العروض',offers_received:'وصلت العروض',evaluation:'تحت التقييم',delivery:'بانتظار التوريد',in_progress:'قيد التنفيذ',coordination:'بانتظار المتابعة',on_hold:'مؤجل',closure:'بانتظار الإغلاق',completed:'مكتمل',cancelled:'ملغى'};
+  const stages={preparation:'قيد الإعداد',approvals:'بانتظار الموافقات',number_pending:'بانتظار رقم طلب الشراء',action:'يحتاج إجراء',pr_team_approval:'بانتظار موافقة فريق طلبات الشراء',warehouse_approval:'بانتظار موافقات المستودع',quotes:'بانتظار العروض',offers_received:'وصلت العروض',evaluation:'تحت التقييم',lpo_pending:'بانتظار LPO',delivery:'بانتظار التوريد',partial_delivery:'استلام جزئي',received:'مستلم بالكامل ومغلق',closed_unreceived:'مغلق — المتبقي غير مستلم',in_progress:'قيد التنفيذ',coordination:'بانتظار المتابعة',on_hold:'مؤجل',closure:'بانتظار الإغلاق',completed:'مكتمل',cancelled:'ملغى'};
   const kinds={pr:'طلب شراء',unnumbered:'طلب غير مرقم',planning:'خطة مستقبلية',linked:'بند مرتبط',lpo:'أمر توريد',request:'طلب غير مرقم'};
   const bases={estimated:'تقديرية',quoted:'عرض سعر',recorded:'مسجلة'};
   const headers=['معرّف البند','الموضوع','الأولوية','الحالة','الإجراء المطلوب','المسؤول','تاريخ المعلومة','رقم PR','القيمة بالدرهم','بند الموازنة','تفاصيل الحالة','جهة المتابعة','التصنيف','الموعد المرتبط','آخر تعديل بتوقيت الإمارات','المرجع','الملاحظات','نوع طلب الشراء','مرحلة الشراء','نوع الرقم','رقم LPO','أساس القيمة','ملاحظة القيمة'];
@@ -123,8 +123,10 @@
       query(config.spreadsheetId,config.translationSheetId,'A1:B5001',6000)
         .then(response=>translationEntries(tableRows(response,['النص العربي','English'])))
         .catch(()=>null); // A translation outage must not suppress current operational records.
-    const [main,refs,english]=await Promise.all([query(config.spreadsheetId,config.mainSheetId,'A1:W5001'),query(config.spreadsheetId,config.sourceSheetId,'A1:E20001'),translations]);
-    const result=merge(snapshot,tableRows(main,headers),tableRows(refs,sourceHeaders));
+    const readOrders=config.orderSheetId==null?Promise.resolve([]):query(config.spreadsheetId,config.orderSheetId,'A1:K5001').then(r=>tableRows(r,root.WorkshopOrders.orderHeaders));
+    const readLines=config.deliverySheetId==null?Promise.resolve([]):query(config.spreadsheetId,config.deliverySheetId,'A1:J20001').then(r=>tableRows(r,root.WorkshopOrders.lineHeaders));
+    const [main,refs,english,orders,lines]=await Promise.all([query(config.spreadsheetId,config.mainSheetId,'A1:W5001'),query(config.spreadsheetId,config.sourceSheetId,'A1:E20001'),translations,readOrders,readLines]);
+    const result=root.WorkshopOrders.attach(merge(snapshot,tableRows(main,headers),tableRows(refs,sourceHeaders)),orders,lines);
     result.translations=english;
     return result;
   }

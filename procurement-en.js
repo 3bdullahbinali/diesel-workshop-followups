@@ -1,0 +1,27 @@
+/* Interface labels only; operational translations remain in the connected sheet. */
+Object.assign(window.WorkshopEnglish, {
+  "بانتظار LPO": "Awaiting LPO",
+  "استلام جزئي": "Partially received",
+  "مستلم بالكامل ومغلق": "Fully received and closed",
+  "مغلق — المتبقي غير مستلم": "Closed — balance not received",
+  "مستلم بالكامل": "Fully received",
+  "بحاجة لتأكيد الاستلام": "Receipt confirmation needed",
+  "أوامر الشراء والاستلام": "Purchase orders and receipts",
+  "لم يُسجل أمر شراء LPO بعد.": "No LPO has been recorded yet.",
+  "المورد": "Supplier",
+  "قيمة الأمر — درهم": "Order value — AED",
+  "تاريخ الإصدار": "Issue date",
+  "موعد التوريد": "Expected delivery",
+  "تاريخ آخر استلام": "Last receipt date",
+  "كميات التوريد": "Delivery quantities",
+  "البند / الصنف": "Line / item",
+  "الوحدة": "Unit",
+  "المطلوب": "Ordered",
+  "المستلم": "Received",
+  "المتبقي": "Outstanding",
+  "آخر استلام": "Last receipt",
+  "لم يتأكد تسجيل جميع بنود هذا الأمر.": "The full list of order lines has not been confirmed.",
+  "كميات الأصناف والاستلام لم تُسجل بعد.": "Item quantities and receipts have not been recorded yet.",
+  "إغلاق طلب PR يتطلب تأكيد اكتمال جميع أوامره؛ اكتمال LPO واحد لا يغلق الطلب.": "Closing a PR requires confirmation that all its orders are complete; completing one LPO does not close the PR.",
+  "يمكن ربط أكثر من LPO بنفس PR. افتح تفاصيل الطلب لمتابعة كل أمر والكميات المستلمة والمتبقية لكل صنف.": "Multiple LPOs can be linked to one PR. Open the request details to track each order and the received and outstanding quantities for each item."
+});

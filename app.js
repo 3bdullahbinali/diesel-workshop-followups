@@ -66,7 +66,7 @@
     $('record-updated-time').textContent = window.WorkshopRecordTime(data.updatedAt);
     $('record-updated-time').dateTime = data.updatedAt || '';
     $('total').textContent = items.length;
-    $('high').textContent = items.filter(x=>x.priority==='high' && (overviewView==='closed' || x.stage!=='completed')).length;
+    $('high').textContent = items.filter(x=>x.priority==='high' && (overviewView==='closed' || !window.WorkshopProcurement.isClosed(x))).length;
     $('quotes').textContent = items.filter(x=>x.stage==='quotes').length;
     const latestMonth = data.latestInformationDate.slice(0,7);
     $('recent').textContent = items.filter(x=>x.informationDate.slice(0,7)===latestMonth).length;
