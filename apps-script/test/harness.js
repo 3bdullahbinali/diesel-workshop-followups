@@ -64,10 +64,11 @@ global.Utilities = {
     return fmt.replace('dd',p.day).replace('MM',p.month).replace('yyyy',p.year).replace('HH',p.hour==='24'?'00':p.hour).replace('mm',p.minute).replace('ss',p.second);
   }
 };
+global.Logger = {log:()=>{}};
 global.LockService = {getScriptLock:()=>({tryLock:()=>true,releaseLock(){}})};
 global.ContentService = {MimeType:{JSON:'json'}, createTextOutput:t=>({setMimeType(){return this;}, getContent:()=>t})};
 
 // تحميل السكربت
 const code = fs.readFileSync('/home/user/diesel-workshop-followups/apps-script/workshop-api.gs','utf8');
-(0,eval)(code + '\n;globalThis.__api={setup,addUser:saveUser,resetPassword,doPost,doGet,addOperationalColumns,CONFIG,HEADERS,SOURCE_HEADERS};');
+(0,eval)(code + '\n;globalThis.__api={setup,addUser:saveUser,resetPassword,doPost,doGet,addOperationalColumns,listUsers,renameUser,setUserActive,findUserRow,sheetByName,CONFIG,HEADERS,SOURCE_HEADERS};');
 module.exports = {book, Sheet, api: globalThis.__api};

@@ -103,6 +103,54 @@ function addUser() {
   return saveUser(username, name, role, password);
 }
 
+/** يعرض الحسابات في سجل التنفيذ بلا كلمات مرور. */
+function listUsers() {
+  var sheet = sheetByName(CONFIG.usersSheet);
+  if (!sheet || sheet.getLastRow() < 2) return 'لا يوجد أي حساب. شغّل addUser.';
+  var rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 7).getValues();
+  var lines = rows.map(function (row) {
+    return '· ' + row[0] + ' — ' + (row[1] || '') + ' — ' + (row[2] === 'admin' ? 'مدير' : 'محرر') +
+      ' — ' + (String(row[3]).trim() === 'نعم' ? 'مفعّل' : 'موقوف') +
+      (row[6] ? ' — آخر دخول ' + cellText(row[6]) : '');
+  });
+  var report = 'الحسابات (' + rows.length + '):\n' + lines.join('\n');
+  Logger.log(report);
+  return report;
+}
+
+/** غيّر اسم الدخول مع الاحتفاظ بكلمة المرور نفسها. */
+function renameUser() {
+  var current = 'AbdullaBinAli';
+  var next = 'abdullah';
+  var sheet = sheetByName(CONFIG.usersSheet);
+  var row = findUserRow(sheet, current);
+  if (!row) throw new Error('لا يوجد مستخدم باسم ' + current + '.');
+  if (findUserRow(sheet, next)) throw new Error('الاسم ' + next + ' مستخدم بالفعل.');
+  if (!/^[A-Za-z0-9_.-]{3,40}$/.test(next)) throw new Error('اسم الدخول: حروف إنجليزية وأرقام و _ . - فقط.');
+  sheet.getRange(row, 1).setValue(next);
+  // الجلسات القديمة مرتبطة بالاسم السابق فتُغلق.
+  var sessions = sheetByName(CONFIG.sessionsSheet);
+  var values = sessions.getDataRange().getValues();
+  for (var i = values.length - 1; i >= 1; i--) if (String(values[i][1]) === current) sessions.deleteRow(i + 1);
+  return 'صار اسم الدخول ' + next + '. سجّل الدخول من جديد بكلمة المرور نفسها.';
+}
+
+/** أوقف حساباً أو أعد تفعيله بلا حذف سجلّه. */
+function setUserActive() {
+  var username = 'sami';
+  var active = false;            // true = مفعّل · false = موقوف
+  var sheet = sheetByName(CONFIG.usersSheet);
+  var row = findUserRow(sheet, username);
+  if (!row) throw new Error('لا يوجد مستخدم باسم ' + username + '.');
+  sheet.getRange(row, 4).setValue(active ? 'نعم' : 'لا');
+  if (!active) {
+    var sessions = sheetByName(CONFIG.sessionsSheet);
+    var values = sessions.getDataRange().getValues();
+    for (var i = values.length - 1; i >= 1; i--) if (String(values[i][1]) === username) sessions.deleteRow(i + 1);
+  }
+  return username + (active ? ' مفعّل.' : ' موقوف، وأُغلقت جلساته.');
+}
+
 /** غيّر كلمة مرور مستخدم قائم. */
 function resetPassword() {
   var username = 'abdullah';

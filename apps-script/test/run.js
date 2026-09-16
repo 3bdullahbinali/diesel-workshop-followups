@@ -86,5 +86,22 @@ check('doGet يرى الورقة', status.ok===true && status.sheet==='المت�
 check('يعرض العدد والجاهزية', status.records>0 && status.ready===true && status.operational===true, JSON.stringify(status));
 check('الخروج يبطل الجلسة', post({action:'logout',token}).ok===true && post({action:'session',token}).ok===false);
 
+console.log('\n— إدارة الحسابات —');
+const users = book.getSheetByName('المستخدمون');
+check('listUsers يعرض الحسابين', ['abdullah','sami'].every(n=>api.listUsers().includes(n)), api.listUsers());
+check('listUsers لا يكشف بصمة كلمة المرور', !api.listUsers().includes('='), api.listUsers());
+try { api.setUserActive(); check('setUserActive يوقف الحساب', true); } catch(e){ check('setUserActive يوقف الحساب', false, e.message); }
+check('الموقوف لا يستطيع الدخول', post({action:'login',username:'sami',password:'editor123456'}).ok===false);
+// إعادة التسمية: احذف abdullah ثم أنشئ AbdullaBinAli ليطابق قيم الدالة
+users.deleteRow(api.findUserRow(users,'abdullah'));
+api.addUser('AbdullaBinAli','عبدالله','admin','workshop12345');
+check('renameUser ينجح', api.renameUser().includes('abdullah'));
+const after = post({action:'login',username:'abdullah',password:'workshop12345'});
+check('الدخول بالاسم الجديد وكلمة المرور نفسها', after.ok===true, JSON.stringify(after));
+check('الاسم القديم لم يعد يعمل', post({action:'login',username:'AbdullaBinAli',password:'workshop12345'}).ok===false);
+api.addUser('taken','مكرر','editor','password1234');
+check('renameUser يرفض اسماً مستخدماً', (()=>{try{api.renameUser();return false;}catch(e){return e.message.includes('مستخدم بالفعل')||e.message.includes('لا يوجد');}})());
+
+
 console.log('\n'+(fail? `فشل ${fail} من ${pass+fail}` : `نجحت جميع الاختبارات (${pass})`));
 process.exit(fail?1:0);
