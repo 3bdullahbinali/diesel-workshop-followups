@@ -21,7 +21,7 @@
   }
   let data = null, selectedGroup = 'all', query = '', selectedFocus = 'all', selectedArea = '', lastFetch = null, fetching = false, poller = null, connected = false;
   let snapshot = null, sheetConfig = null;
-  let overviewView = location.hash === '#non-purchase' ? 'non-purchase' : location.hash === '#closed' ? 'closed' : 'overview';
+  let overviewView = ['#non-purchase','#letters','#jobs'].includes(location.hash) ? 'non-purchase' : location.hash === '#closed' ? 'closed' : 'overview';
   const expanded = new Set();
   const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const normal = text => String(text ?? '').toLowerCase().replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/[\u064B-\u065F]/g,'').replace(/\s+/g,' ').trim();
@@ -94,9 +94,11 @@
   }
   function renderGroups(){
     const items=viewItems();
+    const childView=['letters','jobs'].includes(window.WorkshopViews?.current);
     $('groups').innerHTML = data.groups.filter(group=>overviewView==='overview' || group.id==='all' || items.some(item=>item.group===group.id)).map(group=>{
       const count = group.id==='all' ? items.length : items.filter(x=>x.group===group.id).length;
-      return `<button type="button" data-group="${escape(group.id)}" class="filter-button ${selectedGroup===group.id?'active':''}" aria-pressed="${selectedGroup===group.id}">${escape(groupLabel(group))}<span class="filter-count">${count}</span></button>`;
+      const active=!childView&&selectedGroup===group.id;
+      return `<button type="button" data-group="${escape(group.id)}" class="filter-button ${active?'active':''}" aria-pressed="${active}">${escape(groupLabel(group))}<span class="filter-count">${count}</span></button>`;
     }).join('');
   }
   function render(){
@@ -225,7 +227,8 @@
   $('groups').addEventListener('click',event=>{
     const button=event.target.closest('button[data-group]');if(!button)return;
     selectedGroup=button.dataset.group;
-    for(const el of $('groups').querySelectorAll('button')){el.classList.toggle('active',el===button);el.setAttribute('aria-pressed',String(el===button));}
+    if(['letters','jobs'].includes(window.WorkshopViews?.current))window.WorkshopViews.select('non-purchase');
+    renderGroups();
     renderRows();window.WorkshopMotion?.reveal(document.querySelector('.table-wrap'));
   });
   $('search').addEventListener('input',event=>{query=event.target.value;renderRows();});
@@ -235,9 +238,11 @@
   });
   $('area-filter').addEventListener('change',event=>{selectedArea=event.target.value;renderRows();});
   window.addEventListener('workshop-view',event=>{
-    const next=event.detail;
-    if(next==='procurement' || next==='letters' || next==='jobs' || next==='stats' || next===overviewView)return;
-    overviewView=next;selectedGroup='all';query='';selectedFocus='all';selectedArea='';$('search').value='';if(data)render();
+    const childView=['letters','jobs'].includes(event.detail);
+    const next=childView?'non-purchase':event.detail;
+    if(next==='procurement' || next==='stats')return;
+    if(childView || next!==overviewView){selectedGroup='all';query='';selectedFocus='all';selectedArea='';$('search').value='';}
+    overviewView=next;if(data)render();
   });
   $('refresh').addEventListener('click',()=>fetchData(true));
   $('clear-filters').addEventListener('click',()=>{selectedGroup='all';query='';selectedFocus='all';selectedArea='';$('search').value='';renderGroups();renderAreas();renderRows();});

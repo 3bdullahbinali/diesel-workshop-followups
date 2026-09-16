@@ -17,25 +17,28 @@
     const changed=selectedView!==view;
     selectedView=view;
     const shown=panels[view]||'overview-panel';
-    for(const id of ['overview-panel','procurement-panel','letters-panel','jobs-panel','stats-panel'])$(id).hidden=id!==shown;
-    $('general-navigation').hidden=!general;
+    $('overview-panel').hidden=!(general||view==='overview'||view==='closed');
+    for(const id of Object.values(panels))$(id).hidden=id!==shown;
+    $('followup-records').hidden=view==='letters'||view==='jobs';
+    $('general-record-types').hidden=!general;
     for(const tab of tabs){
       const main=tab.parentElement.id==='main-views';
       const active=tab.dataset.view===(main&&general?'non-purchase':view);
-      tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;
+      if(main){tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;}
+      else{tab.setAttribute('aria-pressed',String(active));tab.classList.toggle('active',active);}
     }
-    $('non-purchase-tab').setAttribute('aria-controls',general?shown:'overview-panel');
-    $('overview-panel').setAttribute('aria-labelledby',view==='non-purchase'?'general-followups-tab':panels[view]?'overview-tab':view+'-tab');
+    $('overview-panel').setAttribute('aria-labelledby',general?'non-purchase-tab':panels[view]?'overview-tab':view+'-tab');
     if(updateHash)history.replaceState(null,'',purchase?'#purchase-orders':'#'+view);
     window.dispatchEvent(new CustomEvent('workshop-view',{detail:view}));
     if(changed)window.WorkshopMotion?.reveal($(shown));
   }
   // The automatic display rotates tabs through the same selection path as a click.
   window.WorkshopViews={select:view=>selectView(view),get current(){return selectedView;}};
-  const tabs=[...document.querySelectorAll('.view-tabs [data-view]')];
+  const tabs=[...document.querySelectorAll('#main-views [data-view], #general-record-types [data-view]')];
   for(const tab of tabs){
     tab.addEventListener('click',()=>selectView(tab.dataset.view));
     tab.addEventListener('keydown',event=>{
+      if(tab.parentElement.id!=='main-views')return;
       if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
       const peers=tabs.filter(peer=>peer.parentElement===tab.parentElement&&!peer.hidden);
       event.preventDefault();let i=peers.indexOf(tab);i=event.key==='Home'?0:event.key==='End'?peers.length-1:((event.key==='ArrowLeft')===(document.documentElement.dir==='rtl'))?(i+1)%peers.length:(i+peers.length-1)%peers.length;
@@ -84,7 +87,6 @@
     feed=event.detail;rows=model.getRows(feed);const stats=model.metrics(rows);
     $('overview-tab-count').textContent=feed.items.length;$('procurement-tab-count').textContent=rows.length;
     $('non-purchase-tab-count').textContent=feed.items.filter(item=>!model.isPurchaseRelated(item)).length;
-    $('general-followups-count').textContent=$('non-purchase-tab-count').textContent;
     $('closed-tab-count').textContent=feed.items.filter(model.isClosed).length;
     $('pr-numbered').textContent=stats.numbered;$('pr-unnumbered').textContent=stats.unnumbered;$('pr-quotes').textContent=stats.quotes;$('pr-received').textContent=stats.received;
     renderFilters();renderRows();
