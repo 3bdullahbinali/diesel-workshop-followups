@@ -23,8 +23,8 @@
   <script src="./procurement.js?v=lpo-20260916" defer></script>
   <script src="./sheets.js?v=lpo-20260916" defer></script>
   <script src="./app.js?v=lpo-20260916" defer></script>
-  <script src="./letters.js?v=letters-1" defer></script>
-  <script src="./admin.js?v=letters-1" defer></script>
+  <script src="./letters.js?v=gear-1" defer></script>
+  <script src="./admin.js?v=gear-1" defer></script>
 </head>
 <body>
   <div class="ambient-background" aria-hidden="true"><div class="ambient-art"></div></div>
@@ -153,6 +153,18 @@
         <label class="admin-field"><span>المرجع</span><input id="admin-reference" maxlength="300"></label>
         <label class="admin-field admin-wide-field admin-operational"><span>العائق إن وجد</span><input id="admin-blocker" maxlength="500" placeholder="ما الذي يوقف التقدّم الآن؟"></label>
         <label class="admin-field admin-wide-field"><span>الملاحظات</span><textarea id="admin-notes" rows="2" maxlength="2000"></textarea></label>
+      </div>
+      <label class="admin-check admin-gear-row"><input type="checkbox" id="admin-gear-enabled"><span>معدة مستلمة للصيانة</span></label>
+      <div class="admin-grid" id="admin-gear" hidden>
+        <label class="admin-field"><span>الجهة صاحبة المعدة</span><input id="admin-gear-owner" maxlength="200"></label>
+        <label class="admin-field"><span>رقم المعدة أو التسلسلي</span><input id="admin-gear-asset" maxlength="80"></label>
+        <label class="admin-field"><span>مرحلة العمل الفني</span><select id="admin-gear-phase"></select></label>
+        <label class="admin-field"><span>حالة التسليم</span><select id="admin-gear-handover"></select></label>
+        <label class="admin-field"><span>تاريخ الاستلام</span><input id="admin-gear-received" type="date"></label>
+        <label class="admin-field"><span>المستلم في الورشة</span><input id="admin-gear-receiver" maxlength="120"></label>
+        <label class="admin-field"><span>تاريخ الإعادة</span><input id="admin-gear-returned" type="date"></label>
+        <label class="admin-field"><span>المستلم من الجهة</span><input id="admin-gear-returned-to" maxlength="120"></label>
+        <label class="admin-field admin-wide-field"><span>ملاحظات المعدة</span><input id="admin-gear-notes" maxlength="500"></label>
       </div>
       <label class="admin-check"><input type="checkbox" id="admin-pr-enabled"><span>بند مرتبط بطلب شراء</span></label>
       <div class="admin-grid" id="admin-purchase" hidden>

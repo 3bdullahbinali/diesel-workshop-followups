@@ -103,6 +103,40 @@ check('المدير يحذف', post({action:'letter-delete',token,id:'letter-1'}
 check('نقص الصف', lsheet.getLastRow()===1);
 
 
+console.log('\n— المعدات —');
+check('التسجيل قبل إنشاء الورقة يُرفض', post({action:'create',token,item:{title:'معدة',priority:'low',stage:'in_progress',group:'coordination',action:'a',owner:'o',informationDate:'2026-09-16',equipment:{enabled:true,phase:'repair',handover:'in_workshop'}}}).ok===false);
+check('addEquipmentSheet ينشئها', api.addEquipmentSheet().includes('أُنشئت'));
+check('الخدمة تبلّغ بتفعيلها', post({action:'session',token}).features.equipment===true);
+const gear = book.getSheetByName('المعدات');
+const withGear = post({action:'create',token,item:{title:'مضخة مستلمة للصيانة',priority:'medium',stage:'in_progress',group:'coordination',action:'فحص',owner:'م. سالم',informationDate:'2026-09-16',equipment:{enabled:true,owner:'إدارة المشاريع',asset:'SN-4471',receivedDate:'2026-09-10',receiver:'م. سالم',phase:'repair',handover:'in_workshop',notes:'بانتظار قطعة'}}});
+check('إضافة بند بمعدة', withGear.ok===true, JSON.stringify(withGear));
+const grow = gear.rows[1];
+check('رُبط السجل بالبند', String(grow[0])===withGear.id, String(grow[0]));
+check('كُتبت المرحلة والتسليم بالعربية', grow[5]==='تحت الإصلاح'&&grow[6]==='في الورشة', JSON.stringify([grow[5],grow[6]]));
+check('كُتب تاريخ الاستلام كتاريخ', grow[3] instanceof Date, String(grow[3]));
+post({action:'update',token,id:withGear.id,item:{title:'مضخة مستلمة للصيانة',priority:'medium',stage:'in_progress',group:'coordination',action:'تسليم',owner:'م. سالم',informationDate:'2026-09-16',equipment:{enabled:true,owner:'إدارة المشاريع',asset:'SN-4471',phase:'done',handover:'delivered',returnedDate:'2026-09-16',returnedTo:'م. خالد'}}});
+check('التحديث يعدّل نفس الصف لا يضيف', gear.getLastRow()===2, 'rows='+gear.getLastRow());
+check('تغيّرت الحالة إلى تم التسليم', gear.rows[1][6]==='تم التسليم', String(gear.rows[1][6]));
+check('مرحلة غير معروفة تُرفض', post({action:'update',token,id:withGear.id,item:{title:'x',priority:'low',stage:'in_progress',group:'coordination',action:'a',owner:'o',informationDate:'2026-09-16',equipment:{enabled:true,phase:'مجهول',handover:'none'}}}).ok===false);
+post({action:'update',token,id:withGear.id,item:{title:'مضخة مستلمة للصيانة',priority:'medium',stage:'in_progress',group:'coordination',action:'انتهى',owner:'م. سالم',informationDate:'2026-09-16',equipment:{enabled:false}}});
+check('إلغاء التفعيل يزيل السجل', gear.getLastRow()===1, 'rows='+gear.getLastRow());
+
+
+console.log('\n— ملء التوزيع المحضّر —');
+{
+  const cols = api.optionalColumnsOf ? null : null; void cols;
+  // base-1 موجود في الورقة وفي التوزيع المحضّر
+  const row = main.rows[1];
+  row[23] = ''; row[24] = '';            // أفرغ الخليتين
+  const report = api.fillOperationalValues();
+  check('ملأ الخلايا الفارغة', main.rows[1][23]==='المشتريات والموازنة' && main.rows[1][24]==='عند الفريق', JSON.stringify([main.rows[1][23],main.rows[1][24]]));
+  check('التقرير يذكر العدد', /مُلئ \d+ بنداً/.test(report), report);
+  main.rows[1][24] = 'عندي';             // قيمة عدّلها المستخدم
+  api.fillOperationalValues();
+  check('لا يدهس ما عُدّل', main.rows[1][24]==='عندي', String(main.rows[1][24]));
+}
+
+
 console.log('\n— الفحص الذاتي والخروج —');
 const status = get();
 check('doGet يرى الورقة', status.ok===true && status.sheet==='المتابعات', JSON.stringify(status));

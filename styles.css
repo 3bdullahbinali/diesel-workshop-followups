@@ -80,3 +80,9 @@ html[dir=rtl] .letter-top .edit-button{margin:0 auto 0 0}
 .letter-link,.letter-notes{font-size:.8125rem;color:var(--muted);margin:11px 0 0;line-height:1.8}
 .link-button{font:inherit;color:var(--green);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
 @media(max-width:700px){.letter-grid{grid-template-columns:1fr;padding:0 14px 18px}.letter-meta{grid-template-columns:1fr}}
+
+/* المعدات المستلمة للصيانة. */
+.gear-badge{font-size:.75rem;border-radius:4px;padding:0 7px;background:#eef3fa;color:#3f6188;white-space:nowrap}
+.detail-equipment{border-inline-start:3px solid #7fa2c4;padding-inline-start:14px}
+.detail-equipment p{margin:0 0 4px}
+.detail-equipment strong{color:#35597d}

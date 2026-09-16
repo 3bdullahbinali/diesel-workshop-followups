@@ -6,11 +6,14 @@
   const priorities = {high:'عالية',medium:'متوسطة',low:'منخفضة'};
   const rank = {high:0,medium:1,low:2};
   const areas = window.WorkshopSheets.areas, actionLabels = window.WorkshopSheets.actions;
-  const focusLabels = {all:'الكل', me:'مطلوب مني', team:'عند الفريق', external:'بانتظار جهة', due:'حان موعدها', blocked:'متعطل', unassigned:'لم يحدد الإجراء'};
+  const focusLabels = {all:'الكل', me:'مطلوب مني', team:'عند الفريق', external:'بانتظار جهة', due:'حان موعدها', blocked:'متعطل', gear:'معدات في الورشة', unassigned:'لم يحدد الإجراء'};
+  const inWorkshop = item => Boolean(item.equipment) && ['in_workshop','ready'].includes(item.equipment.handover);
   const isClosed = item => window.WorkshopProcurement.isClosed(item) || item.stage==='cancelled';
   const today = () => new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dubai'}).format(new Date());
   function matchesFocus(item,focus){
     if(focus==='all')return true;
+    // المعدة في الورشة تهم حتى لو أُغلق بندها.
+    if(focus==='gear')return inWorkshop(item);
     if(isClosed(item))return false;
     if(focus==='due')return Boolean(item.dueDate) && item.dueDate<=today();
     if(focus==='blocked')return Boolean(item.blocker);
@@ -40,10 +43,20 @@
   }
   function details(item){
     const source = item.sources.map(s => `<li><span class="source-title">${escape(s.title)}</span><span class="source-locator">${escape(s.locator)} · <bdi>${escape(shortDate(s.date))}</bdi></span></li>`).join('');
+    const gear = item.equipment ? (()=>{
+      const g=item.equipment, S=window.WorkshopSheets;
+      const line=(label,value)=>value?`<p class="detail-meta">${label}: ${escape(value)}</p>`:'';
+      return `<div class="detail-full detail-equipment"><h4>المعدة المستلمة للصيانة</h4>
+        <p><strong>${escape(S.phases[g.phase])}</strong> · ${escape(S.handovers[g.handover])}</p>
+        ${line('الجهة صاحبة المعدة',g.owner)}${line('رقم المعدة',g.asset)}
+        ${line('تاريخ الاستلام',shortDate(g.receivedDate))}${line('المستلم في الورشة',g.receiver)}
+        ${g.returnedDate?line('تاريخ الإعادة',shortDate(g.returnedDate)):''}${line('المستلم من الجهة',g.returnedTo)}
+        ${g.notes?`<p>${escape(g.notes)}</p>`:''}</div>`;
+    })() : '';
     const blocked = item.blocker ? `<div class="detail-full detail-blocker"><h4>العائق</h4><p>${escape(item.blocker)}</p></div>` : '';
     const old = item.history?.length ? `<div class="detail-full"><h4>الحالة السابقة</h4>${item.history.map(h=>`<p><bdi>${escape(shortDate(h.date))}</bdi> — ${escape(h.status)}</p>`).join('')}</div>` : '';
     const base = item.baseIds?.length ? `بند السجل الأساسي: ${item.baseIds.join(' + ')}` : 'متابعة أحدث أُضيفت إلى السجل';
-    return `<tr class="detail-row" id="detail-${escape(item.id)}" ${expanded.has(item.id)?'':'hidden'}><td colspan="6"><div class="detail-grid"><div><h4>آخر حالة مسجلة</h4><p>${escape(item.status)}</p><p class="detail-meta">${escape(base)}${item.dueDate ? ' · الموعد المرتبط: '+escape(shortDate(item.dueDate)):''}</p></div><div><h4>جهة المتابعة</h4><p>${escape(item.followUpWith)}</p><p class="detail-meta">المسؤول: ${escape(item.owner)}</p><p class="detail-meta">الإجراء عند: ${escape(actionLabels[item.actionAt]||'لم يحدد')}${item.area?' · المجال: '+escape(areas[item.area]):''}</p></div>${blocked}${item.notes?`<div class="detail-full"><h4>الملاحظات والتفاصيل</h4><p>${escape(item.notes)}</p></div>`:''}<div class="detail-full"><h4>المراجع — للرجوع والبحث</h4><ul class="sources">${source}</ul></div>${old}</div></td></tr>`;
+    return `<tr class="detail-row" id="detail-${escape(item.id)}" ${expanded.has(item.id)?'':'hidden'}><td colspan="6"><div class="detail-grid"><div><h4>آخر حالة مسجلة</h4><p>${escape(item.status)}</p><p class="detail-meta">${escape(base)}${item.dueDate ? ' · الموعد المرتبط: '+escape(shortDate(item.dueDate)):''}</p></div><div><h4>جهة المتابعة</h4><p>${escape(item.followUpWith)}</p><p class="detail-meta">المسؤول: ${escape(item.owner)}</p><p class="detail-meta">الإجراء عند: ${escape(actionLabels[item.actionAt]||'لم يحدد')}${item.area?' · المجال: '+escape(areas[item.area]):''}</p></div>${gear}${blocked}${item.notes?`<div class="detail-full"><h4>الملاحظات والتفاصيل</h4><p>${escape(item.notes)}</p></div>`:''}<div class="detail-full"><h4>المراجع — للرجوع والبحث</h4><ul class="sources">${source}</ul></div>${old}</div></td></tr>`;
   }
   function renderRows(){
     if(!data)return;
@@ -55,7 +68,7 @@
     window.WorkshopPresentation?.setItems(overviewView, visible.map(({item})=>item), groupLabel(data.groups.find(g=>g.id===selectedGroup)));
     $('rows').innerHTML = visible.map(({item,index})=>{
       const isOld = item.evidence === 'baseline';
-      return `<tr class="record-row ${expanded.has(item.id)?'is-open':''}" id="row-${escape(item.id)}"><td class="number-cell"><span class="row-number">${index}</span></td><td class="topic-cell"><h4 class="item-title">${escape(item.title)}</h4><span class="reference" dir="auto">${escape(item.reference)}</span>${item.blocker?`<span class="blocker">${escape(item.blocker)}</span>`:''}</td><td class="status-cell"><div class="badges"><span class="priority priority-${escape(item.priority)}">${priorities[item.priority]}</span></div><span class="stage stage-${escape(item.stage)}">${labels[item.stage]}</span></td><td class="action-cell"><p class="next-action">${escape(item.action)}</p><span class="owner">${escape(item.owner)}</span><span class="action-at" data-at="${escape(item.actionAt||'unassigned')}">${escape(actionLabels[item.actionAt]||actionLabels.unassigned)}</span></td><td class="date-cell"><time class="information-date" datetime="${escape(item.informationDate)}">${escape(shortDate(item.informationDate))}</time><span class="date-note ${isOld?'':'current'}">${isOld?'حالة من السجل الأساسي':'تحديث مسجل'}</span><span class="purchase-sub record-edit-time"><span>آخر تعديل للبند</span>: <time translate="no" datetime="${escape(item.updatedAt || '')}">${escape(window.WorkshopRecordTime(item.updatedAt))}</time> <span>بتوقيت الإمارات</span></span></td><td class="expand-cell">${window.WorkshopAdmin?.canEdit()?`<button type="button" class="edit-button" data-edit="${escape(item.id)}" aria-label="تعديل ${escape(item.title)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16Z"/></svg></button>`:''}<button type="button" class="expand-button" data-item="${escape(item.id)}" aria-label="تفاصيل ${escape(item.title)}" aria-expanded="${expanded.has(item.id)}" aria-controls="detail-${escape(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></td></tr>${details(item)}`;
+      return `<tr class="record-row ${expanded.has(item.id)?'is-open':''}" id="row-${escape(item.id)}"><td class="number-cell"><span class="row-number">${index}</span></td><td class="topic-cell"><h4 class="item-title">${escape(item.title)}</h4><span class="reference" dir="auto">${escape(item.reference)}</span>${item.blocker?`<span class="blocker">${escape(item.blocker)}</span>`:''}</td><td class="status-cell"><div class="badges"><span class="priority priority-${escape(item.priority)}">${priorities[item.priority]}</span>${inWorkshop(item)?`<span class="gear-badge">${escape(window.WorkshopSheets.handovers[item.equipment.handover])}</span>`:''}</div><span class="stage stage-${escape(item.stage)}">${labels[item.stage]}</span></td><td class="action-cell"><p class="next-action">${escape(item.action)}</p><span class="owner">${escape(item.owner)}</span><span class="action-at" data-at="${escape(item.actionAt||'unassigned')}">${escape(actionLabels[item.actionAt]||actionLabels.unassigned)}</span></td><td class="date-cell"><time class="information-date" datetime="${escape(item.informationDate)}">${escape(shortDate(item.informationDate))}</time><span class="date-note ${isOld?'':'current'}">${isOld?'حالة من السجل الأساسي':'تحديث مسجل'}</span><span class="purchase-sub record-edit-time"><span>آخر تعديل للبند</span>: <time translate="no" datetime="${escape(item.updatedAt || '')}">${escape(window.WorkshopRecordTime(item.updatedAt))}</time> <span>بتوقيت الإمارات</span></span></td><td class="expand-cell">${window.WorkshopAdmin?.canEdit()?`<button type="button" class="edit-button" data-edit="${escape(item.id)}" aria-label="تعديل ${escape(item.title)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16Z"/></svg></button>`:''}<button type="button" class="expand-button" data-item="${escape(item.id)}" aria-label="تفاصيل ${escape(item.title)}" aria-expanded="${expanded.has(item.id)}" aria-controls="detail-${escape(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></td></tr>${details(item)}`;
     }).join('');
     $('shown-count').textContent = query || selectedGroup !== 'all' || selectedArea || selectedFocus !== 'all' ? `${visible.length} / ${items.length}` : items.length;
     $('records-title').firstChild.textContent = groupLabel(data.groups.find(g=>g.id===selectedGroup))+' ';

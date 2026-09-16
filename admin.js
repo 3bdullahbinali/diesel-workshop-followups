@@ -97,6 +97,20 @@
     $('admin-pr-amount').value = meta?.amountAed ?? '';
     $('admin-pr-budget').value = meta?.budgetCode || '';
     $('admin-pr-note').value = meta?.amountNote || '';
+    const gear = item?.equipment || null;
+    options($('admin-gear-phase'), window.WorkshopSheets.phases, gear?.phase || 'intake');
+    options($('admin-gear-handover'), window.WorkshopSheets.handovers, gear?.handover || 'in_workshop');
+    $('admin-gear-owner').value = gear?.owner || '';
+    $('admin-gear-asset').value = gear?.asset || '';
+    $('admin-gear-received').value = gear?.receivedDate || '';
+    $('admin-gear-receiver').value = gear?.receiver || '';
+    $('admin-gear-returned').value = gear?.returnedDate || '';
+    $('admin-gear-returned-to').value = gear?.returnedTo || '';
+    $('admin-gear-notes').value = gear?.notes || '';
+    $('admin-gear-enabled').checked = Boolean(gear);
+    // قسم المعدات لا يظهر قبل إنشاء ورقتها في الشيت.
+    $('admin-gear-enabled').closest('.admin-gear-row').hidden = !features.equipment;
+    equipment();
     const has = Boolean(meta);
     $('admin-pr-enabled').checked = has;
     // بيانات الشراء القائمة لا تُزال من الموقع حتى لا يختفي البند من تبويب الطلبات.
@@ -106,6 +120,9 @@
   const dialogFields = () => [...$('admin-editor').querySelectorAll('.admin-operational')];
   function purchase() {
     $('admin-purchase').hidden = !$('admin-pr-enabled').checked;
+  }
+  function equipment() {
+    $('admin-gear').hidden = !features.equipment || !$('admin-gear-enabled').checked;
   }
   function collect() {
     const item = {
@@ -122,6 +139,21 @@
       dueDate: $('admin-due').value,
       notes: $('admin-notes').value.trim()
     };
+    if (features.equipment) {
+      // الإرسال دائماً: enabled=false يزيل سجل المعدة من الشيت.
+      item.equipment = $('admin-gear-enabled').checked ? {
+        enabled: true,
+        owner: $('admin-gear-owner').value.trim(),
+        asset: $('admin-gear-asset').value.trim(),
+        phase: $('admin-gear-phase').value,
+        handover: $('admin-gear-handover').value,
+        receivedDate: $('admin-gear-received').value,
+        receiver: $('admin-gear-receiver').value.trim(),
+        returnedDate: $('admin-gear-returned').value,
+        returnedTo: $('admin-gear-returned-to').value.trim(),
+        notes: $('admin-gear-notes').value.trim()
+      } : {enabled: false};
+    }
     if (features.operational) {
       item.area = $('admin-area').value;
       item.actionAt = $('admin-action-at').value;
@@ -395,6 +427,7 @@
     $('admin-editor-form').addEventListener('submit', save);
     $('admin-delete').addEventListener('click', remove);
     $('admin-pr-enabled').addEventListener('change', purchase);
+    $('admin-gear-enabled').addEventListener('change', equipment);
     for (const id of ['admin-login-cancel', 'admin-editor-cancel']) {
       $(id).addEventListener('click', () => $(id.replace('-cancel', '')).close());
     }

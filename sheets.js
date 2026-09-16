@@ -12,6 +12,11 @@
   const letterSheetName='المراسلات';
   const letterHeaders=['معرّف الكتاب','الاتجاه','الموضوع','رقم الكتاب','الجهة','معرّف المتابعة','آخر موقع','تاريخ التحقق','حالة العمل','حالة الرد','حالة الكتاب','الإجراء التالي','موعد المتابعة','رقم كتاب الرد','الملاحظات','آخر تعديل بتوقيت الإمارات'];
   const directions={out:'صادر',in:'وارد'};
+  // المعدات المستلمة للصيانة: ورقة اختيارية تُقرأ بالاسم وتُربط ببنود السجل.
+  const equipmentSheetName='المعدات';
+  const equipmentHeaders=['معرّف البند','الجهة صاحبة المعدة','رقم المعدة','تاريخ الاستلام','المستلم في الورشة','مرحلة العمل الفني','حالة التسليم','تاريخ الإعادة','المستلم من الجهة','الملاحظات','آخر تعديل بتوقيت الإمارات'];
+  const phases={intake:'بانتظار الاستلام',inspection:'تحت الفحص',approval:'بانتظار اعتماد',parts:'بانتظار قطع غيار',repair:'تحت الإصلاح',done:'اكتمل الإصلاح'};
+  const handovers={none:'غير مسجل',in_workshop:'في الورشة',ready:'جاهزة للتسليم',delivered:'تم التسليم'};
   const workStates={not_started:'لم يبدأ',in_progress:'قيد التنفيذ',done:'اكتمل العمل',awaiting_party:'بانتظار إجراء الجهة',filed:'للعلم والحفظ'};
   const replyStates={none:'لم يُعد الرد',not_required:'لا يتطلب رداً',draft:'مسودة بانتظار المراجعة',sent:'تم إرسال الرد',awaiting:'بانتظار رد الجهة',received:'تم استلام الرد'};
   const closureStates={open:'مفتوح',pending:'بانتظار الإغلاق',closed:'مغلق'};
@@ -155,14 +160,48 @@
     const readLetters=query(config.spreadsheetId,letterSheetName,'A1:P2001',8000)
       .then(response=>letterEntries(tableRows(response,letterHeaders)))
       .catch(()=>null);
+    const readEquipment=query(config.spreadsheetId,equipmentSheetName,'A1:K2001',8000)
+      .then(response=>equipmentEntries(tableRows(response,equipmentHeaders)))
+      .catch(()=>null);
     const readOrders=config.orderSheetId==null?Promise.resolve([]):query(config.spreadsheetId,config.orderSheetId,'A1:K5001').then(r=>tableRows(r,root.WorkshopOrders.orderHeaders));
     const readLines=config.deliverySheetId==null?Promise.resolve([]):query(config.spreadsheetId,config.deliverySheetId,'A1:J20001').then(r=>tableRows(r,root.WorkshopOrders.lineHeaders));
     // المدى يمتد إلى Z ليشمل أعمدة المجال والإجراء عند والعائق إن أُضيفت.
-    const [main,refs,english,orders,lines,letters]=await Promise.all([query(config.spreadsheetId,config.mainSheetId,'A1:Z5001'),query(config.spreadsheetId,config.sourceSheetId,'A1:E20001'),translations,readOrders,readLines,readLetters]);
+    const [main,refs,english,orders,lines,letters,equipment]=await Promise.all([query(config.spreadsheetId,config.mainSheetId,'A1:Z5001'),query(config.spreadsheetId,config.sourceSheetId,'A1:E20001'),translations,readOrders,readLines,readLetters,readEquipment]);
     const result=root.WorkshopOrders.attach(merge(snapshot,tableRows(main,headers,optionalHeaders),tableRows(refs,sourceHeaders)),orders,lines);
     result.translations=english;
     result.letters=letters;
+    // تُربط المعدة ببندها، ويبقى البند ظاهراً حتى لو لم تُسجَّل له معدة.
+    result.equipmentEnabled=Array.isArray(equipment);
+    if(Array.isArray(equipment)){
+      const byId=new Map(result.items.map(item=>[item.id,item]));
+      for(const record of equipment){
+        const item=byId.get(record.itemId);
+        if(!item)return fail('سجل معدة مرتبط بمعرّف غير موجود: '+record.itemId+'.');
+        item.equipment=record;
+      }
+    }
     return result;
+  }
+  function equipmentEntries(rows){
+    const seen=new Set();
+    return rows.map(row=>{
+      const id=text(row[0]);
+      if(!id||seen.has(id))return fail('معرّف بند مفقود أو مكرر في ورقة المعدات.');
+      seen.add(id);
+      return {
+        itemId:id,
+        owner:text(row[1]),
+        asset:text(row[2]),
+        receivedDate:dateValue(row[3]),
+        receiver:text(row[4]),
+        phase:enumValue(row[5],phases,null,'مرحلة العمل الفني'),
+        handover:enumValue(row[6],handovers,null,'حالة التسليم'),
+        returnedDate:dateValue(row[7]),
+        returnedTo:text(row[8]),
+        notes:text(row[9]),
+        updatedAt:dateValue(row[10],true)
+      };
+    });
   }
   function letterEntries(rows){
     const seen=new Set();
@@ -203,5 +242,5 @@
     }
     return Object.fromEntries(entries);
   }
-  root.WorkshopSheets={load,merge,tableRows,dateValue,translationEntries,letterEntries,headers,sourceHeaders,optionalHeaders,letterHeaders,letterSheetName,stages,areas,actions,directions,workStates,replyStates,closureStates};
+  root.WorkshopSheets={load,merge,tableRows,dateValue,translationEntries,letterEntries,headers,sourceHeaders,optionalHeaders,letterHeaders,letterSheetName,equipmentHeaders,equipmentSheetName,stages,areas,actions,directions,workStates,replyStates,closureStates,phases,handovers,equipmentEntries};
 })(globalThis);

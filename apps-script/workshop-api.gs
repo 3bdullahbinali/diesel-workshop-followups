@@ -45,6 +45,11 @@ var DIRECTIONS = {out:'صادر', in:'وارد'};
 var WORK_STATES = {not_started:'لم يبدأ', in_progress:'قيد التنفيذ', done:'اكتمل العمل', awaiting_party:'بانتظار إجراء الجهة', filed:'للعلم والحفظ'};
 var REPLY_STATES = {none:'لم يُعد الرد', not_required:'لا يتطلب رداً', draft:'مسودة بانتظار المراجعة', sent:'تم إرسال الرد', awaiting:'بانتظار رد الجهة', received:'تم استلام الرد'};
 var CLOSURE_STATES = {open:'مفتوح', pending:'بانتظار الإغلاق', closed:'مغلق'};
+// المعدات المستلمة للصيانة: ورقة يقرأها الموقع باسمها أيضاً.
+var EQUIPMENT_SHEET = 'المعدات';
+var EQUIPMENT_HEADERS = ['معرّف البند','الجهة صاحبة المعدة','رقم المعدة','تاريخ الاستلام','المستلم في الورشة','مرحلة العمل الفني','حالة التسليم','تاريخ الإعادة','المستلم من الجهة','الملاحظات','آخر تعديل بتوقيت الإمارات'];
+var PHASES = {intake:'بانتظار الاستلام', inspection:'تحت الفحص', approval:'بانتظار اعتماد', parts:'بانتظار قطع غيار', repair:'تحت الإصلاح', done:'اكتمل الإصلاح'};
+var HANDOVERS = {none:'غير مسجل', in_workshop:'في الورشة', ready:'جاهزة للتسليم', delivered:'تم التسليم'};
 
 /* ————— الإعداد لمرة واحدة ————— */
 
@@ -62,6 +67,156 @@ function addOperationalColumns() {
     added.push(header);
   }
   return added.length ? 'أُضيفت الأعمدة: ' + added.join('، ') : 'الأعمدة موجودة مسبقاً.';
+}
+
+/* توزيع المجال و«الإجراء عند» المحضّر مسبقاً لبنود السجل. */
+var SEED_OPERATIONAL = {
+  'base-1':['procurement','team'],
+  'base-2':['procurement','external'],
+  'base-3':['procurement','external'],
+  'base-4':['procurement','external'],
+  'base-5':['procurement','team'],
+  'base-6':['procurement','external'],
+  'base-7':['procurement','external'],
+  'base-8':['procurement','team'],
+  'base-9':['procurement','team'],
+  'base-10':['procurement','external'],
+  'base-11':['procurement','external'],
+  'base-12':['procurement','external'],
+  'base-13':['procurement','external'],
+  'base-14':['procurement','external'],
+  'base-15':['procurement','team'],
+  'base-16':['procurement','external'],
+  'base-17':['procurement','external'],
+  'base-18':['procurement','external'],
+  'base-19':['procurement','team'],
+  'base-20':['inventory','external'],
+  'base-21':['procurement','external'],
+  'base-22':['inventory','team'],
+  'base-23':['inventory','team'],
+  'base-24':['maintenance','team'],
+  'base-25':['maintenance','team'],
+  'base-26':['maintenance','team'],
+  'base-27':['maintenance','team'],
+  'base-28':['maintenance','team'],
+  'base-29':['maintenance','team'],
+  'base-30':['inventory','team'],
+  'base-31':['vehicles','team'],
+  'base-33':['inventory','team'],
+  'base-34':['rain','team'],
+  'base-35':['admin','team'],
+  'base-36':['procurement','team'],
+  'base-37':['rain','me'],
+  'base-38':['rain','external'],
+  'new-torque':['procurement','external'],
+  'new-hoses':['procurement','external'],
+  'new-storz':['procurement','external'],
+  'new-coupling-inventory':['inventory','unassigned'],
+  'new-furniture':['admin','me'],
+  'new-canopy-parts':['procurement','team'],
+  'new-air-cooling-fan-asset':['procurement','external'],
+  'new-atlas-demo-aem2000913':['maintenance','team'],
+  'new-ropes-waterproof-tape':['procurement','external'],
+  'new-civil-road-cutter':['maintenance','external'],
+  'new-civil-hdpe-cutter':['maintenance','team'],
+  'new-civil-jigsaw':['maintenance','team'],
+  'new-civil-jack-hammer':['maintenance','team'],
+  'new-driving-test-31043':['vehicles','external'],
+  'new-driver-nomination-muhammed-haris':['admin','external'],
+  'new-rain-minutes-20260915':['rain','team'],
+  'new-rain-sectors-1-5':['rain','external'],
+  'new-rain-live-status-contacts':['rain','external'],
+  'new-rain-pump-distribution':['rain','team'],
+  'new-rain-diesel-tankers-2345':['rain','team'],
+  'new-rain-whatsapp-group':['rain','team'],
+  'new-rain-duty-contact':['rain','team'],
+  'new-rain-external-coordination':['rain','team'],
+  'new-action-canopy-confirm':['procurement','external'],
+  'new-action-engine-parts':['procurement','team'],
+  'new-action-third-clarify':['procurement','team'],
+  'new-band-it-tools-strips':['procurement','team'],
+  'new-hose-12in-100m-reel':['procurement','team'],
+  'new-electric-generators-purchase':['procurement','unassigned'],
+  'new-site-battery-locks':['procurement','unassigned']
+};
+
+/** يملأ المجال و«الإجراء عند» للبنود الخالية منهما فقط، ولا يمسّ ما عُدّل من الموقع. */
+function fillOperationalValues() {
+  var sheet = mainSheet();
+  var columns = optionalColumns(sheet);
+  if (!columns['المجال'] || !columns['الإجراء عند']) throw new Error('شغّل addOperationalColumns أولاً.');
+  var last = sheet.getLastRow();
+  if (last < 2) return 'لا توجد بنود.';
+  var ids = sheet.getRange(2, 1, last - 1, 1).getValues();
+  var areas = sheet.getRange(2, columns['المجال'], last - 1, 1).getValues();
+  var owners = sheet.getRange(2, columns['الإجراء عند'], last - 1, 1).getValues();
+  var filled = 0, skipped = 0, unknown = [];
+  for (var i = 0; i < ids.length; i++) {
+    var seed = SEED_OPERATIONAL[String(ids[i][0]).trim()];
+    if (!seed) { if (!text(areas[i][0]) || !text(owners[i][0])) unknown.push(String(ids[i][0]).trim()); continue; }
+    var touched = false;
+    if (!text(areas[i][0])) { areas[i][0] = AREAS[seed[0]]; touched = true; }
+    if (!text(owners[i][0])) { owners[i][0] = ACTION_AT[seed[1]]; touched = true; }
+    if (touched) filled++; else skipped++;
+  }
+  sheet.getRange(2, columns['المجال'], last - 1, 1).setValues(areas);
+  sheet.getRange(2, columns['الإجراء عند'], last - 1, 1).setValues(owners);
+  return 'مُلئ ' + filled + ' بنداً · بقي كما هو ' + skipped +
+    (unknown.length ? ' · بلا توزيع محضّر: ' + unknown.join('، ') : '');
+}
+
+/** ينشئ ورقة المعدات. شغّلها مرة واحدة لتفعيل استلام المعدات وتسليمها. */
+function addEquipmentSheet() {
+  if (sheetByName(EQUIPMENT_SHEET)) return 'ورقة المعدات موجودة مسبقاً.';
+  var sheet = ensureSheet(EQUIPMENT_SHEET, EQUIPMENT_HEADERS, false);
+  sheet.setFrozenRows(1);
+  return 'أُنشئت ورقة المعدات. سجّل بيانات المعدة من نموذج تعديل البند.';
+}
+
+function equipmentSheet(required) {
+  var sheet = sheetByName(EQUIPMENT_SHEET);
+  if (!sheet && required) throw new Error('شغّل addEquipmentSheet أولاً لتسجيل المعدات.');
+  if (sheet) {
+    var first = sheet.getRange(1, 1, 1, EQUIPMENT_HEADERS.length).getValues()[0];
+    for (var i = 0; i < EQUIPMENT_HEADERS.length; i++) {
+      if (text(first[i]) !== EQUIPMENT_HEADERS[i]) throw new Error('عناوين ورقة المعدات لا تطابق المتوقع: ' + EQUIPMENT_HEADERS[i]);
+    }
+  }
+  return sheet;
+}
+
+/** يكتب بيانات المعدة أو يحدّثها أو يزيلها حسب ما يرسله الموقع مع البند. */
+function writeEquipment(user, itemId, equipment) {
+  if (!equipment) return;
+  var sheet = equipmentSheet(true);
+  var row = 0, last = sheet.getLastRow();
+  if (last > 1) {
+    var ids = sheet.getRange(2, 1, last - 1, 1).getValues();
+    for (var i = 0; i < ids.length; i++) if (String(ids[i][0]).trim() === String(itemId)) { row = i + 2; break; }
+  }
+  if (equipment.enabled === false) {
+    if (row) { sheet.deleteRow(row); audit(user, 'إزالة معدة', itemId, '', 'أُزيل سجل المعدة.'); }
+    return;
+  }
+  var values = [
+    String(itemId),
+    text(equipment.owner),
+    text(equipment.asset),
+    dateCell(equipment.receivedDate, 'تاريخ الاستلام', false),
+    text(equipment.receiver),
+    label(equipment.phase, PHASES, 'مرحلة العمل الفني'),
+    label(equipment.handover, HANDOVERS, 'حالة التسليم'),
+    dateCell(equipment.returnedDate, 'تاريخ الإعادة', false),
+    text(equipment.returnedTo),
+    text(equipment.notes),
+    stamp()
+  ];
+  if (row) sheet.getRange(row, 1, 1, values.length).setValues([values]);
+  else { sheet.appendRow(values); row = sheet.getLastRow(); }
+  sheet.getRange(row, 4).setNumberFormat('dd/mm/yyyy');
+  sheet.getRange(row, 8).setNumberFormat('dd/mm/yyyy');
+  sheet.getRange(row, 11).setNumberFormat('@').setValue(values[10]);
+  audit(user, 'معدة', itemId, text(equipment.asset), PHASES[equipment.phase] + ' · ' + HANDOVERS[equipment.handover]);
 }
 
 /** ينشئ ورقة المراسلات. شغّلها مرة واحدة لتفعيل تبويب المراسلات في الموقع. */
@@ -304,6 +459,8 @@ function doGet() {
     report.operational = hasOperational(sheet);
     var letters = sheetByName(LETTER_SHEET);
     report.letters = letters ? Math.max(letters.getLastRow() - 1, 0) : 'الورقة غير منشأة';
+    var gear = sheetByName(EQUIPMENT_SHEET);
+    report.equipment = gear ? Math.max(gear.getLastRow() - 1, 0) : 'الورقة غير منشأة';
     var users = sheetByName(CONFIG.usersSheet);
     report.users = users ? Math.max(users.getLastRow() - 1, 0) : 0;
     report.ready = report.users > 0;
@@ -415,9 +572,10 @@ function requireUser(token) {
 }
 
 function features() {
-  var report = {operational:false, letters:false};
+  var report = {operational:false, letters:false, equipment:false};
   try { report.operational = hasOperational(mainSheet()); } catch (error) {}
   try { report.letters = Boolean(lettersSheet(false)); } catch (error) {}
+  try { report.equipment = Boolean(equipmentSheet(false)); } catch (error) {}
   return report;
 }
 
@@ -448,6 +606,7 @@ function createItem(user, item) {
   sheet.appendRow(values);
   formatRow(sheet, sheet.getLastRow(), values[14]);
   writeOptional(sheet, sheet.getLastRow(), item);
+  writeEquipment(user, id, item.equipment);
   audit(user, 'إضافة', id, values[1], summary(item));
   return {ok:true, id:id, updatedAt:values[14]};
 }
@@ -464,6 +623,7 @@ function updateItem(user, id, item, expectedUpdatedAt) {
   sheet.getRange(row, 1, 1, HEADERS.length).setValues([values]);
   formatRow(sheet, row, values[14]);
   writeOptional(sheet, row, item);
+  writeEquipment(user, values[0], item.equipment);
   audit(user, 'تعديل', values[0], values[1], changes(current, values));
   return {ok:true, id:values[0], updatedAt:values[14]};
 }
