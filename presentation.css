@@ -79,8 +79,6 @@ html[data-motion=off] .page-scene *,.page-scene[data-visible=false] *{animation-
 .presentation-stage{flex:1;display:flex;align-items:center;min-height:0}
 .presentation-card{width:100%;max-height:100%;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#abbeb4 transparent;background:#fcfdf9;color:#1b352d;border:1px solid #ffffffa6;border-top:3px solid #d2b578;border-radius:16px;padding:clamp(22px,3vw,40px);box-shadow:0 24px 64px #001f2450;scroll-padding:20px}
 .presentation-card-top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:20px}
-.presentation-ghost{z-index:3;pointer-events:none;overflow:hidden;scrollbar-width:none;will-change:transform,opacity}
-.presentation-ghost::-webkit-scrollbar{display:none}
 #presentation-reference{font-size:13px;color:#506b60;letter-spacing:.25px;overflow-wrap:anywhere}
 .presentation-badges{display:flex;gap:7px;flex-wrap:wrap;flex-shrink:0;max-width:65%;font-size:12px;font-weight:700}
 .presentation-badges>span{padding:4px 11px;border-radius:5px;background:#edf3ee;color:#315f4d}
