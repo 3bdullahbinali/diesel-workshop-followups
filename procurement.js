@@ -10,13 +10,13 @@
   let rows=[],stage='all',query='',feed=null;
   let selectedView=null;
   const expanded=new Set();
-  const panels={procurement:'procurement-panel',letters:'letters-panel',jobs:'jobs-panel'};
+  const panels={procurement:'procurement-panel',letters:'letters-panel',jobs:'jobs-panel',stats:'stats-panel'};
   function selectView(view,updateHash=true){
     const purchase=view==='procurement';
     const changed=selectedView!==view;
     selectedView=view;
     const shown=panels[view]||'overview-panel';
-    for(const id of ['overview-panel','procurement-panel','letters-panel','jobs-panel'])$(id).hidden=id!==shown;
+    for(const id of ['overview-panel','procurement-panel','letters-panel','jobs-panel','stats-panel'])$(id).hidden=id!==shown;
     for(const tab of tabs){const active=tab.dataset.view===view;tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;}
     $('overview-panel').setAttribute('aria-labelledby',panels[view]?'overview-tab':view+'-tab');
     if(updateHash)history.replaceState(null,'',purchase?'#purchase-orders':'#'+view);
@@ -87,7 +87,7 @@
     const edit=event.target.closest('button[data-edit]');
     if(edit){window.WorkshopAdmin?.open(edit.dataset.edit);return;}
     const button=event.target.closest('[data-pr-item]');if(!button)return;const id=button.dataset.prItem,open=!expanded.has(id);if(open)expanded.add(id);else expanded.delete(id);button.setAttribute('aria-expanded',String(open));$('pr-detail-'+id).hidden=!open;if(open)window.WorkshopMotion?.reveal($('pr-detail-'+id).querySelector('.detail-grid'),'detail');});
-  const viewFromHash=()=>location.hash==='#purchase-orders'?'procurement':location.hash==='#letters'?'letters':location.hash==='#jobs'?'jobs':location.hash==='#non-purchase'?'non-purchase':location.hash==='#closed'?'closed':'overview';
+  const viewFromHash=()=>location.hash==='#purchase-orders'?'procurement':location.hash==='#letters'?'letters':location.hash==='#jobs'?'jobs':location.hash==='#stats'?'stats':location.hash==='#non-purchase'?'non-purchase':location.hash==='#closed'?'closed':'overview';
   window.addEventListener('hashchange',()=>selectView(viewFromHash(),false));
   // Reformat locale-dependent dates and refresh bilingual search results immediately.
   window.addEventListener('workshop-session',()=>{if(feed)renderRows();});

@@ -351,7 +351,7 @@
     if (reducedMotion.matches) { animation?.cancel(); if (dialog.open && !kiosk) pause(); }
   });
   window.addEventListener('workshop-view', event => {
-    if (event.detail === 'letters' || event.detail === 'jobs') return;   // العرض للمتابعات لا للمراسلات والأعمال
+    if (['letters','jobs','stats'].includes(event.detail)) return;   // العرض للمتابعات لا للمراسلات والأعمال والإحصائيات
     view = event.detail;
     index = 0;
     elapsed = 0;
