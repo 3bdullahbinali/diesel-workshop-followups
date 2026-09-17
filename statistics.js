@@ -13,13 +13,13 @@
   let wakeLock = null, linkTimer = 0, pendingPlay = false;
   const frames = new Set();
 
-  const isClosed = item => P.isClosed(item) || item.stage === 'cancelled';
   const today = () => new Intl.DateTimeFormat('en-CA', {timeZone:'Asia/Dubai'}).format(new Date());
   const motionOn = () => document.documentElement.dataset.motion === 'on' && !reducedMotion.matches;
   const tally = (list, key) => list.reduce((map, entry) => map.set(key(entry), (map.get(key(entry)) || 0) + 1), new Map());
 
   // كل رقم في هذه الشاشة محسوب من السجل نفسه، لا من إدخال يدوي منفصل.
   function build(feed) {
+    const isClosed=item=>window.WorkshopFollowups.isClosed(item,feed);
     const items = feed.items || [];
     const open = items.filter(item => !isClosed(item));
     const now = today();
@@ -39,7 +39,7 @@
         blocked: open.filter(item => item.blocker).length
       },
       actions: Object.entries(S.actions).map(([id, label]) => ({id, label, value: open.filter(item => (item.actionAt || 'unassigned') === id).length})),
-      areas: Object.entries(S.areas).map(([id, label]) => ({id, label, value: open.filter(item => item.area === id).length})).filter(row => row.value),
+      areas: Object.entries(window.WorkshopFollowups.homeLabels).map(([id,label])=>({id,label,value:open.filter(item=>window.WorkshopFollowups.home(item,feed)===id).length})).filter(row=>row.value),
       stages: [...byStage.entries()].map(([id, value]) => ({id, label: S.stages[id] || id, value})).sort((a, b) => b.value - a.value).slice(0, 7),
       purchase: {
         total: purchase.length,
@@ -164,7 +164,7 @@
     list.push({title:'طلبات الشراء', note:'من الإعداد حتى الاستلام', body:
       `<div class="stat-hero stat-hero-small">${card('طلبات قائمة', s.purchase.open, 'لم تُغلق بعد')}${card('بانتظار العروض', s.purchase.quotes)}${card('بانتظار التوريد', s.purchase.delivery)}${card('طلبات مغلقة', s.purchase.total - s.purchase.open)}</div>` +
       amountHint(s)});
-    if (s.jobs) list.push({title:'الأعمال قيد الانتظار والأعمال القائمة', note:'ما نقدّمه لجهات أخرى وما يُقدّم لنا', body:
+    if (s.jobs) list.push({title:'الأعمال المطلوب إنجازها والأعمال القائمة', note:'ما نقدّمه لجهات أخرى وما يُقدّم لنا', body:
       `<div class="stat-hero stat-hero-small">${card('أعمال قائمة', s.jobs.running)}${card('اكتملت', s.jobs.done)}${card('إجمالي الأعمال', s.jobs.total)}</div>` + bars('حسب الطرف', s.jobs.parties)});
     if (s.letters) list.push({title:'المراسلات', note:'الصادر والوارد وحالة الإغلاق', body:
       `<div class="stat-hero stat-hero-small">${card('صادر', s.letters.out)}${card('وارد', s.letters.in)}${card('بانتظار رد جهة', s.letters.awaitingReply)}${card('مغلقة', s.letters.closed)}</div>`});

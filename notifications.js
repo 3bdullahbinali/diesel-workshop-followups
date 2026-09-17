@@ -6,38 +6,51 @@
   shelf.className = 'toast-shelf';
   shelf.setAttribute('role', 'status');
   shelf.setAttribute('aria-live', 'polite');
-  const live = [];
+  const live = [], pending = new Set();
   const LIMIT = 4, LIFE = 14000;
-  const STORE = 'workshop-toast-seen', MAX_KEYS = 600, KEEP_DAYS = 60;
-  // ذاكرة الإشعارات: التغيير يظهر مرة واحدة، وإن أُغلق لا يعود بعد كل تحديث للصفحة.
-  let memory = new Map(), known = false, storage = null;
+  // ذاكرة لهذا الموقع على هذا المتصفح. لا تُخزَّن نصوص المتابعات أو بيانات الدخول.
+  const storageKey = 'workshop-notifications:v1:' + location.pathname;
+  const MAX_KEYS = 800;
+  const seen = new Set();
+  let storage = null;
   try {
-    localStorage.setItem(STORE + '-probe', '1');
-    localStorage.removeItem(STORE + '-probe');
+    localStorage.setItem(storageKey + ':probe', '1');
+    localStorage.removeItem(storageKey + ':probe');
     storage = localStorage;
-  } catch { known = true; }   // بلا تخزين: الذاكرة للجلسة الواحدة فقط.
-  if (storage) {
+  } catch {}
+  function storedKeys() {
     try {
-      const saved = JSON.parse(storage.getItem(STORE) || 'null');
-      if (saved && saved.v === 1 && saved.keys && typeof saved.keys === 'object') {
-        memory = new Map(Object.entries(saved.keys).filter(([, at]) => Number.isFinite(at)));
-        known = true;
-      }
-    } catch {}
+      const value = JSON.parse((storage && storage.getItem(storageKey)) || 'null');
+      if (!Array.isArray(value)) return null;
+      return value.filter(key => typeof key === 'string' && /^[0-9a-f]{16}$/.test(key));
+    } catch { return null; }
   }
-  function save() {
-    // الأقدم يُحذف أولاً، والمفاتيح القديمة تنتهي، فلا تكبر الذاكرة بلا حد.
-    const cutoff = Date.now() - KEEP_DAYS * 86400000;
-    const kept = [...memory].filter(([, at]) => at >= cutoff).sort((a, b) => a[1] - b[1]).slice(-MAX_KEYS);
-    memory = new Map(kept);
+  // بلا تخزين لا ذاكرة تُبنى، فتُعرض التغييرات الجديدة بدل كتمها للأبد.
+  let known = !storage || storedKeys() !== null;
+  function refreshMemory() {
+    const stored = storedKeys();
+    if (stored) for (const key of stored) seen.add(key);
+  }
+  function remember(keys) {
+    refreshMemory();
+    for (const key of keys) seen.add(key);
+    // الأقدم يخرج أولاً، فلا تكبر الذاكرة بلا حد على شاشة تعمل بلا توقف.
+    if (seen.size > MAX_KEYS) for (const key of [...seen].slice(0, seen.size - MAX_KEYS)) seen.delete(key);
+    known = true;
     if (!storage) return;
-    try { storage.setItem(STORE, JSON.stringify({v:1, keys:Object.fromEntries(kept)})); } catch {}
+    try { storage.setItem(storageKey, JSON.stringify([...seen])); } catch {}
   }
-  const seen = key => Boolean(key) && memory.has(key);
-  function remember(key) {
-    if (!key) return;
-    memory.set(key, Date.now());
+  // بصمة ثابتة للتمييز فقط، وليست آلية تشفير أو حماية.
+  function fingerprint(value) {
+    let a = 2166136261, b = 2246822519;
+    for (let i = 0; i < value.length; i++) {
+      a = Math.imul(a ^ value.charCodeAt(i), 16777619);
+      b = Math.imul(b ^ value.charCodeAt(i), 3266489917);
+    }
+    return (a >>> 0).toString(16).padStart(8, '0') + (b >>> 0).toString(16).padStart(8, '0');
   }
+  const keyOf = item => fingerprint(String(item.id || JSON.stringify([item.kind || 'info', item.title, item.body || ''])));
+  refreshMemory();
 
   function motionOn() {
     return document.documentElement.dataset.motion === 'on' && !reducedMotion.matches;
@@ -51,27 +64,30 @@
     const remove = () => entry.node.remove();
     if (!motionOn()) return remove();
     entry.node.animate([{opacity:1, transform:'none'}, {opacity:0, transform:'translateY(-10px)'}],
-      {duration:260, easing:'cubic-bezier(.4,0,1,1)'}).finished.finally(remove);
+      {duration:260, easing:'cubic-bezier(.4,0,1,1)'}).finished.then(remove, remove);
   }
-  function push({title, body = '', kind = 'info', key = ''}) {
-    if (seen(key)) return null;
-    remember(key);
-    save();
+  function push(item, coveredKeys = []) {
+    const {title, body = '', kind = 'info'} = item;
+    const key = keyOf(item);
+    refreshMemory();
+    if (seen.has(key)) return null;
     if (!document.body.contains(shelf)) document.body.append(shelf);
     const node = document.createElement('div');
     node.className = 'toast';
     node.dataset.kind = kind;
-    node.innerHTML = `<div class="toast-text"><strong></strong><span></span></div>
-      <button type="button" class="toast-close" aria-label="إغلاق الإشعار"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button>`;
+    node.innerHTML = '<div class="toast-text"><strong></strong><span></span></div>' +
+      '<button type="button" class="toast-close" aria-label="إغلاق الإشعار"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button>';
     node.querySelector('strong').textContent = I.t(title);
+    node.querySelector('.toast-close').setAttribute('aria-label', I.t('إغلاق الإشعار'));
     const detail = node.querySelector('span');
     detail.textContent = I.t(body);
     detail.hidden = !body;
-    const entry = {node, gone:false, timer:0};
+    const entry = {node, key, gone:false, timer:0};
     node.querySelector('.toast-close').addEventListener('click', () => dismiss(entry));
     shelf.append(node);
     live.push(entry);
-    // الأقدم ينصرف أولاً حتى لا تتراكم الإشعارات فوق بعضها.
+    // يُسجَّل عند العرض: الإغلاق والتحديث وانتهاء المهلة لا يعيدون نفس الإشعار.
+    remember([key, ...coveredKeys]);
     while (live.length > LIMIT) dismiss(live[0]);
     entry.timer = setTimeout(() => dismiss(entry), LIFE);
     if (motionOn()) {
@@ -80,30 +96,42 @@
     }
     return entry;
   }
-  // ترجع عدد الإشعارات التي ستظهر فعلاً، حتى يعرف الموقع إن كان هناك جديد.
-  function pushAll(list) {
-    const fresh = list.filter(item => !seen(item.key));
-    if (!fresh.length) return 0;
-    // أول فتح في هذا المتصفح: تُسجَّل الحالة الراهنة بلا إشعارات عن تغييرات سابقة لم يرها أحد.
-    if (!known) {
-      known = true;
-      for (const item of fresh) remember(item.key);
-      save();
-      return 0;
-    }
-    // دفعة واحدة تظهر متتابعة لا دفعة واحدة، فتُقرأ.
-    fresh.slice(0, LIMIT).forEach((item, index) => {
-      if (!index || !motionOn()) return push(item);
-      setTimeout(() => push(item), index * 140);
-    });
-    if (fresh.length > LIMIT) {
-      const rest = fresh.slice(LIMIT);
-      for (const item of rest) remember(item.key);
-      save();
-      setTimeout(() => push({title:'وتغييرات أخرى', body:`${rest.length} تغييراً إضافياً في السجل.`}), LIMIT * 140);
-    }
-    return fresh.length;
+  function later(fn, delay) {
+    if (!delay || !motionOn()) return fn();
+    const timer = setTimeout(() => { pending.delete(timer); fn(); }, delay);
+    pending.add(timer);
   }
-  window.WorkshopToast = {push, pushAll, clear: () => [...live].forEach(dismiss), get remembered() { return memory.size; }};
-  window.addEventListener('workshop-language', () => [...live].forEach(dismiss));
+  function pushAll(list) {
+    const first = !known;
+    refreshMemory();
+    const batch = new Set();
+    const unseen = list.filter(item => {
+      const key = keyOf(item);
+      if (seen.has(key) || batch.has(key)) return false;
+      batch.add(key);
+      return true;
+    });
+    if (first && unseen.length) { remember(unseen.map(keyOf)); return 0; }
+    // التصفية تسبق الحد: الإشعارات القديمة لا تحجب تحديثاً جديداً.
+    const count = unseen.length > LIMIT ? LIMIT - 1 : LIMIT;
+    unseen.slice(0, count).forEach((item, index) => later(() => push(item), index * 140));
+    const rest = unseen.slice(count);
+    if (rest.length) later(() => {
+      refreshMemory();
+      const keys = rest.map(keyOf).filter(key => !seen.has(key));
+      if (keys.length) push({
+        id:'summary:' + keys.slice().sort().join(','),
+        title:'وتغييرات أخرى', body:`${keys.length} تغييراً إضافياً في السجل.`
+      }, keys);
+    }, count * 140);
+    return unseen.length;
+  }
+  function clear() {
+    for (const timer of pending) clearTimeout(timer);
+    pending.clear();
+    [...live].forEach(dismiss);
+  }
+  window.WorkshopToast = {push, pushAll, clear};
+  window.addEventListener('storage', event => { if (event.key === storageKey) refreshMemory(); });
+  window.addEventListener('workshop-language', clear);
 })();

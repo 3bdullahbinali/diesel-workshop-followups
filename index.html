@@ -6,29 +6,34 @@
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#124e3e">
   <meta name="description" content="متابعات شعبة ورشة الديزل: الأولويات والإجراءات وآخر التحديثات المؤكدة.">
-  <link rel="icon" href="./favicon.svg?v=2026-09-17-1351" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css?v=2026-09-17-1351">
-  <link rel="stylesheet" href="./motion.css?v=2026-09-17-1351">
-  <link rel="stylesheet" href="./presentation.css?v=2026-09-17-1351">
-  <link rel="stylesheet" href="./admin.css?v=2026-09-17-1351">
-  <link rel="stylesheet" href="./statistics.css?v=2026-09-17-1351">
+  <link rel="icon" href="./favicon.svg?v=2026-09-17-1356" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css?v=2026-09-17-1356">
+  <link rel="stylesheet" href="./motion.css?v=2026-09-17-1356">
+  <link rel="stylesheet" href="./presentation.css?v=2026-09-17-1356">
+  <link rel="stylesheet" href="./admin.css?v=2026-09-17-1356">
+  <link rel="stylesheet" href="./statistics.css?v=2026-09-17-1356">
   <title>متابعات شعبة ورشة الديزل</title>
-  <script src="./translations-en.js?v=2026-09-17-1351" defer></script>
-  <script src="./procurement-en.js?v=2026-09-17-1351" defer></script>
-  <script src="./i18n.js?v=2026-09-17-1351" defer></script>
-  <script src="./record-time.js?v=2026-09-17-1351" defer></script>
-  <script src="./motion.js?v=2026-09-17-1351" defer></script>
-  <script src="./procurement-model.js?v=2026-09-17-1351" defer></script>
-  <script src="./purchase-orders.js?v=2026-09-17-1351" defer></script>
-  <script src="./presentation.js?v=2026-09-17-1351" defer></script>
-  <script src="./procurement.js?v=2026-09-17-1351" defer></script>
-  <script src="./sheets.js?v=2026-09-17-1351" defer></script>
-  <script src="./app.js?v=2026-09-17-1351" defer></script>
-  <script src="./notifications.js?v=2026-09-17-1351" defer></script>
-  <script src="./letters.js?v=2026-09-17-1351" defer></script>
-  <script src="./jobs.js?v=2026-09-17-1351" defer></script>
-  <script src="./statistics.js?v=2026-09-17-1351" defer></script>
-  <script src="./admin.js?v=2026-09-17-1351" defer></script>
+  <script src="./translations-en.js?v=2026-09-17-1356" defer></script>
+  <script src="./procurement-en.js?v=2026-09-17-1356" defer></script>
+  <script src="./followup-en.js?v=2026-09-17-1356" defer></script>
+  <script src="./i18n.js?v=2026-09-17-1356" defer></script>
+  <script src="./record-time.js?v=2026-09-17-1356" defer></script>
+  <script src="./motion.js?v=2026-09-17-1356" defer></script>
+  <script src="./procurement-model.js?v=2026-09-17-1356" defer></script>
+  <script src="./purchase-orders.js?v=2026-09-17-1356" defer></script>
+  <script src="./presentation.js?v=2026-09-17-1356" defer></script>
+  <script src="./procurement.js?v=2026-09-17-1356" defer></script>
+  <script src="./sheets.js?v=2026-09-17-1356" defer></script>
+  <script src="./followup-model.js?v=2026-09-17-1356" defer></script>
+  <script src="./relations.js?v=2026-09-17-1356" defer></script>
+  <script src="./app.js?v=2026-09-17-1356" defer></script>
+  <script src="./notifications.js?v=2026-09-17-1356" defer></script>
+  <script src="./letters.js?v=2026-09-17-1356" defer></script>
+  <script src="./jobs.js?v=2026-09-17-1356" defer></script>
+  <script src="./archive.js?v=2026-09-17-1356" defer></script>
+  <script src="./statistics.js?v=2026-09-17-1356" defer></script>
+  <script src="./admin.js?v=2026-09-17-1356" defer></script>
+  <link rel="stylesheet" href="./followup-layout.css?v=2026-09-17-1356">
 </head>
 <body>
   <div class="ambient-background" aria-hidden="true"><div class="ambient-art"></div></div>
@@ -40,7 +45,7 @@
     </div>
   </header>
   <main id="app">
-    <aside class="trial-banner" role="status"><strong>سجل المتابعات — Google Sheets</strong><p id="sheet-status">جارٍ التحقق من الاتصال بملف Google Sheets.</p><div class="trial-links"><a href="https://docs.google.com/spreadsheets/d/1f8rYNHHe6KjvgQgThMXRi3cOrHGLJWmvLYURqzdbh_0/edit?usp=drivesdk" target="_blank" rel="noopener noreferrer">فتح ملف المتابعات في Google Sheets</a><a href="https://diesel-workshop-followups.abo0od-2448.chatgpt.site" target="_blank" rel="noopener">فتح الموقع الأساسي</a></div></aside>
+    <aside id="sheet-access-panel" class="trial-banner" role="status" hidden><strong>سجل المتابعات — Google Sheets</strong><p id="sheet-status">جارٍ التحقق من الاتصال بملف Google Sheets.</p><div class="trial-links"><a href="https://docs.google.com/spreadsheets/d/1f8rYNHHe6KjvgQgThMXRi3cOrHGLJWmvLYURqzdbh_0/edit?usp=drivesdk" target="_blank" rel="noopener noreferrer">فتح ملف المتابعات في Google Sheets</a></div></aside>
     <section class="page-heading" aria-label="مقدمة المتابعات">
       <div><div class="eyebrow">سجل العمل</div><h2>المتابعات</h2><p id="scope">جارٍ تحميل السجل…</p></div>
       <div class="page-actions">
@@ -58,17 +63,17 @@
       <div class="sync-main"><span id="connection-dot" class="connection-dot pending" aria-hidden="true"></span><strong id="connection-label">جارٍ الاتصال بالسجل</strong><span id="fetch-time"></span></div>
       <details class="sync-details"><summary id="sync-summary">كيف يتم التحديث؟</summary><div class="sync-explanation"><p id="sync-explanation">تتجدد البيانات المعروضة كل 30 ثانية أثناء فتح الشاشة.</p><p id="review-time"></p><p>تاريخ كل بند هو تاريخ آخر معلومة مؤيدة عنه. إرسال رسالة أو إعداد مسودة لا يعني اكتمال الإجراء.</p></div></details>
     </section>
-    <div class="view-tabs" role="tablist" aria-label="عرض السجل">
+    <div id="main-views" class="view-tabs" role="tablist" aria-label="عرض السجل">
       <button type="button" id="overview-tab" role="tab" aria-controls="overview-panel" aria-selected="true" data-view="overview">جميع المتابعات <span id="overview-tab-count">—</span></button>
       <button type="button" id="non-purchase-tab" role="tab" aria-controls="overview-panel" aria-selected="false" data-view="non-purchase">متابعات عامة <span id="non-purchase-tab-count">—</span></button>
       <button type="button" id="procurement-tab" role="tab" aria-controls="procurement-panel" aria-selected="false" data-view="procurement">طلبات الشراء <span id="procurement-tab-count">—</span></button>
-      <button type="button" id="closed-tab" role="tab" aria-controls="overview-panel" aria-selected="false" data-view="closed">المتابعات المغلقة <span id="closed-tab-count">—</span></button>
-      <button type="button" id="letters-tab" role="tab" aria-controls="letters-panel" aria-selected="false" data-view="letters" hidden>المراسلات <span id="letters-tab-count">—</span></button>
-      <button type="button" id="jobs-tab" role="tab" aria-controls="jobs-panel" aria-selected="false" data-view="jobs" hidden>الأعمال <span id="jobs-tab-count">—</span></button>
+      <button type="button" id="letters-tab" role="tab" aria-controls="letters-panel" aria-selected="false" data-view="letters">مراسلات تراسل <span id="letters-tab-count">—</span></button>
+      <button type="button" id="plans-tab" role="tab" aria-controls="overview-panel" aria-selected="false" data-view="plans">خطط التطوير <span id="plans-tab-count">—</span></button>
+      <button type="button" id="closed-tab" role="tab" aria-controls="closed-panel" aria-selected="false" data-view="closed">المتابعات المغلقة <span id="closed-tab-count">—</span></button>
       <button type="button" id="stats-tab" role="tab" aria-controls="stats-panel" aria-selected="false" data-view="stats">الإحصائيات</button>
     </div>
     <div id="overview-panel" role="tabpanel" aria-labelledby="overview-tab">
-    <section class="metrics" aria-label="ملخص السجل">
+    <section class="metrics" aria-label="ملخص السجل" hidden>
       <div class="metric metric-main"><span class="metric-label">إجمالي المتابعات</span><strong id="total">—</strong><span id="composition" class="metric-note">يشمل كامل السجل</span></div>
       <div class="metric"><span class="metric-label">أولوية عالية</span><strong id="high">—</strong><span class="metric-note">تظهر أولاً في القائمة</span></div>
       <div class="metric"><span class="metric-label">بانتظار العروض</span><strong id="quotes">—</strong><span class="metric-note">متابعة العقود والمشتريات</span></div>
@@ -76,12 +81,63 @@
     </section>
     <section class="records-section" id="records" aria-labelledby="records-title">
       <div class="records-heading"><h3 id="records-title">جميع المتابعات <span id="shown-count"></span></h3><span class="sort-hint">الأولوية الأعلى أولاً</span></div>
-      <div class="focus-bar"><div class="group-filters focus-filters" id="focus-filters" role="group" aria-label="من عنده الإجراء"></div></div>
-      <div class="toolbar"><div class="group-filters" id="groups" role="group" aria-label="تصنيف المتابعات"></div><select id="area-filter" class="area-filter" aria-label="تصفية حسب مجال العمل" hidden></select><label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="search" type="search" autocomplete="off" placeholder="ابحث بالموضوع أو رقم الطلب" aria-label="البحث في المتابعات"></label></div>
+      <div id="followup-categories" class="group-filters followup-categories" role="group" aria-label="تصنيف المتابعات">
+        <div class="group-filters" id="groups"></div>
+
+      </div>
+      <div id="followup-records">
+      <div id="coordination-filters" class="group-filters coordination-filters" role="group" aria-label="تصنيف التنسيق والجاهزية" hidden></div>
+      <div class="compact-tools">
+        <label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="search" type="search" autocomplete="off" placeholder="ابحث بالموضوع أو رقم الطلب" aria-label="البحث في المتابعات"></label>
+        <details class="filter-drawer" id="followup-filter-drawer"><summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span>تصفية</span><span class="active-filter-count" id="followup-filter-count" hidden></span></summary>
+          <div class="filter-drawer-body">
+            <div class="filter-line"><span class="filter-label">من عنده الإجراء</span><div class="group-filters focus-filters" id="focus-filters" role="group" aria-label="من عنده الإجراء"></div></div>
+            <div class="filter-line"><span class="filter-label">بحاجة للانتباه</span><div class="group-filters" id="attention-filters" role="group" aria-label="بحاجة للانتباه"></div></div>
+            <div class="filter-line"><label class="filter-label" for="area-filter">المجال</label><select id="area-filter" class="area-filter" aria-label="تصفية حسب مجال العمل" hidden></select></div>
+            <button type="button" class="link-button" id="followup-filter-reset">مسح التصفية</button>
+          </div>
+        </details>
+      </div>
+      <div class="active-filter-summary" id="followup-filter-summary" hidden><span id="followup-filter-description"></span><button type="button" class="link-button" id="followup-filter-clear">مسح التصفية</button></div>
       <div class="table-wrap"><table class="records-table"><caption class="sr-only">المتابعات مرتبة بالأولوية، مع الحالة والإجراء والمسؤول وتاريخ آخر معلومة.</caption><thead><tr><th class="number-col" scope="col">#</th><th scope="col">الموضوع والمرجع</th><th scope="col">الأولوية والحالة</th><th scope="col">الإجراء المطلوب</th><th scope="col">آخر معلومة</th><th class="expand-col" scope="col"><span class="sr-only">التفاصيل</span></th></tr></thead><tbody id="rows"><tr><td colspan="6" class="loading-cell">جارٍ تحميل المتابعات…</td></tr></tbody></table></div>
       <div class="empty-state" id="empty" hidden><h4 id="empty-title">لا توجد متابعات مطابقة</h4><p id="empty-description">جرّب رقماً أو كلمة أخرى، أو ارجع إلى جميع المتابعات.</p><button class="refresh-button" id="clear-filters" type="button">عرض جميع المتابعات</button></div>
+      </div>
+    <section id="jobs-panel" role="region" aria-label="الأعمال الفنية" hidden>
+      <div class="records-section">
+        <div class="records-heading"><h3>الأعمال الفنية <span id="jobs-count"></span></h3><span class="sort-hint"><span id="jobs-open-count">0</span> عمل قائم</span></div>
+      <p class="purchase-note">العمل ومراسلاته في بطاقة واحدة؛ حالة الرد وإغلاق الكتاب تظهران داخل المراسلات المرتبطة.</p>
+        <div class="jobs-quick-filters">
+          <div class="group-filters focus-filters" id="jobs-parties" role="group" aria-label="طرف العمل"></div>
+          <div class="group-filters" id="jobs-states" role="group" aria-label="حالة العمل"></div>
+        </div>
+        <div class="compact-tools">
+          <label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="jobs-search" type="search" autocomplete="off" placeholder="ابحث بالموضوع أو الجهة أو المسؤول" aria-label="البحث في الأعمال"></label>
+          <details class="filter-drawer" id="jobs-filter-drawer"><summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span>تصفية</span><span class="active-filter-count" id="jobs-filter-count" hidden></span></summary>
+            <div class="filter-drawer-body">
+              <div class="filter-line"><span class="filter-label">طرف العمل</span><div class="group-filters" id="jobs-other-parties" role="group" aria-label="طرف العمل"></div></div>
+              <div class="filter-line"><span class="filter-label">حالات أخرى</span><div class="group-filters" id="jobs-other-states" role="group" aria-label="حالات أخرى"></div></div>
+              <div class="filter-line"><span class="filter-label">مصدر الطلب</span><div class="group-filters" id="jobs-sources" role="group" aria-label="مصدر الطلب"></div></div>
+              <button type="button" class="link-button" id="jobs-filter-reset">مسح التصفية</button>
+            </div>
+          </details>
+          <button class="admin-button admin-primary" id="jobs-add" type="button" hidden><span>إضافة عمل</span></button>
+        </div>
+        <div class="active-filter-summary" id="jobs-filter-summary" hidden><span id="jobs-filter-description"></span><button type="button" class="link-button" id="jobs-filter-clear">مسح التصفية</button></div>
+        <div id="jobs-groups" aria-live="polite"></div>
+        <div class="empty-state" id="jobs-empty" hidden><h4>لا توجد أعمال في هذا العرض</h4><p>غيّر الطرف أو الحالة، أو جرّب كلمة أخرى في البحث.</p></div>
+      </div>
+    </section>
     </section>
     </div>
+    <section id="letters-panel" role="tabpanel" aria-labelledby="letters-tab" hidden>
+      <div class="records-section">
+        <div class="records-heading"><h3>متابعة المراسلات <span id="letters-count"></span></h3><span class="sort-hint"><span id="letters-open-count">0</span> كتاب مفتوح</span></div>
+        <p class="purchase-note">عدد الكتب مستقل عن عدد المهام؛ افتح التنفيذ المرتبط لمتابعة الإجراء.</p>
+        <div class="toolbar"><div class="group-filters" id="letters-filters" role="group" aria-label="تصنيف الكتب"></div><label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="letters-search" type="search" autocomplete="off" placeholder="ابحث بالموضوع أو رقم الكتاب أو الجهة" aria-label="البحث في المراسلات"></label><button class="admin-button admin-primary" id="letters-add" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>إضافة كتاب</span></button></div>
+        <div class="letter-grid" id="letters-grid" aria-live="polite"></div>
+        <div class="empty-state" id="letters-empty" hidden><h4>لا توجد مراسلات في هذا العرض</h4><p>غيّر التصنيف أو جرّب كلمة أخرى في البحث.</p></div>
+      </div>
+    </section>
     <section id="procurement-panel" role="tabpanel" aria-labelledby="procurement-tab" hidden>
       <div class="purchase-summary" aria-label="ملخص طلبات الشراء"><div><strong id="pr-numbered">—</strong><span>طلبات مرقمة قائمة</span></div><div><strong id="pr-unnumbered">—</strong><span>طلبات لم تُرقّم</span></div><div><strong id="pr-quotes">—</strong><span>بانتظار العروض</span></div><div><strong id="pr-received">—</strong><span>تحت التقييم</span></div></div>
       <div class="records-section purchase-section">
@@ -93,24 +149,16 @@
         <div id="pr-empty" class="empty-state" hidden><h4>لا توجد طلبات مطابقة</h4><button type="button" id="pr-clear" class="refresh-button">عرض جميع الطلبات</button></div>
       </div>
     </section>
-    <section id="letters-panel" role="tabpanel" aria-labelledby="letters-tab" hidden>
+    <section id="closed-panel" role="tabpanel" aria-labelledby="closed-tab" hidden>
       <div class="records-section">
-        <div class="records-heading"><h3>متابعة المراسلات <span id="letters-count"></span></h3><span class="sort-hint"><span id="letters-open-count">0</span> كتاب مفتوح</span></div>
-        <p class="purchase-note">الصادر والوارد وموقع الكتاب. إنجاز العمل وحالة الرد وإغلاق الكتاب ثلاث حالات مستقلة: اكتمال العمل لا يعني إرسال الرد، وإرسال الرد لا يعني إغلاق الكتاب.</p>
-        <div class="focus-bar"><div class="group-filters focus-filters" id="letters-states" role="group" aria-label="حالة الكتاب"></div></div>
-        <div class="toolbar"><div class="group-filters" id="letters-filters" role="group" aria-label="اتجاه الكتاب"></div><label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="letters-search" type="search" autocomplete="off" placeholder="ابحث بالموضوع أو رقم الكتاب أو الجهة" aria-label="البحث في المراسلات"></label><button class="admin-button admin-primary" id="letters-add" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>إضافة كتاب</span></button></div>
-        <div class="letter-grid" id="letters-grid" aria-live="polite"></div>
-        <div class="empty-state" id="letters-empty" hidden><h4>لا توجد مراسلات في هذا العرض</h4><p>غيّر الاتجاه أو جرّب كلمة أخرى في البحث.</p></div>
-      </div>
-    </section>
-    <section id="jobs-panel" role="tabpanel" aria-labelledby="jobs-tab" hidden>
-      <div class="records-section">
-        <div class="records-heading"><h3>الأعمال قيد الانتظار والأعمال القائمة <span id="jobs-count"></span></h3><span class="sort-hint"><span id="jobs-open-count">0</span> عمل قائم</span></div>
-        <p class="purchase-note">الأعمال التي نقدّمها لجهات أخرى، والأعمال التي تقدّمها لنا جهة، والأعمال الداخلية. المعدة المستلمة تظهر تحت العمل المرتبط بها، وكل عمل يمكن ربطه ببند في سجل المتابعات.</p>
-        <div class="focus-bar"><div class="group-filters focus-filters" id="jobs-parties" role="group" aria-label="طرف العمل"></div></div>
-        <div class="toolbar"><div class="group-filters" id="jobs-states" role="group" aria-label="حالة العمل"></div><label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="jobs-search" type="search" autocomplete="off" placeholder="ابحث بالموضوع أو الجهة أو المسؤول" aria-label="البحث في الأعمال"></label><button class="admin-button admin-primary" id="jobs-add" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>إضافة عمل</span></button></div>
-        <div id="jobs-groups" aria-live="polite"></div>
-        <div class="empty-state" id="jobs-empty" hidden><h4>لا توجد أعمال في هذا العرض</h4><p>غيّر الطرف أو الحالة، أو جرّب كلمة أخرى في البحث.</p></div>
+        <div class="records-heading"><h3>المتابعات المغلقة <span id="archive-count"></span></h3><span class="sort-hint">الأحدث تعديلاً أولاً</span></div>
+        <p class="purchase-note">البنود المنجزة والكتب المغلقة؛ إغلاق الكتاب مستقل عن إنجاز العمل المرتبط به.</p>
+        <div id="archive-kinds" class="group-filters archive-filters" role="group" aria-label="نوع السجل المغلق"></div>
+        <div id="archive-categories" class="group-filters archive-filters archive-secondary" role="group" aria-label="تصنيف المتابعات العامة المغلقة" hidden></div>
+        <div id="archive-detail-filters" class="group-filters archive-filters archive-secondary" role="group" aria-label="تصفية تفصيلية للمغلقات" hidden></div>
+        <div class="compact-tools"><label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="archive-search" type="search" autocomplete="off" placeholder="ابحث بالموضوع أو رقم الطلب أو الكتاب أو المسؤول" aria-label="البحث في المتابعات المغلقة"></label><button type="button" class="link-button" id="archive-reset">مسح التصفية</button></div>
+        <div id="archive-grid" class="archive-grid" aria-live="polite"></div>
+        <div id="archive-empty" class="empty-state" hidden><h4>لا توجد سجلات مغلقة مطابقة</h4><p>غيّر النوع أو التصنيف، أو امسح البحث والتصفية.</p></div>
       </div>
     </section>
     <section id="stats-panel" role="tabpanel" aria-labelledby="stats-tab" hidden>
@@ -295,4 +343,3 @@
   <noscript><p class="noscript">يلزم تفعيل JavaScript لعرض السجل والتحديثات التلقائية.</p></noscript>
 </body>
 </html>
-

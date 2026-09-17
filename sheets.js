@@ -16,9 +16,9 @@
   const jobSheetName='الأعمال';
   const jobHeaders=['معرّف العمل','الموضوع','الطرف','الجهة','نوع العمل','الحالة','المسؤول','تاريخ البدء','الموعد المتوقع','معرّف المتابعة','الملاحظات','آخر تعديل بتوقيت الإمارات'];
   const parties={outbound:'نقدّمه لجهة',inbound:'تقدّمه لنا جهة',internal:'داخلي'};
-  const jobKinds={pending:'عمل قيد الانتظار',ongoing:'عمل قائم',periodic:'صيانة دورية',support:'دعم وتوفير معدات'};
-  // التسمية القديمة تبقى مقروءة حتى لا يسقط صف كُتب قبل تعريب الاسم.
-  const jobKindAliases={'بيندنق جوب':'pending'};
+  const jobKinds={pending:'الأعمال المطلوب إنجازها',ongoing:'عمل قائم',periodic:'صيانة دورية',support:'دعم وتوفير معدات'};
+  // التسميات السابقة تبقى مقروءة، فلا يسقط صف كُتب قبل تعريب الاسم.
+  const jobKindAliases={'بيندنق جوب':'pending','عمل قيد الانتظار':'pending'};
   const jobStates={not_started:'لم يبدأ',in_progress:'قيد التنفيذ',awaiting_parts:'بانتظار قطع غيار',awaiting_party:'بانتظار الجهة',done:'اكتمل',cancelled:'ملغى'};
   // المعدات المستلمة للصيانة: ورقة اختيارية تُقرأ بالاسم وتُربط ببنود السجل.
   const equipmentSheetName='المعدات';

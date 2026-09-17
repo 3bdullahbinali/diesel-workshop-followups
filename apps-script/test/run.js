@@ -130,7 +130,7 @@ check('الخدمة تبلّغ بتفعيلها', post({action:'session',token})
 const jsheet = book.getSheetByName('الأعمال');
 const job = post({action:'job-create',token,job:{title:'تصليح مضخة لقطاع 3',party:'outbound',counterpart:'قسم شبكات الصرف',kind:'pending',state:'in_progress',owner:'م. سالم',startDate:'2026-09-10',dueDate:'2026-09-25',taskId:'base-1',notes:'المعدة في الورشة'}});
 check('إضافة عمل', job.ok===true && job.id==='job-1', JSON.stringify(job));
-check('كُتب الطرف والنوع والحالة بالعربية', jsheet.rows[1][2]==='نقدّمه لجهة'&&jsheet.rows[1][4]==='عمل قيد الانتظار'&&jsheet.rows[1][5]==='قيد التنفيذ', JSON.stringify(jsheet.rows[1].slice(2,6)));
+check('كُتب الطرف والنوع والحالة بالعربية', jsheet.rows[1][2]==='نقدّمه لجهة'&&jsheet.rows[1][4]==='الأعمال المطلوب إنجازها'&&jsheet.rows[1][5]==='قيد التنفيذ', JSON.stringify(jsheet.rows[1].slice(2,6)));
 check('كُتبت التواريخ كتواريخ', jsheet.rows[1][7] instanceof Date && jsheet.rows[1][8] instanceof Date);
 check('كُتب وقت التعديل', /^\d{2}\/\d{2}\/\d{4} /.test(String(jsheet.rows[1][11])), String(jsheet.rows[1][11]));
 check('ربط بمتابعة غير موجودة يُرفض', post({action:'job-create',token,job:{title:'y',party:'inbound',kind:'ongoing',state:'not_started',taskId:'لا-يوجد'}}).ok===false);

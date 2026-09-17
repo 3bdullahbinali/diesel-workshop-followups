@@ -7,6 +7,7 @@
   const bases = {estimated:'تقديرية', quoted:'عرض سعر', recorded:'مسجلة'};
   const store = 'workshop-session';
   let endpoint = '', session = null, data = null, editing = null, busy = false, confirmTimer = 0, features = {};
+  let authRevision = 0;
 
   const read = () => { try { return JSON.parse(localStorage.getItem(store) || 'null'); } catch { return null; } };
   const write = value => { try { value ? localStorage.setItem(store, JSON.stringify(value)) : localStorage.removeItem(store); } catch {} };
@@ -32,6 +33,7 @@
     return result;
   }
   function signedOut(message) {
+    authRevision++;
     session = null;
     write(null);
     sync();
@@ -49,6 +51,7 @@
   const canDelete = () => session?.user?.role === 'admin';
 
   function sync() {
+    $('sheet-access-panel').hidden = !session;
     $('admin-open').hidden = Boolean(session);
     $('admin-session').hidden = !session;
     $('admin-add').hidden = !session;
@@ -79,7 +82,9 @@
     $('admin-blocker').value = item?.blocker || '';
     // تُخفى الحقول التشغيلية حتى تُضاف أعمدتها إلى الشيت.
     for (const field of dialogFields()) field.hidden = !features.operational;
-    options($('admin-pr-kind'), kinds, meta?.kind && kinds[meta.kind] ? meta.kind : 'pr');
+    // Reader aliases use the same labels as the write API. Preserve their meaning.
+    const purchaseKind=({unregistered:'unnumbered',request:'unnumbered',lpo_only:'lpo'}[meta?.kind]||meta?.kind);
+    options($('admin-pr-kind'), kinds, kinds[purchaseKind] ? purchaseKind : 'pr');
     options($('admin-pr-stage'), window.WorkshopSheets.stages, meta?.stage || item?.stage || 'preparation');
     options($('admin-pr-basis'), {'': 'غير مسجل', ...bases}, meta?.amountBasis || '');
     $('admin-title').value = item?.title || '';
@@ -221,13 +226,13 @@
     if (!letter.title) throw new Error('موضوع الكتاب مطلوب.');
     return letter;
   }
-  function openLetterEditor(letter) {
+  function openLetterEditor(letter, taskId) {
     editingLetter = letter || null;
     say('letter-editor-error', '');
     $('letter-editor-title').textContent = I.t(letter ? 'تعديل كتاب' : 'إضافة كتاب');
     $('letter-delete').hidden = !(letter && canDelete());
     resetLetterConfirm();
-    fillLetter(letter);
+    fillLetter(letter || (taskId ? {taskId} : null));
     $('letter-editor').showModal();
     $('letter-title').focus();
   }
@@ -317,13 +322,13 @@
     if (!job.title) throw new Error('موضوع العمل مطلوب.');
     return job;
   }
-  function openJobEditor(job) {
+  function openJobEditor(job, taskId) {
     editingJob = job || null;
     say('job-editor-error', '');
     $('job-editor-title').textContent = I.t(job ? 'تعديل عمل' : 'إضافة عمل');
     $('job-delete').hidden = !(job && canDelete());
     resetJobConfirm();
-    fillJob(job);
+    fillJob(job || (taskId ? {taskId} : null));
     $('job-editor').showModal();
     $('job-title').focus();
   }
@@ -447,12 +452,14 @@
     if (busy) return;
     const username = $('admin-username').value.trim(), password = $('admin-password').value;
     if (!username || !password) { say('admin-login-error', 'اكتب اسم المستخدم وكلمة المرور.'); return; }
+    const attempt = ++authRevision;
     say('admin-login-error', '');
     busy = true;
     $('admin-login-submit').disabled = true;
     $('admin-login-label').textContent = I.t('جارٍ التحقق…');
     try {
       const result = await api('login', {username, password});
+      if (attempt !== authRevision) return;
       session = {token: result.token, user: result.user, expiresAt: result.expiresAt};
       features = result.features || {};
       write(session);
@@ -478,16 +485,17 @@
     const saved = read();
     if (!saved?.token) return;
     if (saved.expiresAt && Date.parse(saved.expiresAt) <= Date.now()) { write(null); return; }
-    session = saved;
-    sync();
+    // لا نظهر روابط الإدارة قبل التحقق من الجلسة المحفوظة لدى الخدمة.
+    const attempt = authRevision;
     try {
       const result = await api('session', {token: saved.token});
+      if (attempt !== authRevision) return;
       features = result.features || {};
       session = {token: saved.token, user: result.user, expiresAt: result.expiresAt};
       write(session);
       sync();
     } catch {
-      signedOut('انتهت الجلسة، سجّل الدخول من جديد.');
+      if (attempt === authRevision) signedOut('انتهت الجلسة، سجّل الدخول من جديد.');
     }
   }
   window.WorkshopAdmin = {
@@ -497,13 +505,15 @@
       const item = data?.items.find(record => record.id === id);
       if (item && canEdit()) openEditor(item);
     },
-    openLetter(id) {
+    openLetter(id, taskId) {
       if (!canEdit()) return;
-      openLetterEditor(id ? window.WorkshopLetters?.find(id) : null);
+      openLetterEditor(id ? window.WorkshopLetters?.find(id) : null, data?.items.some(item=>item.id===taskId)?taskId:null);
     },
-    openJob(id) {
+    openJob(id, taskId) {
       if (!canEdit()) return;
-      openJobEditor(id ? window.WorkshopJobs?.find(id) : null);
+      const job=id?(data?.jobs||[]).find(job=>job.id===id):null;
+      if(id&&!job)return;
+      openJobEditor(job, data?.items.some(item=>item.id===taskId)?taskId:null);
     }
   };
   window.addEventListener('workshop-data', event => { data = event.detail; });

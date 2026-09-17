@@ -114,6 +114,21 @@ html[dir=rtl] .job-top .edit-button{margin:0 auto 0 0}
 .detail-equipment strong{color:#35597d}
 
 /* إشعارات التحديث: تطفو أعلى الصفحة ولا تحجب المحتوى. */
+.view-tabs{flex-wrap:wrap}
+.followup-categories{padding:0 24px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.followup-categories #groups,.followup-categories #general-record-types{display:contents}
+#records>#letters-panel>.records-section,#records>#jobs-panel>.records-section{border:0;border-radius:0}
+#followup-records>.toolbar{padding-top:12px}
+.related-records{border-top:1px solid var(--line);padding-top:14px}
+.related-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.related-actions{display:flex;flex-wrap:wrap;gap:12px}
+.related-records h5{margin:14px 0 7px;color:var(--green);font-size:.875rem}
+.related-list{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.related-record{padding:12px;background:#f7faf8;border:1px solid #e1e9e4;border-radius:7px;overflow-wrap:anywhere}
+.related-record .related-heading>strong{font-size:.9375rem}
+.detail-grid p.related-meta{font-size:.8125rem!important;color:var(--muted)}
+.related-actions .link-button,.related-heading .link-button{min-height:36px}
+@media(max-width:600px){.followup-categories{padding-inline:18px}.related-record{padding:10px}}
 .toast-shelf{position:fixed;top:14px;inset-inline:0;z-index:40;display:flex;flex-direction:column;align-items:center;gap:9px;pointer-events:none;padding:0 12px}
 .toast{pointer-events:auto;display:flex;align-items:flex-start;gap:12px;width:min(520px,100%);padding:12px 15px;border-radius:10px;border:1px solid #cfded5;background:#ffffffeb;backdrop-filter:blur(8px);box-shadow:0 10px 30px #12382e1f;color:var(--ink)}
 .toast[data-kind=add]{border-inline-start:3px solid #3f7f5f}

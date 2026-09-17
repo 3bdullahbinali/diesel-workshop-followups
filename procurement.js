@@ -10,28 +10,39 @@
   let rows=[],stage='all',query='',feed=null;
   let selectedView=null;
   const expanded=new Set();
-  const panels={procurement:'procurement-panel',letters:'letters-panel',jobs:'jobs-panel',stats:'stats-panel'};
+  const panels={procurement:'procurement-panel',letters:'letters-panel',jobs:'jobs-panel',stats:'stats-panel',closed:'closed-panel'};
   function selectView(view,updateHash=true){
     const purchase=view==='procurement';
+    const general=['non-purchase','jobs'].includes(view);
     const changed=selectedView!==view;
     selectedView=view;
     const shown=panels[view]||'overview-panel';
-    for(const id of ['overview-panel','procurement-panel','letters-panel','jobs-panel','stats-panel'])$(id).hidden=id!==shown;
-    for(const tab of tabs){const active=tab.dataset.view===view;tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;}
-    $('overview-panel').setAttribute('aria-labelledby',panels[view]?'overview-tab':view+'-tab');
+    $('overview-panel').hidden=!(general||view==='overview'||view==='plans');
+    for(const id of Object.values(panels))$(id).hidden=id!==shown;
+    $('followup-records').hidden=view==='letters'||view==='jobs';
+    $('followup-categories').hidden=view==='plans';
+    for(const tab of tabs){
+      const main=tab.parentElement.id==='main-views';
+      const active=tab.dataset.view===(main&&general?'non-purchase':view);
+      if(main){tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;}
+      else{tab.setAttribute('aria-pressed',String(active));tab.classList.toggle('active',active);}
+    }
+    $('overview-panel').setAttribute('aria-labelledby',general?'non-purchase-tab':panels[view]?'overview-tab':view+'-tab');
     if(updateHash)history.replaceState(null,'',purchase?'#purchase-orders':'#'+view);
     window.dispatchEvent(new CustomEvent('workshop-view',{detail:view}));
     if(changed)window.WorkshopMotion?.reveal($(shown));
   }
   // The automatic display rotates tabs through the same selection path as a click.
   window.WorkshopViews={select:view=>selectView(view),get current(){return selectedView;}};
-  const tabs=[...document.querySelectorAll('.view-tabs [data-view]')];
+  const tabs=[...document.querySelectorAll('#main-views [data-view]')];
   for(const tab of tabs){
     tab.addEventListener('click',()=>selectView(tab.dataset.view));
     tab.addEventListener('keydown',event=>{
+      if(tab.parentElement.id!=='main-views')return;
       if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
-      event.preventDefault();let i=tabs.indexOf(tab);i=event.key==='Home'?0:event.key==='End'?tabs.length-1:((event.key==='ArrowLeft')===(document.documentElement.dir==='rtl'))?(i+1)%tabs.length:(i+tabs.length-1)%tabs.length;
-      selectView(tabs[i].dataset.view);tabs[i].focus();
+      const peers=tabs.filter(peer=>peer.parentElement===tab.parentElement&&!peer.hidden);
+      event.preventDefault();let i=peers.indexOf(tab);i=event.key==='Home'?0:event.key==='End'?peers.length-1:((event.key==='ArrowLeft')===(document.documentElement.dir==='rtl'))?(i+1)%peers.length:(i+peers.length-1)%peers.length;
+      selectView(peers[i].dataset.view);peers[i].focus();
     });
   }
   function requestReference(meta){
@@ -48,7 +59,7 @@
   function detailRow(row){
     const {item,meta,linked}=row;
     const sources=item.sources.map(s=>`<li><span class="source-title">${escape(s.title)}</span><span class="source-locator">${escape(s.locator)} · <bdi>${escape(date(s.date))}</bdi></span></li>`).join('');
-    return `<tr id="pr-detail-${escape(item.id)}" class="purchase-detail" ${expanded.has(item.id)?'':'hidden'}><td colspan="6"><div class="detail-grid"><div><h4>الحالة المسجلة</h4><p>${escape(item.status)}</p></div><div><h4>جهة المتابعة</h4><p>${escape(item.followUpWith)}</p></div>${orderDetails(meta)}${item.notes?`<div class="detail-full"><h4>الملاحظات</h4><p>${escape(item.notes)}</p></div>`:''}${linked.length?`<div class="detail-full"><h4>بنود فنية مرتبطة بنفس الطلب</h4>${linked.map(x=>`<p>${escape(x.title)} — ${escape(x.action)}</p>`).join('')}</div>`:''}<div class="detail-full"><h4>المراجع</h4><ul class="sources">${sources}</ul></div></div></td></tr>`;
+    return `<tr id="pr-detail-${escape(item.id)}" class="purchase-detail" ${expanded.has(item.id)?'':'hidden'}><td colspan="6"><div class="detail-grid"><div><h4>الحالة المسجلة</h4><p>${escape(item.status)}</p></div><div><h4>جهة المتابعة</h4><p>${escape(item.followUpWith)}</p></div>${orderDetails(meta)}${window.WorkshopRelations?.forItem(item,feed)||''}${item.notes?`<div class="detail-full"><h4>الملاحظات</h4><p>${escape(item.notes)}</p></div>`:''}${linked.length?`<div class="detail-full"><h4>بنود فنية مرتبطة بنفس الطلب</h4>${linked.map(x=>`<p>${escape(x.title)} — ${escape(x.action)}</p>`).join('')}</div>`:''}<div class="detail-full"><h4>المراجع</h4><ul class="sources">${sources}</ul></div></div></td></tr>`;
   }
   function renderRows(){
     if(!feed)return;
@@ -69,14 +80,16 @@
   }
   function renderFilters(){
     const buttons=stages=>stages.map(([id,label])=>`<button type="button" data-pr-stage="${id}" class="filter-button ${stage===id?'active':''}" aria-pressed="${stage===id}">${escape(label)}<span class="filter-count">${id==='all'?rows.length:rows.filter(x=>model.displayStage(x.meta.stage)===id).length}</span></button>`).join('');
-    $('pr-filters').innerHTML=buttons(model.primaryStages);
-    $('pr-secondary-filters').innerHTML=buttons(model.secondaryStages);
+    const activeStages=stages=>stages.filter(([id])=>!['received','completed','closed_unreceived'].includes(id));
+    $('pr-filters').innerHTML=buttons(activeStages(model.primaryStages));
+    $('pr-secondary-filters').innerHTML=buttons(activeStages(model.secondaryStages));
   }
   window.addEventListener('workshop-data',event=>{
-    feed=event.detail;rows=model.getRows(feed);const stats=model.metrics(rows);
-    $('overview-tab-count').textContent=feed.items.length;$('procurement-tab-count').textContent=rows.length;
-    $('non-purchase-tab-count').textContent=feed.items.filter(item=>!model.isPurchaseRelated(item)).length;
-    $('closed-tab-count').textContent=feed.items.filter(model.isClosed).length;
+    feed=event.detail;const F=window.WorkshopFollowups;rows=model.getRows(feed).filter(row=>!F.isClosed(row.item,feed));const stats=model.metrics(rows);
+    $('overview-tab-count').textContent=feed.items.filter(item=>!F.isClosed(item,feed)).length;$('procurement-tab-count').textContent=rows.length;
+    $('non-purchase-tab-count').textContent=feed.items.filter(item=>F.isGeneral(item,feed)&&!F.isClosed(item,feed)).length;
+    $('plans-tab-count').textContent=feed.items.filter(item=>F.home(item,feed)==='development'&&!F.isClosed(item,feed)).length;
+    $('closed-tab-count').textContent=F.archiveEntries(feed).length;
     $('pr-numbered').textContent=stats.numbered;$('pr-unnumbered').textContent=stats.unnumbered;$('pr-quotes').textContent=stats.quotes;$('pr-received').textContent=stats.received;
     renderFilters();renderRows();
   });
@@ -84,10 +97,20 @@
   $('pr-search').addEventListener('input',event=>{query=event.target.value;renderRows();});
   $('pr-clear').addEventListener('click',()=>{stage='all';query='';$('pr-search').value='';renderFilters();renderRows();});
   $('pr-records').addEventListener('click',event=>{
+    if(window.WorkshopRelations?.handle(event))return;
     const edit=event.target.closest('button[data-edit]');
     if(edit){window.WorkshopAdmin?.open(edit.dataset.edit);return;}
     const button=event.target.closest('[data-pr-item]');if(!button)return;const id=button.dataset.prItem,open=!expanded.has(id);if(open)expanded.add(id);else expanded.delete(id);button.setAttribute('aria-expanded',String(open));$('pr-detail-'+id).hidden=!open;if(open)window.WorkshopMotion?.reveal($('pr-detail-'+id).querySelector('.detail-grid'),'detail');});
-  const viewFromHash=()=>location.hash==='#purchase-orders'?'procurement':location.hash==='#letters'?'letters':location.hash==='#jobs'?'jobs':location.hash==='#stats'?'stats':location.hash==='#non-purchase'?'non-purchase':location.hash==='#closed'?'closed':'overview';
+  const viewFromHash=()=>location.hash==='#purchase-orders'?'procurement':location.hash==='#letters'?'letters':location.hash==='#jobs'?'jobs':location.hash==='#stats'?'stats':location.hash==='#plans'?'plans':location.hash==='#non-purchase'?'non-purchase':location.hash==='#closed'?'closed':location.hash==='#overview'?'overview':'non-purchase';
+  window.WorkshopPurchases={orderDetails,reveal(id){
+    const item=feed?.items.find(item=>item.id===id);
+    if(item&&window.WorkshopFollowups.isClosed(item,feed)){window.WorkshopArchive?.reveal('item:'+id);return;}
+    if(!rows.some(row=>row.item.id===id))return;
+    stage='all';query='';$('pr-search').value='';expanded.add(id);
+    selectView('procurement');renderFilters();renderRows();
+    const target=$('pr-detail-'+id);
+    target?.scrollIntoView({block:'center',behavior:'smooth'});
+  }};
   window.addEventListener('hashchange',()=>selectView(viewFromHash(),false));
   // Reformat locale-dependent dates and refresh bilingual search results immediately.
   window.addEventListener('workshop-session',()=>{if(feed)renderRows();});

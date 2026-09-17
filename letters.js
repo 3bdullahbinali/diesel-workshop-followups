@@ -6,21 +6,25 @@
   const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const normal = value => String(value ?? '').toLowerCase().replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/[ً-ٟ]/g,'').trim();
   const shortDate = value => value ? String(value).slice(0,10).split('-').reverse().join(' / ') : 'غير مسجل';
-  let letters = null, items = [], direction = 'all', state = 'all', query = '';
+  let feed=null;
+  let letters = null, items = [], selected = 'out', query = '';
+  const views = [['out','الصادر'],['in','الوارد']];
 
   const open = letter => letter.closure !== 'closed';
+  const inView = (letter, view) => view === 'closed'
+    ? !open(letter)
+    : open(letter) && letter.direction === view;
   function matches(letter) {
-    if (direction !== 'all' && letter.direction !== direction) return false;
-    if (state === 'open' && letter.closure === 'closed') return false;
-    if (state !== 'all' && state !== 'open' && letter.closure !== state) return false;
+    if (!inView(letter, selected)) return false;
     if (!query) return true;
     return normal(I.search([letter.title, letter.reference, letter.party, letter.location, letter.action])).includes(normal(query));
   }
   function counts() {
-    return {all: letters.length, out: letters.filter(l => l.direction === 'out').length, in: letters.filter(l => l.direction === 'in').length};
+    return Object.fromEntries(views.map(([view]) => [view, letters.filter(letter => inView(letter, view)).length]));
   }
   function card(letter) {
     const task = items.find(item => item.id === letter.taskId);
+    const execution=window.WorkshopFollowups.execution(task,feed);
     const editable = window.WorkshopAdmin?.canEdit();
     return `<article class="letter-card" data-letter="${escape(letter.id)}">
       <div class="letter-top">
@@ -31,10 +35,11 @@
       <h4>${escape(letter.title)}</h4>
       <p class="letter-party">${escape(letter.party || 'الجهة غير مسجلة')}</p>
       <div class="letter-states">
-        <span class="letter-state" data-kind="work">${escape(S.workStates[letter.work])}</span>
-        <span class="letter-state" data-kind="reply">${escape(S.replyStates[letter.reply])}</span>
-        <span class="letter-state" data-kind="closure" data-closure="${escape(letter.closure)}">${escape(S.closureStates[letter.closure])}</span>
+        <span class="letter-state" data-kind="work"><span>حالة العمل المسجلة في الكتاب</span>: ${escape(S.workStates[letter.work])}</span>
+        <span class="letter-state" data-kind="reply"><span>حالة الرد</span>: ${escape(S.replyStates[letter.reply])}</span>
+        <span class="letter-state" data-kind="closure" data-closure="${escape(letter.closure)}"><span>حالة الكتاب</span>: ${escape(S.closureStates[letter.closure])}</span>
       </div>
+      ${execution?`<div class="linked-execution"><div class="related-heading"><h5>آخر حالة للتنفيذ</h5><span class="source-tag">${escape(execution.home)}</span></div><strong>${escape(execution.label)}</strong><p>${escape(execution.action)}</p><p class="related-meta">${escape(execution.owner)}</p><button type="button" class="link-button" data-goto="${escape(task.id)}">فتح التنفيذ المرتبط</button></div>`:''}
       <dl class="letter-meta">
         <div><dt>آخر موقع مسجل</dt><dd>${escape(letter.location || 'غير مسجل')}</dd></div>
         <div><dt>تاريخ التحقق</dt><dd><bdi>${escape(shortDate(letter.verifiedDate))}</bdi></dd></div>
@@ -50,21 +55,18 @@
     if (!letters) return;
     const visible = letters.filter(matches);
     const total = counts();
-    $('letters-filters').innerHTML = [['all','جميع الكتب'],['out','صادر'],['in','وارد']].map(([id,label]) =>
-      `<button type="button" data-direction="${id}" class="filter-button ${direction===id?'active':''}" aria-pressed="${direction===id}">${escape(label)}<span class="filter-count">${total[id]}</span></button>`).join('');
-    const byState = {all:letters.length, open:letters.filter(open).length, pending:letters.filter(l=>l.closure==='pending').length, closed:letters.filter(l=>l.closure==='closed').length};
-    $('letters-states').innerHTML = [['all','كل الحالات'],['open','مفتوحة'],['pending','بانتظار الإغلاق'],['closed','مغلقة']].map(([id,label]) =>
-      `<button type="button" data-state="${id}" class="filter-button ${state===id?'active':''}" aria-pressed="${state===id}">${escape(label)}<span class="filter-count">${byState[id]}</span></button>`).join('');
-    $('letters-count').textContent = query || direction !== 'all' || state !== 'all' ? `${visible.length} / ${letters.length}` : letters.length;
+    $('letters-filters').innerHTML = views.map(([id,label]) =>
+      `<button type="button" data-letter-view="${id}" class="filter-button ${selected===id?'active':''}" aria-pressed="${selected===id}">${escape(label)}<span class="filter-count">${total[id]}</span></button>`).join('');
+    $('letters-count').textContent = `${visible.length} / ${letters.filter(open).length}`;
     $('letters-grid').innerHTML = visible.map(card).join('');
     $('letters-grid').hidden = visible.length === 0;
     $('letters-empty').hidden = visible.length !== 0;
     $('letters-add').hidden = !window.WorkshopAdmin?.canEdit();
-    $('letters-open-count').textContent = letters.filter(open).length;
-    $('letters-tab-count').textContent = letters.length;
+    $('letters-open-count').textContent = letters.filter(letter=>open(letter)).length;
+    $('letters-tab-count').textContent = letters.filter(open).length;
   }
   function adopt(data) {
-    items = data.items || [];
+    feed=data;items = data.items || [];
     // ورقة المراسلات غير منشأة: يختفي التبويب كأنه غير موجود.
     const enabled = Array.isArray(data.letters);
     document.getElementById('letters-tab').hidden = !enabled;
@@ -75,22 +77,26 @@
   window.WorkshopLetters = {
     get list() { return letters || []; },
     find(id) { return (letters || []).find(letter => letter.id === id) || null; },
-    render
+    render,card,
+    reveal(id) {
+      const letter=(letters||[]).find(value=>value.id===id);
+      if(!letter)return;
+      if(letter.closure==='closed'){window.WorkshopArchive?.reveal('letter:'+id);return;}
+      selected=letter.direction;query='';$('letters-search').value='';
+      window.WorkshopViews?.select('letters');render();
+      const target=document.querySelector('[data-letter="'+CSS.escape(id)+'"]');
+      target?.setAttribute('tabindex','-1');target?.focus({preventScroll:true});
+      target?.scrollIntoView({block:'center',behavior:'smooth'});
+    }
   };
   window.addEventListener('workshop-data', event => adopt(event.detail));
   window.addEventListener('workshop-session', render);
   window.addEventListener('workshop-language', render);
   window.addEventListener('workshop-translations', render);
   $('letters-filters').addEventListener('click', event => {
-    const button = event.target.closest('button[data-direction]');
+    const button = event.target.closest('button[data-letter-view]');
     if (!button) return;
-    direction = button.dataset.direction;
-    render();
-  });
-  $('letters-states').addEventListener('click', event => {
-    const button = event.target.closest('button[data-state]');
-    if (!button) return;
-    state = button.dataset.state;
+    selected = button.dataset.letterView;
     render();
   });
   $('letters-search').addEventListener('input', event => { query = event.target.value; render(); });
@@ -99,10 +105,7 @@
     if (edit) { window.WorkshopAdmin?.openLetter(edit.dataset.editLetter); return; }
     const goto = event.target.closest('button[data-goto]');
     if (goto) {
-      document.querySelector('.view-tabs [data-view=overview]')?.click();
-      const row = document.getElementById('row-' + goto.dataset.goto);
-      row?.scrollIntoView({block:'center', behavior:'smooth'});
-      row?.querySelector('.expand-button')?.focus();
+      window.WorkshopRelations?.revealItem(goto.dataset.goto);
     }
   });
   $('letters-add').addEventListener('click', () => window.WorkshopAdmin?.openLetter(null));

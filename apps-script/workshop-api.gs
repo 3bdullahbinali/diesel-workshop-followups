@@ -49,7 +49,7 @@ var CLOSURE_STATES = {open:'مفتوح', pending:'بانتظار الإغلاق'
 var JOB_SHEET = 'الأعمال';
 var JOB_HEADERS = ['معرّف العمل','الموضوع','الطرف','الجهة','نوع العمل','الحالة','المسؤول','تاريخ البدء','الموعد المتوقع','معرّف المتابعة','الملاحظات','آخر تعديل بتوقيت الإمارات'];
 var PARTIES = {outbound:'نقدّمه لجهة', inbound:'تقدّمه لنا جهة', internal:'داخلي'};
-var JOB_KINDS = {pending:'عمل قيد الانتظار', ongoing:'عمل قائم', periodic:'صيانة دورية', support:'دعم وتوفير معدات'};
+var JOB_KINDS = {pending:'الأعمال المطلوب إنجازها', ongoing:'عمل قائم', periodic:'صيانة دورية', support:'دعم وتوفير معدات'};
 var JOB_STATES = {not_started:'لم يبدأ', in_progress:'قيد التنفيذ', awaiting_parts:'بانتظار قطع غيار', awaiting_party:'بانتظار الجهة', done:'اكتمل', cancelled:'ملغى'};
 // المعدات المستلمة للصيانة: ورقة يقرأها الموقع باسمها أيضاً.
 var EQUIPMENT_SHEET = 'المعدات';
