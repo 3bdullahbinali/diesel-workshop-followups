@@ -166,3 +166,22 @@ html[data-motion=off] #presentation-progress-fill{visibility:hidden}
 }
 @media(max-height:620px){.presentation-card{max-height:none}.presentation-stage{flex:auto}.presentation-shell{height:auto;gap:12px}.presentation-header{position:relative}}
 @media(prefers-reduced-motion:reduce){.presentation-art{animation:none}.presentation-scene *,.page-scene *{animation:none}#presentation-progress-fill{visibility:hidden}}
+
+/* ١) شاشة الجدار الكبيرة: البطاقة كانت تشغل 52% من شاشة 2560، فيضيع نصفها
+   ويصغر النص على من يقرأ من آخر الورشة. دون 1600 بكسل لا يتغير شيء. */
+@media(min-width:1600px){
+  .presentation-shell{max-width:min(2160px,94vw);padding:clamp(26px,2.2vw,48px) clamp(30px,3vw,68px) 24px;gap:22px}
+  .presentation-card{padding:clamp(32px,2.4vw,54px)}
+  .presentation-card h3{font-size:clamp(36px,2.4vw,54px);max-width:none;margin-bottom:30px}
+  .presentation-detail-grid{gap:44px}
+  .presentation-detail-grid h4{font-size:15px}
+  .presentation-detail-grid p{font-size:clamp(19px,1.15vw,26px)}
+  .presentation-meta{gap:28px;padding-top:24px;margin-top:30px}
+  .presentation-meta dt{font-size:14px}
+  .presentation-meta dd{font-size:17px}
+  .presentation-meta small{font-size:13px}
+  #presentation-reference{font-size:16px}
+  .presentation-badges{font-size:14px}
+  .presentation-blocker{font-size:clamp(17px,1vw,22px)}
+  .presentation-next{font-size:16px}
+}

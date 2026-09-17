@@ -168,3 +168,17 @@ html[dir=rtl] .job-top .edit-button{margin:0 auto 0 0}
 @media(max-width:900px){:root .next-action{-webkit-line-clamp:unset;line-clamp:unset;display:block}}
 /* ٦) أرقام الوقت والتواريخ جدولية فلا يتغيّر عرضها مع كل تحديث. */
 .record-updated time,.date-cell time,.detail-meta time{font-variant-numeric:tabular-nums}
+
+/* ٣) ضغط أعلى الصفحة على الحاسوب: نفس المعلومات في ارتفاع أقل، فيظهر أول
+   صف من السجل دون تمرير. لا يسري على الهاتف حيث المساحة مختلفة. */
+:root .sync-main .record-updated{margin:0;font-size:.8125rem;color:var(--muted);padding-inline-start:14px;border-inline-start:1px solid var(--line)}
+@media(max-width:700px){:root .sync-main .record-updated{padding-inline-start:0;border:0;width:100%}}
+@media(min-width:1000px){
+  :root .masthead-inner{min-height:96px;padding:14px 40px}
+  :root .identity-mark{width:46px;height:46px;font-size:1.7rem}
+  :root .page-heading{margin-bottom:12px}
+  :root .page-heading h2{margin-bottom:2px}
+  :root .sync-band{margin-bottom:12px;padding-block:10px}
+  :root .view-tabs{margin-bottom:14px}
+  :root .records-heading{padding:14px 20px}
+}
