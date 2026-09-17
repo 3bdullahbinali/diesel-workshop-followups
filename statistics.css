@@ -68,3 +68,26 @@ html[dir=rtl] .stats-progress{transform-origin:right center}
   .stats-shell{padding:18px 16px}
   .stats-head-end{align-items:flex-start}
 }
+
+/* شاشة الجدار الكبيرة: العمود يتسع والأرقام تكبر لتُقرأ من بعيد، فلا يبقى
+   نصف الشاشة فراغاً. دون 1600 بكسل يبقى القياس كما هو. */
+@media(min-width:1600px){
+  .stats-shell{max-width:1560px;padding:clamp(28px,4vh,56px) clamp(40px,4vw,84px);gap:clamp(18px,2.6vh,34px)}
+  .stats-head h2{font-size:clamp(2.2rem,2.8vw,3.4rem)}
+  .stats-note{font-size:clamp(1rem,1.2vw,1.35rem)}
+  .stats-eyebrow,.stats-head-end{font-size:.9375rem}
+  .stats-display .stat-hero{gap:clamp(18px,1.6vw,28px)}
+  .stats-display .stat-card{padding:clamp(22px,3vh,38px) clamp(24px,2vw,40px)}
+  .stats-display .stat-value{font-size:clamp(3.4rem,4.6vw,6rem)}
+  .stats-display .stat-hero-small .stat-value{font-size:clamp(2.6rem,3.4vw,4.4rem)}
+  .stats-display .stat-label{font-size:clamp(1rem,1.1vw,1.3rem)}
+  .stats-display .stat-note{font-size:clamp(.875rem,.95vw,1.1rem)}
+  .stats-display .stat-bars h4{font-size:clamp(1.15rem,1.3vw,1.6rem)}
+  .stats-display .stat-row{margin-bottom:clamp(12px,1.6vh,20px)}
+  .stats-display .stat-row-label{font-size:clamp(1rem,1.15vw,1.4rem)}
+  .stats-display .stat-row-value{font-size:clamp(1.15rem,1.3vw,1.7rem)}
+  .stats-display .stat-track{height:clamp(14px,1.6vh,22px)}
+  .stats-display .stat-hint{font-size:clamp(.9375rem,1vw,1.2rem)}
+  .stats-button{font-size:1.0625rem;padding:11px 20px}
+  .stats-dot{width:10px;height:10px}
+}
