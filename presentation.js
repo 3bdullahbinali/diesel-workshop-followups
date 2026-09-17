@@ -7,13 +7,13 @@
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const collections = new Map();
   const priorities = {high:'عالية', medium:'متوسطة', low:'منخفضة'};
-  const viewOrder = ['overview','non-purchase','procurement','closed'];
+  const viewOrder = ['overview','non-purchase','procurement','plans','closed'];
   const speeds = [8,12,20,30];
   // A pause caused by reading resumes on its own so a wall screen never stays frozen.
   const resumeDelay = 45000;
   const params = new URLSearchParams(location.search);
   const flag = name => ['1','true','yes','on'].includes((params.get(name) || '').toLowerCase());
-  const hashView = () => location.hash === '#purchase-orders' ? 'procurement' : location.hash === '#non-purchase' ? 'non-purchase' : location.hash === '#closed' ? 'closed' : 'overview';
+  const hashView = () => location.hash === '#purchase-orders' ? 'procurement' : location.hash === '#non-purchase' ? 'non-purchase' : location.hash === '#closed' ? 'closed' : location.hash==='#plans'?'plans':!location.hash?'non-purchase':'overview';
   let view = hashView();
   let items = [], scope = '', index = 0, playing = false, elapsed = 0, lastTick = 0, frame = 0, animation;
   let connection = 'جارٍ الاتصال بالسجل', connected = false, speed = 12, cycle = false;

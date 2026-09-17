@@ -82,7 +82,9 @@
     $('admin-blocker').value = item?.blocker || '';
     // تُخفى الحقول التشغيلية حتى تُضاف أعمدتها إلى الشيت.
     for (const field of dialogFields()) field.hidden = !features.operational;
-    options($('admin-pr-kind'), kinds, meta?.kind && kinds[meta.kind] ? meta.kind : 'pr');
+    // Reader aliases use the same labels as the write API. Preserve their meaning.
+    const purchaseKind=({unregistered:'unnumbered',request:'unnumbered',lpo_only:'lpo'}[meta?.kind]||meta?.kind);
+    options($('admin-pr-kind'), kinds, kinds[purchaseKind] ? purchaseKind : 'pr');
     options($('admin-pr-stage'), window.WorkshopSheets.stages, meta?.stage || item?.stage || 'preparation');
     options($('admin-pr-basis'), {'': 'غير مسجل', ...bases}, meta?.amountBasis || '');
     $('admin-title').value = item?.title || '';
@@ -509,7 +511,9 @@
     },
     openJob(id, taskId) {
       if (!canEdit()) return;
-      openJobEditor(id ? window.WorkshopJobs?.find(id) : null, data?.items.some(item=>item.id===taskId)?taskId:null);
+      const job=id?(data?.jobs||[]).find(job=>job.id===id):null;
+      if(id&&!job)return;
+      openJobEditor(job, data?.items.some(item=>item.id===taskId)?taskId:null);
     }
   };
   window.addEventListener('workshop-data', event => { data = event.detail; });

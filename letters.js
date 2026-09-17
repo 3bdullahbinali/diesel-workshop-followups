@@ -6,8 +6,9 @@
   const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const normal = value => String(value ?? '').toLowerCase().replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/[ً-ٟ]/g,'').trim();
   const shortDate = value => value ? String(value).slice(0,10).split('-').reverse().join(' / ') : 'غير مسجل';
+  let feed=null;
   let letters = null, items = [], selected = 'out', query = '';
-  const views = [['out','الصادر'],['in','الوارد'],['closed','الكتب المغلقة']];
+  const views = [['out','الصادر'],['in','الوارد']];
 
   const open = letter => letter.closure !== 'closed';
   const inView = (letter, view) => view === 'closed'
@@ -23,6 +24,7 @@
   }
   function card(letter) {
     const task = items.find(item => item.id === letter.taskId);
+    const execution=window.WorkshopFollowups.execution(task,feed);
     const editable = window.WorkshopAdmin?.canEdit();
     return `<article class="letter-card" data-letter="${escape(letter.id)}">
       <div class="letter-top">
@@ -33,10 +35,11 @@
       <h4>${escape(letter.title)}</h4>
       <p class="letter-party">${escape(letter.party || 'الجهة غير مسجلة')}</p>
       <div class="letter-states">
-        <span class="letter-state" data-kind="work">${escape(S.workStates[letter.work])}</span>
-        <span class="letter-state" data-kind="reply">${escape(S.replyStates[letter.reply])}</span>
-        <span class="letter-state" data-kind="closure" data-closure="${escape(letter.closure)}">${escape(S.closureStates[letter.closure])}</span>
+        <span class="letter-state" data-kind="work"><span>حالة العمل المسجلة في الكتاب</span>: ${escape(S.workStates[letter.work])}</span>
+        <span class="letter-state" data-kind="reply"><span>حالة الرد</span>: ${escape(S.replyStates[letter.reply])}</span>
+        <span class="letter-state" data-kind="closure" data-closure="${escape(letter.closure)}"><span>حالة الكتاب</span>: ${escape(S.closureStates[letter.closure])}</span>
       </div>
+      ${execution?`<div class="linked-execution"><div class="related-heading"><h5>آخر حالة للتنفيذ</h5><span class="source-tag">${escape(execution.home)}</span></div><strong>${escape(execution.label)}</strong><p>${escape(execution.action)}</p><p class="related-meta">${escape(execution.owner)}</p><button type="button" class="link-button" data-goto="${escape(task.id)}">فتح التنفيذ المرتبط</button></div>`:''}
       <dl class="letter-meta">
         <div><dt>آخر موقع مسجل</dt><dd>${escape(letter.location || 'غير مسجل')}</dd></div>
         <div><dt>تاريخ التحقق</dt><dd><bdi>${escape(shortDate(letter.verifiedDate))}</bdi></dd></div>
@@ -54,16 +57,16 @@
     const total = counts();
     $('letters-filters').innerHTML = views.map(([id,label]) =>
       `<button type="button" data-letter-view="${id}" class="filter-button ${selected===id?'active':''}" aria-pressed="${selected===id}">${escape(label)}<span class="filter-count">${total[id]}</span></button>`).join('');
-    $('letters-count').textContent = `${visible.length} / ${letters.length}`;
+    $('letters-count').textContent = `${visible.length} / ${letters.filter(open).length}`;
     $('letters-grid').innerHTML = visible.map(card).join('');
     $('letters-grid').hidden = visible.length === 0;
     $('letters-empty').hidden = visible.length !== 0;
     $('letters-add').hidden = !window.WorkshopAdmin?.canEdit();
-    $('letters-open-count').textContent = letters.filter(open).length;
-    $('letters-tab-count').textContent = letters.length;
+    $('letters-open-count').textContent = letters.filter(letter=>open(letter)).length;
+    $('letters-tab-count').textContent = letters.filter(open).length;
   }
   function adopt(data) {
-    items = data.items || [];
+    feed=data;items = data.items || [];
     // ورقة المراسلات غير منشأة: يختفي التبويب كأنه غير موجود.
     const enabled = Array.isArray(data.letters);
     document.getElementById('letters-tab').hidden = !enabled;
@@ -74,11 +77,12 @@
   window.WorkshopLetters = {
     get list() { return letters || []; },
     find(id) { return (letters || []).find(letter => letter.id === id) || null; },
-    render,
+    render,card,
     reveal(id) {
       const letter=(letters||[]).find(value=>value.id===id);
       if(!letter)return;
-      selected=letter.closure==='closed'?'closed':letter.direction;query='';$('letters-search').value='';
+      if(letter.closure==='closed'){window.WorkshopArchive?.reveal('letter:'+id);return;}
+      selected=letter.direction;query='';$('letters-search').value='';
       window.WorkshopViews?.select('letters');render();
       const target=document.querySelector('[data-letter="'+CSS.escape(id)+'"]');
       target?.setAttribute('tabindex','-1');target?.focus({preventScroll:true});

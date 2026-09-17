@@ -18,7 +18,7 @@
       <div class="related-heading"><strong>${escape(letter.title)}</strong>
         <button type="button" class="link-button" data-related-kind="letter" data-related-id="${escape(letter.id)}">فتح الكتاب</button></div>
       <p class="related-meta">${escape(S.directions[letter.direction])} · <bdi>${escape(letter.reference||'بلا رقم مسجل')}</bdi> · ${escape(letter.party||'الجهة غير مسجلة')}</p>
-      <p class="related-meta">حالة العمل: ${escape(S.workStates[letter.work])} · حالة الرد: ${escape(S.replyStates[letter.reply])} · حالة الكتاب: ${escape(S.closureStates[letter.closure])}</p>
+      <p class="related-meta">حالة العمل المسجلة في الكتاب: ${escape(S.workStates[letter.work])} · حالة الرد: ${escape(S.replyStates[letter.reply])} · حالة الكتاب: ${escape(S.closureStates[letter.closure])}</p>
       ${letter.action?`<p><strong>الإجراء التالي:</strong> ${escape(letter.action)}</p>`:''}
       ${letter.location?`<p class="related-meta">آخر موقع مسجل: ${escape(letter.location)}</p>`:''}
     </li>`).join('');
@@ -30,7 +30,7 @@
       ${job.notes?`<p>${escape(job.notes)}</p>`:''}
     </li>`).join('');
     return `<div class="detail-full related-records">
-      <div class="related-heading"><h4>المراسلات والأعمال المرتبطة</h4><div class="related-actions">
+      <div class="related-heading"><h4>المراسلات المرتبطة</h4><div class="related-actions">
       ${addLetter?`<button type="button" class="link-button" data-related-kind="new-letter" data-task-id="${escape(item.id)}">إضافة كتاب مرتبط</button>`:''}
       ${addJob?`<button type="button" class="link-button" data-related-kind="new-job" data-task-id="${escape(item.id)}">إضافة عمل مرتبط</button>`:''}
       </div></div>
@@ -52,6 +52,7 @@
   function revealItem(id) {
     const item=current?.items.find(value=>value.id===id);
     if(!item)return;
+    if(window.WorkshopFollowups.isClosed(item,current)){window.WorkshopArchive?.reveal('item:'+id);return;}
     if(window.WorkshopProcurement.isPurchaseRelated(item)&&item.procurement?.kind!=='linked')window.WorkshopPurchases?.reveal(id);
     else window.WorkshopApp?.reveal(id);
   }
