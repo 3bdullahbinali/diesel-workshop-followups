@@ -57,6 +57,7 @@
     const total = counts();
     $('letters-filters').innerHTML = views.map(([id,label]) =>
       `<button type="button" data-letter-view="${id}" class="filter-button ${selected===id?'active':''}" aria-pressed="${selected===id}">${escape(label)}<span class="filter-count">${total[id]}</span></button>`).join('');
+    window.WorkshopApp?.status(`${visible.length}/${letters.length} ${I.t('كتاب معروض')}`,'letters');
     $('letters-count').textContent = `${visible.length} / ${letters.filter(open).length}`;
     $('letters-grid').innerHTML = visible.map(card).join('');
     $('letters-grid').hidden = visible.length === 0;

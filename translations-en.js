@@ -1,5 +1,9 @@
 /* English display translations; Arabic records preserve their identity. */
 window.WorkshopEnglish = {
+  "متابعة معروضة": "follow-ups shown",
+  "كتاب معروض": "letters shown",
+  "عمل معروض": "works shown",
+  "الحركة مخفّضة حسب إعدادات جهازك؛ التنقل يدوي": "Motion is reduced by your device settings; navigate manually",
   "المتابعات العامة": "General follow-ups",
   "تابع الإجراء، وراجع المراسلات والأعمال المرتبطة به.": "Track the next action and review its linked correspondence and work.",
   "أقسام المتابعات العامة": "General follow-up sections",

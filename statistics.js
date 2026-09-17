@@ -190,6 +190,9 @@
   function controls() {
     dialog.dataset.playing = String(playing);
     $('stats-toggle-label').textContent = playing ? 'إيقاف مؤقت' : 'تشغيل العرض';
+    $('stats-state').textContent = slides.length < 2 ? '' : playing ? 'الانتقال التلقائي مفعّل'
+      : reducedMotion.matches ? 'الحركة مخفّضة حسب إعدادات جهازك؛ التنقل يدوي'
+      : resumeTimer ? 'يستأنف العرض تلقائياً بعد الانتهاء من القراءة' : 'العرض متوقف مؤقتاً';
     $('stats-updated').textContent = stats?.updatedAt ? window.WorkshopRecordTime(stats.updatedAt) : '';
     progress();
   }
@@ -207,6 +210,9 @@
     frame = requestAnimationFrame(tick);
   }
   function play() {
+    clearResume();
+    // الفحص هنا لا في open وحدها: وضع الشاشة يبدأ الدوران من adopt بعد وصول البيانات.
+    if (reducedMotion.matches) { playing = false; controls(); return; }
     if (!dialog.open || document.hidden || slides.length < 2) { controls(); return; }
     playing = true;
     lastTick = 0;
@@ -215,7 +221,23 @@
     controls();
     if (!frame) frame = requestAnimationFrame(tick);
   }
+  // توقف لم يطلبه القارئ صراحةً: يرفع نفسه بعد مهلة حتى لا تجمد شاشة الجدار.
+  const resumeDelay = 45000;
+  let resumeTimer = 0;
+  function clearResume() {
+    clearTimeout(resumeTimer);
+    resumeTimer = 0;
+  }
+  function pauseForReading() {
+    if (!dialog.open || !playing) return;
+    pause();
+    if (!reducedMotion.matches && slides.length > 1) {
+      resumeTimer = setTimeout(() => { resumeTimer = 0; play(); }, resumeDelay);
+      controls();
+    }
+  }
   function pause() {
+    clearResume();
     playing = false;
     lastTick = 0;
     if (frame) cancelAnimationFrame(frame);
@@ -254,7 +276,8 @@
     if (!dialog.open) dialog.showModal();
     document.body.classList.add('presentation-open');
     renderSlide();
-    if (auto || !reducedMotion.matches) play();
+    // «تقليل الحركة» يمنع الدوران التلقائي حتى في وضع الشاشة؛ يبقى زر التشغيل ظاهراً.
+    if (auto || slides.length > 1) play();
   }
   function adopt(feed) {
     data = feed;
@@ -278,6 +301,11 @@
   $('stats-prev').addEventListener('click', () => { pause(); advance(-1); });
   $('stats-next').addEventListener('click', () => { pause(); advance(1); });
   $('stats-fullscreen').addEventListener('click', toggleFullscreen);
+  const stage = $('stats-stage');
+  stage.addEventListener('pointerdown', pauseForReading);
+  stage.addEventListener('wheel', pauseForReading, {passive:true});
+  stage.addEventListener('focusin', pauseForReading);
+  stage.addEventListener('mouseenter', pauseForReading);
   $('stats-link').addEventListener('click', async () => {
     const url = new URL(location.href);
     url.search = '';

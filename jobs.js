@@ -68,6 +68,7 @@
     $('jobs-states').innerHTML = stateButtons([['open','الأعمال القائمة'],['all','كل الأعمال'],['awaiting_parts',stateLabels.awaiting_parts],['awaiting_party',stateLabels.awaiting_party]]);
     $('jobs-other-states').innerHTML = stateButtons(['not_started','in_progress','follow_up','quotes','on_hold','cancelled'].map(id => [id,stateLabels[id]]));
     $('jobs-sources').innerHTML=Object.entries(F.sourceLabels).map(([id,label])=>{const n=jobs.filter(job=>id==='all'||F.sources(items.find(i=>i.id===job.taskId),feed).includes(id)).length;return `<button type="button" data-job-source="${id}" class="filter-button ${source===id?'active':''}" aria-pressed="${source===id}">${escape(label)}<span class="filter-count">${n}</span></button>`;}).join('');
+    window.WorkshopApp?.status(`${visible.length}/${jobs.length} ${I.t('عمل معروض')}`,'jobs');
     $('jobs-count').textContent = `${visible.length} / ${jobs.length}`;
     // One technical task per card, whether or not a detailed job is registered.
     $('jobs-groups').innerHTML = `<div class="job-grid">${visible.map(card).join('')}</div>`;

@@ -29,6 +29,7 @@ html[data-motion=off] .stat-fill{transition:none}
 .stats-head-end{display:flex;flex-direction:column;align-items:flex-end;gap:5px;font-size:.8125rem;color:#a9cfc2}
 html[dir=rtl] .stats-head-end{align-items:flex-start}
 .stats-position{font-weight:700;color:#e4c383;font-variant-numeric:tabular-nums}
+.stats-state{color:#bfd9cf;font-size:.8125rem;line-height:1.7;max-width:34ch}
 .stats-stage{flex:1;display:flex;flex-direction:column;gap:clamp(12px,2.4vh,26px);justify-content:center;min-height:0}
 .stats-display .stat-hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:clamp(12px,1.8vw,20px)}
 .stats-display .stat-card{background:#ffffff0f;border:1px solid #ffffff24;border-radius:14px;padding:clamp(14px,2.4vh,26px) clamp(16px,2vw,28px);gap:6px}
