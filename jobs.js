@@ -41,7 +41,7 @@
         <span class="job-state" data-state="${escape(job.state)}">${escape(stateLabels[job.state])}</span>
         ${editable ? `<button type="button" class="edit-button" ${job.recordView?`data-edit-task="${escape(task.id)}"`:`data-edit-job="${escape(job.id)}"`} aria-label="تعديل ${escape(job.title)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16Z"/></svg></button>` : ''}
       </div>
-      <h4>${escape(job.title)}</h4><div class="record-context">${F.sources(task,feed).map(id=>`<span class="source-tag">${escape(F.sourceLabels[id])}</span>`).join('')}</div>${task?`<div class="job-action"><h5>الإجراء الحالي</h5><p>${escape(task.action)}</p></div>`:''}
+      <h4>${escape(job.title)}</h4><div class="record-context">${F.sources(task,feed).filter(id=>id!=='unknown').map(id=>`<span class="source-tag">${escape(F.sourceLabels[id])}</span>`).join('')}</div>${task?`<div class="job-action"><h5>الإجراء الحالي</h5><p>${escape(task.action)}</p></div>`:''}
       <p class="job-counterpart">${escape(job.counterpart || 'بلا جهة مقابلة مسجلة')}</p>
       <dl class="job-meta">
         <div><dt>المسؤول</dt><dd>${escape(job.owner || 'غير مسجل')}</dd></div>
