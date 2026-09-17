@@ -44,3 +44,9 @@ html[dir=rtl] .admin-session button{padding:2px 12px 2px 0}
   .admin-actions .admin-danger{margin-inline-start:0;width:100%}
 }
 @media print{.admin-button,.admin-session,.edit-button{display:none!important}}
+/* قاعدة الأولوية تُقرأ عند الإدخال، لا في دليل منفصل لا يفتحه أحد. */
+.admin-guide{background:#f6f9f7;border:1px solid var(--line);border-inline-start:3px solid var(--gold);border-radius:8px;padding:12px 15px;font-size:.8125rem;line-height:1.85;color:#44554e}
+.admin-guide strong{display:block;color:var(--green);margin-bottom:5px;font-size:.875rem}
+.admin-guide ul{margin:0;padding-inline-start:18px}
+.admin-guide b{color:var(--green)}
+.admin-guide p{margin:8px 0 0;color:var(--muted)}

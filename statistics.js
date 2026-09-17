@@ -71,6 +71,10 @@
         ready: gearItems.filter(item => item.equipment.handover === 'ready').length,
         delivered: gearItems.filter(item => item.equipment.handover === 'delivered').length
       } : null,
+      // «عالية» تحتاج ما يسندها في السجل: موعد أو عائق أو معدة في الورشة.
+      review: open.filter(item => item.priority === 'high' && !item.dueDate && !item.blocker
+        && !(item.equipment && ['in_workshop','ready'].includes(item.equipment.handover)))
+        .map(item => ({id:item.id, title:item.title})),
       updatedAt: feed.updatedAt || null
     };
   }
@@ -109,6 +113,15 @@
       fill.style.width = '0%';
       frames.add(requestAnimationFrame(() => frames.add(requestAnimationFrame(() => { fill.style.width = fill.dataset.width; }))));
     }
+  }
+  // ليست في العرض التلقائي: هذه مراجعة داخلية لجودة الإدخال لا رقم يُعرض على الجدار.
+  function review(s) {
+    if (!s.review.length) return '';
+    const rows = s.review.map(item =>
+      `<li><button type="button" class="link-button" data-review="${escape(item.id)}">${escape(item.title)}</button></li>`).join('');
+    return `<section class="stat-bars stat-review"><h4>أولويات تحتاج مراجعة <span class="stat-review-count" data-count="${s.review.length}" translate="no">0</span></h4>
+      <p class="stat-hint">بنود أولويتها عالية بلا موعد مرتبط ولا عائق مسجّل ولا معدة في الورشة. أضف لها الموعد أو العائق، أو أنزل أولويتها حتى تبقى «عالية» علامة يُعتمد عليها.</p>
+      <ul class="stat-review-list">${rows}</ul></section>`;
   }
   function panel() {
     const s = stats;
@@ -149,7 +162,7 @@
       ]) : ''
     ].filter(Boolean).join('');
     $('stats-cards').innerHTML = cards.join('');
-    $('stats-groups').innerHTML = groups;
+    $('stats-groups').innerHTML = groups + review(s);
     animate($('stats-panel'));
   }
   /* ————— العرض التلقائي للإحصائيات ————— */
@@ -295,6 +308,10 @@
   window.addEventListener('workshop-data', event => adopt(event.detail));
   window.addEventListener('workshop-language', () => { if (stats) { panel(); if (dialog.open) renderSlide({animated:false}); } });
   window.addEventListener('workshop-translations', () => { if (dialog.open) renderSlide({animated:false}); });
+  $('stats-groups').addEventListener('click', event => {
+    const button = event.target.closest('button[data-review]');
+    if (button) window.WorkshopApp?.reveal(button.dataset.review);
+  });
   $('stats-open').addEventListener('click', () => open());
   $('stats-close').addEventListener('click', () => dialog.close());
   $('stats-toggle').addEventListener('click', () => playing ? pause() : play());

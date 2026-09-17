@@ -91,3 +91,11 @@ html[dir=rtl] .stats-progress{transform-origin:right center}
   .stats-button{font-size:1.0625rem;padding:11px 20px}
   .stats-dot{width:10px;height:10px}
 }
+
+/* بطاقة «أولويات تحتاج مراجعة»: جودة إدخال، لا رقم للعرض على الجدار. */
+.stat-review{grid-column:1/-1;border-inline-start:3px solid var(--gold)}
+.stat-review h4{display:flex;align-items:center;gap:9px}
+.stat-review-count{font:700 .875rem/1.6 Arial,sans-serif;background:#f8f0df;color:#8a672e;border-radius:20px;padding:1px 11px;font-variant-numeric:tabular-nums}
+.stat-review-list{margin:12px 0 0;padding-inline-start:18px;display:grid;gap:7px}
+.stat-review-list li{font-size:.875rem;line-height:1.8}
+.stat-review-list .link-button{text-align:start}

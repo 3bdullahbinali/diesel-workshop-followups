@@ -1,5 +1,12 @@
 /* English display translations; Arabic records preserve their identity. */
 window.WorkshopEnglish = {
+  "متى تكون الأولوية عالية؟": "When is a follow-up high priority?",
+  "عالية: توقف تشغيلي قائم، أو سلامة والتزام نظامي، أو موعد مُلزم خلال سبعة أيام، أو عائق يحتاج قراراً من جهة أعلى.": "High: an actual operational stoppage, safety or a regulatory obligation, a binding date within seven days, or a blocker that needs a decision from a higher authority.",
+  "متوسطة: يؤثر في الجاهزية وله بديل، أو موعده خلال ثلاثين يوماً، أو طلب شراء يسير في مساره الطبيعي.": "Medium: it affects readiness but has an alternative, its date falls within thirty days, or it is a purchase request moving through its normal course.",
+  "منخفضة: مخزون احتياطي أو تحسين أو إجراء إداري بلا أثر تشغيلي قريب.": "Low: spare stock, an improvement or an administrative step with no near operational impact.",
+  "مرحلة الشراء وحدها ليست أولوية: الأولوية تصف أثر التأخير لا أهمية الصنف. وإن كانت عالية فسجّل معها الموعد المرتبط أو العائق.": "A purchase stage alone is not a priority: priority describes the impact of delay, not the importance of the item. If it is high, record the linked date or the blocker with it.",
+  "أولويات تحتاج مراجعة": "Priorities needing review",
+  "بنود أولويتها عالية بلا موعد مرتبط ولا عائق مسجّل ولا معدة في الورشة. أضف لها الموعد أو العائق، أو أنزل أولويتها حتى تبقى «عالية» علامة يُعتمد عليها.": "Records marked high priority with no linked date, no recorded blocker and no equipment in the workshop. Add the date or the blocker, or lower the priority so that \u201chigh\u201d stays a signal you can rely on.",
   "متابعة معروضة": "follow-ups shown",
   "كتاب معروض": "letters shown",
   "عمل معروض": "works shown",
