@@ -130,7 +130,7 @@ check('الخدمة تبلّغ بتفعيلها', post({action:'session',token})
 const jsheet = book.getSheetByName('الأعمال');
 const job = post({action:'job-create',token,job:{title:'تصليح مضخة لقطاع 3',party:'outbound',counterpart:'قسم شبكات الصرف',kind:'pending',state:'in_progress',owner:'م. سالم',startDate:'2026-09-10',dueDate:'2026-09-25',taskId:'base-1',notes:'المعدة في الورشة'}});
 check('إضافة عمل', job.ok===true && job.id==='job-1', JSON.stringify(job));
-check('كُتب الطرف والنوع والحالة بالعربية', jsheet.rows[1][2]==='نقدّمه لجهة'&&jsheet.rows[1][4]==='بيندنق جوب'&&jsheet.rows[1][5]==='قيد التنفيذ', JSON.stringify(jsheet.rows[1].slice(2,6)));
+check('كُتب الطرف والنوع والحالة بالعربية', jsheet.rows[1][2]==='نقدّمه لجهة'&&jsheet.rows[1][4]==='عمل قيد الانتظار'&&jsheet.rows[1][5]==='قيد التنفيذ', JSON.stringify(jsheet.rows[1].slice(2,6)));
 check('كُتبت التواريخ كتواريخ', jsheet.rows[1][7] instanceof Date && jsheet.rows[1][8] instanceof Date);
 check('كُتب وقت التعديل', /^\d{2}\/\d{2}\/\d{4} /.test(String(jsheet.rows[1][11])), String(jsheet.rows[1][11]));
 check('ربط بمتابعة غير موجودة يُرفض', post({action:'job-create',token,job:{title:'y',party:'inbound',kind:'ongoing',state:'not_started',taskId:'لا-يوجد'}}).ok===false);
@@ -186,6 +186,17 @@ const after = post({action:'login',username:'abdullah',password:'workshop12345'}
 check('الدخول بالاسم الجديد وكلمة المرور نفسها', after.ok===true, JSON.stringify(after));
 check('الاسم القديم لم يعد يعمل', post({action:'login',username:'AbdullaBinAli',password:'workshop12345'}).ok===false);
 api.addUser('taken','مكرر','editor','password1234');
+check('addAccounts يرفض قائمة فارغة', (()=>{try{api.setAccounts([]);api.addAccounts();return false;}catch(e){return e.message.includes('فارغة');}})());
+api.setAccounts([['salem','م. سالم','editor','password-salem-1'],['khalid','م. خالد','admin','password-khalid-1']]);
+const batch = api.addAccounts();
+check('addAccounts يضيف حسابين', /أُضيف 2 حساباً/.test(batch), batch);
+check('الحساب الجديد يدخل بكلمة مروره', post({action:'login',username:'salem',password:'password-salem-1'}).ok===true);
+check('صلاحية المحرر محفوظة', post({action:'login',username:'salem',password:'password-salem-1'}).user.role==='editor');
+check('صلاحية المدير محفوظة', post({action:'login',username:'khalid',password:'password-khalid-1'}).user.role==='admin');
+const again = api.addAccounts();
+check('الحساب الموجود لا يُدهس', /موجود مسبقاً/.test(again) && /أُضيف 0 حساباً/.test(again), again);
+check('كلمة مرور قصيرة تُرفض', (()=>{try{api.setAccounts([['weak','ضعيف','editor','123']]);api.addAccounts();return false;}catch(e){return e.message.includes('أقصر من 8');}})());
+check('صلاحية غير معروفة تُرفض', (()=>{try{api.setAccounts([['x','س','مدير','password-1234']]);api.addAccounts();return false;}catch(e){return e.message.includes('admin أو editor');}})());
 check('renameUser يرفض اسماً مستخدماً', (()=>{try{api.renameUser();return false;}catch(e){return e.message.includes('مستخدم بالفعل')||e.message.includes('لا يوجد');}})());
 
 

@@ -56,7 +56,7 @@
     $('jobs-states').innerHTML = [['open','الأعمال القائمة'],['all','كل الأعمال'],['awaiting_parts',S.jobStates.awaiting_parts],['awaiting_party',S.jobStates.awaiting_party],['done',S.jobStates.done]].map(([id,label]) =>
       `<button type="button" data-state="${escape(id)}" class="filter-button ${state===id?'active':''}" aria-pressed="${state===id}">${escape(label)}<span class="filter-count">${byState[id]}</span></button>`).join('');
     $('jobs-count').textContent = `${visible.length} / ${jobs.length}`;
-    // العناوين بنوع العمل: «البيندنق جوب» و«الأعمال القائمة» يظهران كقسمين مستقلين.
+    // العناوين بنوع العمل: «قيد الانتظار» و«القائمة» يظهران كقسمين مستقلين.
     $('jobs-groups').innerHTML = Object.entries(S.jobKinds).map(([id,label]) => {
       const group = visible.filter(job => job.kind === id);
       if (!group.length) return '';

@@ -8,6 +8,36 @@
   shelf.setAttribute('aria-live', 'polite');
   const live = [];
   const LIMIT = 4, LIFE = 14000;
+  const STORE = 'workshop-toast-seen', MAX_KEYS = 600, KEEP_DAYS = 60;
+  // ذاكرة الإشعارات: التغيير يظهر مرة واحدة، وإن أُغلق لا يعود بعد كل تحديث للصفحة.
+  let memory = new Map(), known = false, storage = null;
+  try {
+    localStorage.setItem(STORE + '-probe', '1');
+    localStorage.removeItem(STORE + '-probe');
+    storage = localStorage;
+  } catch { known = true; }   // بلا تخزين: الذاكرة للجلسة الواحدة فقط.
+  if (storage) {
+    try {
+      const saved = JSON.parse(storage.getItem(STORE) || 'null');
+      if (saved && saved.v === 1 && saved.keys && typeof saved.keys === 'object') {
+        memory = new Map(Object.entries(saved.keys).filter(([, at]) => Number.isFinite(at)));
+        known = true;
+      }
+    } catch {}
+  }
+  function save() {
+    // الأقدم يُحذف أولاً، والمفاتيح القديمة تنتهي، فلا تكبر الذاكرة بلا حد.
+    const cutoff = Date.now() - KEEP_DAYS * 86400000;
+    const kept = [...memory].filter(([, at]) => at >= cutoff).sort((a, b) => a[1] - b[1]).slice(-MAX_KEYS);
+    memory = new Map(kept);
+    if (!storage) return;
+    try { storage.setItem(STORE, JSON.stringify({v:1, keys:Object.fromEntries(kept)})); } catch {}
+  }
+  const seen = key => Boolean(key) && memory.has(key);
+  function remember(key) {
+    if (!key) return;
+    memory.set(key, Date.now());
+  }
 
   function motionOn() {
     return document.documentElement.dataset.motion === 'on' && !reducedMotion.matches;
@@ -23,7 +53,10 @@
     entry.node.animate([{opacity:1, transform:'none'}, {opacity:0, transform:'translateY(-10px)'}],
       {duration:260, easing:'cubic-bezier(.4,0,1,1)'}).finished.finally(remove);
   }
-  function push({title, body = '', kind = 'info'}) {
+  function push({title, body = '', kind = 'info', key = ''}) {
+    if (seen(key)) return null;
+    remember(key);
+    save();
     if (!document.body.contains(shelf)) document.body.append(shelf);
     const node = document.createElement('div');
     node.className = 'toast';
@@ -47,16 +80,30 @@
     }
     return entry;
   }
+  // ترجع عدد الإشعارات التي ستظهر فعلاً، حتى يعرف الموقع إن كان هناك جديد.
   function pushAll(list) {
+    const fresh = list.filter(item => !seen(item.key));
+    if (!fresh.length) return 0;
+    // أول فتح في هذا المتصفح: تُسجَّل الحالة الراهنة بلا إشعارات عن تغييرات سابقة لم يرها أحد.
+    if (!known) {
+      known = true;
+      for (const item of fresh) remember(item.key);
+      save();
+      return 0;
+    }
     // دفعة واحدة تظهر متتابعة لا دفعة واحدة، فتُقرأ.
-    list.slice(0, LIMIT).forEach((item, index) => {
+    fresh.slice(0, LIMIT).forEach((item, index) => {
       if (!index || !motionOn()) return push(item);
       setTimeout(() => push(item), index * 140);
     });
-    if (list.length > LIMIT) {
-      setTimeout(() => push({title:'وتغييرات أخرى', body:`${list.length - LIMIT} تغييراً إضافياً في السجل.`}), LIMIT * 140);
+    if (fresh.length > LIMIT) {
+      const rest = fresh.slice(LIMIT);
+      for (const item of rest) remember(item.key);
+      save();
+      setTimeout(() => push({title:'وتغييرات أخرى', body:`${rest.length} تغييراً إضافياً في السجل.`}), LIMIT * 140);
     }
+    return fresh.length;
   }
-  window.WorkshopToast = {push, pushAll, clear: () => [...live].forEach(dismiss)};
+  window.WorkshopToast = {push, pushAll, clear: () => [...live].forEach(dismiss), get remembered() { return memory.size; }};
   window.addEventListener('workshop-language', () => [...live].forEach(dismiss));
 })();

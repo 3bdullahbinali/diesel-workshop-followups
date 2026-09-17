@@ -70,5 +70,5 @@ global.ContentService = {MimeType:{JSON:'json'}, createTextOutput:t=>({setMimeTy
 
 // تحميل السكربت
 const code = fs.readFileSync('/home/user/diesel-workshop-followups/apps-script/workshop-api.gs','utf8');
-(0,eval)(code + '\n;globalThis.__api={setup,addUser:saveUser,resetPassword,doPost,doGet,addOperationalColumns,addLettersSheet,addEquipmentSheet,addJobsSheet,fillOperationalValues,listUsers,renameUser,setUserActive,findUserRow,sheetByName,CONFIG,HEADERS,SOURCE_HEADERS};');
+(0,eval)(code + '\n;globalThis.__api={setup,addUser:saveUser,resetPassword,doPost,doGet,addOperationalColumns,addLettersSheet,addEquipmentSheet,addJobsSheet,addAccounts,setAccounts:function(list){ACCOUNTS_TO_ADD=list;},fillOperationalValues,listUsers,renameUser,setUserActive,findUserRow,sheetByName,CONFIG,HEADERS,SOURCE_HEADERS};');
 module.exports = {book, Sheet, api: globalThis.__api};

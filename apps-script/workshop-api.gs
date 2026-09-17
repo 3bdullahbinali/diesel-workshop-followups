@@ -45,11 +45,11 @@ var DIRECTIONS = {out:'صادر', in:'وارد'};
 var WORK_STATES = {not_started:'لم يبدأ', in_progress:'قيد التنفيذ', done:'اكتمل العمل', awaiting_party:'بانتظار إجراء الجهة', filed:'للعلم والحفظ'};
 var REPLY_STATES = {none:'لم يُعد الرد', not_required:'لا يتطلب رداً', draft:'مسودة بانتظار المراجعة', sent:'تم إرسال الرد', awaiting:'بانتظار رد الجهة', received:'تم استلام الرد'};
 var CLOSURE_STATES = {open:'مفتوح', pending:'بانتظار الإغلاق', closed:'مغلق'};
-// الأعمال: البيندنق جوب والأعمال القائمة، ورقة يقرأها الموقع باسمها.
+// الأعمال: ما هو قيد الانتظار وما هو قائم، ورقة يقرأها الموقع باسمها.
 var JOB_SHEET = 'الأعمال';
 var JOB_HEADERS = ['معرّف العمل','الموضوع','الطرف','الجهة','نوع العمل','الحالة','المسؤول','تاريخ البدء','الموعد المتوقع','معرّف المتابعة','الملاحظات','آخر تعديل بتوقيت الإمارات'];
 var PARTIES = {outbound:'نقدّمه لجهة', inbound:'تقدّمه لنا جهة', internal:'داخلي'};
-var JOB_KINDS = {pending:'بيندنق جوب', ongoing:'عمل قائم', periodic:'صيانة دورية', support:'دعم وتوفير معدات'};
+var JOB_KINDS = {pending:'عمل قيد الانتظار', ongoing:'عمل قائم', periodic:'صيانة دورية', support:'دعم وتوفير معدات'};
 var JOB_STATES = {not_started:'لم يبدأ', in_progress:'قيد التنفيذ', awaiting_parts:'بانتظار قطع غيار', awaiting_party:'بانتظار الجهة', done:'اكتمل', cancelled:'ملغى'};
 // المعدات المستلمة للصيانة: ورقة يقرأها الموقع باسمها أيضاً.
 var EQUIPMENT_SHEET = 'المعدات';
@@ -475,6 +475,38 @@ function addUser() {
   var role = 'admin';            // admin = إضافة وتعديل وحذف · editor = إضافة وتعديل
   var password = 'غيّر-كلمة-المرور-هنا';
   return saveUser(username, name, role, password);
+}
+
+/**
+ * أضف عدة حسابات دفعة واحدة: اكتب سطراً لكل شخص، شغّل addAccounts، ثم امسح
+ * كلمات المرور من هذه القائمة وأعد الحفظ. الحساب الموجود لا يُدهس؛ لتغيير
+ * كلمة مروره استخدم resetPassword.
+ * الصلاحية: admin = إضافة وتعديل وحذف · editor = إضافة وتعديل بلا حذف.
+ */
+var ACCOUNTS_TO_ADD = [
+  // ['اسم الدخول', 'الاسم الظاهر', 'admin أو editor', 'كلمة المرور — 8 أحرف على الأقل'],
+  // ['salem',  'م. سالم', 'editor', 'كلمة-مرور-قوية-1'],
+  // ['khalid', 'م. خالد', 'editor', 'كلمة-مرور-قوية-2'],
+];
+
+function addAccounts() {
+  if (!ACCOUNTS_TO_ADD.length) throw new Error('القائمة ACCOUNTS_TO_ADD فارغة. اكتب سطراً لكل حساب أولاً.');
+  var sheet = sheetByName(CONFIG.usersSheet);
+  if (!sheet) throw new Error('شغّل setup أولاً.');
+  var added = [], skipped = [];
+  for (var i = 0; i < ACCOUNTS_TO_ADD.length; i++) {
+    var row = ACCOUNTS_TO_ADD[i];
+    var username = String(row[0] || '').trim();
+    if (!username) throw new Error('السطر ' + (i + 1) + ': اسم الدخول مفقود.');
+    if (findUserRow(sheet, username)) { skipped.push(username); continue; }
+    saveUser(username, row[1], row[2], row[3]);
+    added.push(username);
+  }
+  var report = 'أُضيف ' + added.length + ' حساباً' + (added.length ? ': ' + added.join('، ') : '') +
+    (skipped.length ? ' · موجود مسبقاً ولم يُمس: ' + skipped.join('، ') : '') +
+    '\nامسح كلمات المرور من ACCOUNTS_TO_ADD الآن وأعد الحفظ.';
+  Logger.log(report);
+  return report;
 }
 
 /** يعرض الحسابات في سجل التنفيذ بلا كلمات مرور. */

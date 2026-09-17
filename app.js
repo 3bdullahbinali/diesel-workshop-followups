@@ -128,6 +128,8 @@
     $('sheet-status').textContent = ok ? 'البيانات مقروءة من ملف المتابعات في Google Sheets. تتجدد أثناء فتح الشاشة.' : data?.connectionSource==='google-sheets' ? 'تعذرت القراءة الجديدة من Google Sheets؛ تُعرض آخر قراءة ناجحة لحين عودة الاتصال.' : 'إعداد الربط جاهز؛ لم تنجح القراءة المباشرة من Google Sheets بعد. البيانات الظاهرة نسخة محفوظة، وليست تأكيداً لنجاح الربط.';
   }
   // وصف ما تغيّر فعلاً بين قراءتين، ليظهر كإشعارات بدل رسالة عامة.
+  // لكل تغيير مفتاح ثابت يصف الحالة التي وصل إليها، فتتذكره ذاكرة الإشعارات
+  // ولا يعود الإشعار نفسه مع كل تحديث للصفحة.
   function describe(before,after){
     const S=window.WorkshopSheets, P=window.WorkshopProcurement;
     const old=new Map((before?.items||[]).map(item=>[item.id,item]));
@@ -146,35 +148,35 @@
     ];
     for(const [id,item] of fresh){
       const was=old.get(id);
-      if(!was){news.push({kind:'add',title:'متابعة جديدة',body:item.title});continue;}
+      if(!was){news.push({kind:'add',title:'متابعة جديدة',body:item.title,key:'item+'+id});continue;}
       for(const [key,label,show] of fields){
         if((was[key]||'')===(item[key]||''))continue;
-        news.push({kind:'change',title:item.title,body:`${label}: ${show(was[key])} ← ${show(item[key])}`});
+        news.push({kind:'change',title:item.title,body:`${label}: ${show(was[key])} ← ${show(item[key])}`,key:`item:${id}:${key}:${item[key]||''}`});
       }
       const wasStage=was.procurement?.stage, nowStage=item.procurement?.stage;
-      if(wasStage!==nowStage&&nowStage)news.push({kind:'change',title:item.title,body:`مرحلة الشراء: ${P.stageLabels[wasStage]||'—'} ← ${P.stageLabels[nowStage]}`});
+      if(wasStage!==nowStage&&nowStage)news.push({kind:'change',title:item.title,body:`مرحلة الشراء: ${P.stageLabels[wasStage]||'—'} ← ${P.stageLabels[nowStage]}`,key:`pr:${id}:${nowStage}`});
       const wasGear=was.equipment, gear=item.equipment;
       if(gear&&(!wasGear||wasGear.phase!==gear.phase||wasGear.handover!==gear.handover)){
-        news.push({kind:'change',title:item.title,body:`المعدة: ${S.phases[gear.phase]} · ${S.handovers[gear.handover]}`});
+        news.push({kind:'change',title:item.title,body:`المعدة: ${S.phases[gear.phase]} · ${S.handovers[gear.handover]}`,key:`gear:${id}:${gear.phase}:${gear.handover}`});
       }
     }
-    for(const [id,item] of old)if(!fresh.has(id))news.push({kind:'remove',title:'حُذفت متابعة',body:item.title});
+    for(const [id,item] of old)if(!fresh.has(id))news.push({kind:'remove',title:'حُذفت متابعة',body:item.title,key:'gone:'+id});
     const oldLetters=new Map((before?.letters||[]).map(letter=>[letter.id,letter]));
     for(const letter of after?.letters||[]){
       const was=oldLetters.get(letter.id);
-      if(!was){news.push({kind:'add',title:'كتاب جديد',body:letter.title});continue;}
-      if(was.closure!==letter.closure)news.push({kind:'change',title:letter.title,body:`حالة الكتاب: ${S.closureStates[was.closure]} ← ${S.closureStates[letter.closure]}`});
-      else if(was.reply!==letter.reply)news.push({kind:'change',title:letter.title,body:`حالة الرد: ${S.replyStates[was.reply]} ← ${S.replyStates[letter.reply]}`});
-      else if(was.work!==letter.work)news.push({kind:'change',title:letter.title,body:`حالة العمل: ${S.workStates[was.work]} ← ${S.workStates[letter.work]}`});
-      else if(was.location!==letter.location)news.push({kind:'change',title:letter.title,body:`موقع الكتاب: ${letter.location||'غير مسجل'}`});
+      if(!was){news.push({kind:'add',title:'كتاب جديد',body:letter.title,key:'letter+'+letter.id});continue;}
+      if(was.closure!==letter.closure)news.push({kind:'change',title:letter.title,body:`حالة الكتاب: ${S.closureStates[was.closure]} ← ${S.closureStates[letter.closure]}`,key:`letter:${letter.id}:closure:${letter.closure}`});
+      else if(was.reply!==letter.reply)news.push({kind:'change',title:letter.title,body:`حالة الرد: ${S.replyStates[was.reply]} ← ${S.replyStates[letter.reply]}`,key:`letter:${letter.id}:reply:${letter.reply}`});
+      else if(was.work!==letter.work)news.push({kind:'change',title:letter.title,body:`حالة العمل: ${S.workStates[was.work]} ← ${S.workStates[letter.work]}`,key:`letter:${letter.id}:work:${letter.work}`});
+      else if(was.location!==letter.location)news.push({kind:'change',title:letter.title,body:`موقع الكتاب: ${letter.location||'غير مسجل'}`,key:`letter:${letter.id}:where:${letter.location||''}`});
     }
     const oldJobs=new Map((before?.jobs||[]).map(job=>[job.id,job]));
     for(const job of after?.jobs||[]){
       const was=oldJobs.get(job.id);
-      if(!was){news.push({kind:'add',title:'عمل جديد',body:`${S.jobKinds[job.kind]} — ${job.title}`});continue;}
-      if(was.state!==job.state)news.push({kind:'change',title:job.title,body:`حالة العمل: ${S.jobStates[was.state]} ← ${S.jobStates[job.state]}`});
-      else if(was.dueDate!==job.dueDate)news.push({kind:'change',title:job.title,body:`الموعد المتوقع: ${shortDate(job.dueDate)}`});
-      else if(was.owner!==job.owner)news.push({kind:'change',title:job.title,body:`المسؤول: ${job.owner||'غير مسجل'}`});
+      if(!was){news.push({kind:'add',title:'عمل جديد',body:`${S.jobKinds[job.kind]} — ${job.title}`,key:'job+'+job.id});continue;}
+      if(was.state!==job.state)news.push({kind:'change',title:job.title,body:`حالة العمل: ${S.jobStates[was.state]} ← ${S.jobStates[job.state]}`,key:`job:${job.id}:state:${job.state}`});
+      else if(was.dueDate!==job.dueDate)news.push({kind:'change',title:job.title,body:`الموعد المتوقع: ${shortDate(job.dueDate)}`,key:`job:${job.id}:due:${job.dueDate||''}`});
+      else if(was.owner!==job.owner)news.push({kind:'change',title:job.title,body:`المسؤول: ${job.owner||'غير مسجل'}`,key:`job:${job.id}:owner:${job.owner||''}`});
     }
     return news;
   }
@@ -199,9 +201,10 @@
       const first=!data;data=value;lastFetch=new Date();
       if(changed){render();window.dispatchEvent(new CustomEvent('workshop-data',{detail:data}));}
       setConnection(true);
-      if(news.length)window.WorkshopToast?.pushAll(news);
-      if(manual&&!news.length)notice('تمت قراءة Google Sheets؛ لا توجد تغييرات جديدة.');
-      else if(news.length)notice('');
+      // ما تتذكره ذاكرة الإشعارات لا يُعدّ جديداً، فرسالة «لا توجد تغييرات» تبقى صحيحة.
+      const shown=news.length?(window.WorkshopToast?.pushAll(news)||0):0;
+      if(manual&&!shown)notice('تمت قراءة Google Sheets؛ لا توجد تغييرات جديدة.');
+      else if(shown)notice('');
       else if($('notice').classList.contains('error'))notice('');
     }catch(error){
       setConnection(false);

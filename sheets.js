@@ -12,11 +12,13 @@
   const letterSheetName='المراسلات';
   const letterHeaders=['معرّف الكتاب','الاتجاه','الموضوع','رقم الكتاب','الجهة','معرّف المتابعة','آخر موقع','تاريخ التحقق','حالة العمل','حالة الرد','حالة الكتاب','الإجراء التالي','موعد المتابعة','رقم كتاب الرد','الملاحظات','آخر تعديل بتوقيت الإمارات'];
   const directions={out:'صادر',in:'وارد'};
-  // الأعمال: البيندنق جوب والأعمال القائمة لنا وللجهات الأخرى.
+  // الأعمال: ما هو قيد الانتظار وما هو قائم، لنا وللجهات الأخرى.
   const jobSheetName='الأعمال';
   const jobHeaders=['معرّف العمل','الموضوع','الطرف','الجهة','نوع العمل','الحالة','المسؤول','تاريخ البدء','الموعد المتوقع','معرّف المتابعة','الملاحظات','آخر تعديل بتوقيت الإمارات'];
   const parties={outbound:'نقدّمه لجهة',inbound:'تقدّمه لنا جهة',internal:'داخلي'};
-  const jobKinds={pending:'بيندنق جوب',ongoing:'عمل قائم',periodic:'صيانة دورية',support:'دعم وتوفير معدات'};
+  const jobKinds={pending:'عمل قيد الانتظار',ongoing:'عمل قائم',periodic:'صيانة دورية',support:'دعم وتوفير معدات'};
+  // التسمية القديمة تبقى مقروءة حتى لا يسقط صف كُتب قبل تعريب الاسم.
+  const jobKindAliases={'بيندنق جوب':'pending'};
   const jobStates={not_started:'لم يبدأ',in_progress:'قيد التنفيذ',awaiting_parts:'بانتظار قطع غيار',awaiting_party:'بانتظار الجهة',done:'اكتمل',cancelled:'ملغى'};
   // المعدات المستلمة للصيانة: ورقة اختيارية تُقرأ بالاسم وتُربط ببنود السجل.
   const equipmentSheetName='المعدات';
@@ -207,7 +209,7 @@
         title:text(row[1]),
         party:enumValue(row[2],parties,null,'طرف العمل في '+id),
         counterpart:text(row[3]),
-        kind:enumValue(row[4],jobKinds,null,'نوع العمل في '+id),
+        kind:enumValue(jobKindAliases[text(row[4])]||row[4],jobKinds,null,'نوع العمل في '+id),
         state:enumValue(row[5],jobStates,null,'حالة العمل في '+id),
         owner:text(row[6]),
         startDate:dateValue(row[7]),
