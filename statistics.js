@@ -25,7 +25,11 @@
     const now = today();
     const purchase = items.filter(P.isPurchaseRelated);
     const gearItems = items.filter(item => item.equipment);
-    const jobs = Array.isArray(feed.jobs) ? feed.jobs : null;
+    // نفس مصدر تبويب الأعمال الفنية: مهمة فنية لكل بطاقة، سواء سُجّل لها عمل تفصيلي أم لا.
+    // حسابها من ورقة «الأعمال» وحدها كان يعطي رقماً أقل مما يراه المستخدم في التبويب.
+    const F = window.WorkshopFollowups;
+    const jobs = F.technicalEntries(feed);
+    const archive = F.archiveEntries(feed);
     const letters = Array.isArray(feed.letters) ? feed.letters : null;
     const byStage = tally(open, item => item.stage);
     const amounts = purchase.map(item => item.procurement.amountAed).filter(value => typeof value === 'number');
@@ -49,13 +53,14 @@
         amount: amounts.reduce((sum, value) => sum + value, 0),
         amountCount: amounts.length
       },
-      jobs: jobs && {
+      jobs: jobs.length ? {
         total: jobs.length,
         running: jobs.filter(job => !['done','cancelled'].includes(job.state)).length,
         done: jobs.filter(job => job.state === 'done').length,
-        kinds: Object.entries(S.jobKinds).map(([id, label]) => ({id, label, value: jobs.filter(job => job.kind === id).length})),
-        parties: Object.entries(S.parties).map(([id, label]) => ({id, label, value: jobs.filter(job => job.party === id).length}))
-      },
+        detailed: jobs.filter(job => !job.recordView).length,
+        parties: [...Object.entries(S.parties), ['unspecified','الطرف غير محدد']]
+          .map(([id, label]) => ({id, label, value: jobs.filter(job => job.party === id).length})).filter(row => row.value)
+      } : null,
       letters: letters && {
         total: letters.length,
         open: letters.filter(letter => letter.closure === 'open').length,
@@ -71,6 +76,11 @@
         ready: gearItems.filter(item => item.equipment.handover === 'ready').length,
         delivered: gearItems.filter(item => item.equipment.handover === 'delivered').length
       } : null,
+      archive: {
+        total: archive.length,
+        items: archive.filter(entry => entry.type === 'item').length,
+        letters: archive.filter(entry => entry.type === 'letter').length
+      },
       // «عالية» تحتاج ما يسندها في السجل: موعد أو عائق أو معدة في الورشة.
       review: open.filter(item => item.priority === 'high' && !item.dueDate && !item.blocker
         && !(item.equipment && ['in_workshop','ready'].includes(item.equipment.handover)))
@@ -128,12 +138,13 @@
     const cards = [
       card('إجمالي المتابعات', s.items.total, 'كامل السجل'),
       card('متابعات مفتوحة', s.items.open, 'لم تُغلق بعد'),
-      card('متابعات مغلقة', s.items.closed, 'مؤكدة الإنجاز'),
+      card('متابعات مغلقة', s.items.closed, 'بنود مؤكدة الإنجاز'),
+      card('سجلات في الأرشيف', s.archive.total, 'متابعات مغلقة وكتب مغلقة معاً'),
       card('أولوية عالية', s.items.high, 'ضمن المفتوحة'),
       card('حان موعدها', s.items.due, 'الموعد المرتبط اليوم أو قبله'),
       card('متعطلة بعائق', s.items.blocked, 'مسجل لها عائق')
     ];
-    if (s.jobs) cards.push(card('أعمال قائمة', s.jobs.running, 'لم تكتمل بعد'));
+    if (s.jobs) cards.push(card('أعمال فنية قائمة', s.jobs.running, 'كما تعرضها صفحة الأعمال الفنية'));
     if (s.letters) cards.push(card('كتب مفتوحة', s.letters.open + s.letters.pending, 'مفتوحة أو بانتظار الإغلاق'));
     if (s.gear) cards.push(card('معدات في الورشة', s.gear.inWorkshop + s.gear.ready, 'مستلمة ولم تُسلّم بعد'));
     const groups = [
@@ -146,7 +157,11 @@
         {id:'delivery', label:'بانتظار التوريد أو استلام جزئي', value:s.purchase.delivery},
         {id:'closed', label:'طلبات مغلقة', value:s.purchase.total - s.purchase.open}
       ], amountHint(s)),
-      s.jobs ? bars('الأعمال حسب النوع', s.jobs.kinds) : '',
+      s.jobs ? bars('الأعمال الفنية', [
+        {id:'running', label:'قائمة', value:s.jobs.running},
+        {id:'done', label:'اكتملت', value:s.jobs.done},
+        {id:'detailed', label:'مسجّلة تفصيلياً في ورقة الأعمال', value:s.jobs.detailed}
+      ], '<p class="stat-hint">العدد نفسه الذي تعرضه صفحة الأعمال الفنية: مهمة فنية واحدة لكل بطاقة، سواء سُجّل لها عمل تفصيلي أم لا.</p>') : '',
       s.jobs ? bars('الأعمال حسب الطرف', s.jobs.parties) : '',
       s.letters ? bars('المراسلات', [
         {id:'out', label:'صادر', value:s.letters.out},
@@ -178,7 +193,7 @@
       `<div class="stat-hero stat-hero-small">${card('طلبات قائمة', s.purchase.open, 'لم تُغلق بعد')}${card('بانتظار العروض', s.purchase.quotes)}${card('بانتظار التوريد', s.purchase.delivery)}${card('طلبات مغلقة', s.purchase.total - s.purchase.open)}</div>` +
       amountHint(s)});
     if (s.jobs) list.push({title:'الأعمال المطلوب إنجازها والأعمال القائمة', note:'ما نقدّمه لجهات أخرى وما يُقدّم لنا', body:
-      `<div class="stat-hero stat-hero-small">${card('أعمال قائمة', s.jobs.running)}${card('اكتملت', s.jobs.done)}${card('إجمالي الأعمال', s.jobs.total)}</div>` + bars('حسب الطرف', s.jobs.parties)});
+      `<div class="stat-hero stat-hero-small">${card('أعمال فنية قائمة', s.jobs.running)}${card('اكتملت', s.jobs.done)}${card('إجمالي الأعمال', s.jobs.total)}</div>` + bars('حسب الطرف', s.jobs.parties)});
     if (s.letters) list.push({title:'المراسلات', note:'الصادر والوارد وحالة الإغلاق', body:
       `<div class="stat-hero stat-hero-small">${card('صادر', s.letters.out)}${card('وارد', s.letters.in)}${card('بانتظار رد جهة', s.letters.awaitingReply)}${card('مغلقة', s.letters.closed)}</div>`});
     if (s.gear) list.push({title:'المعدات المستلمة للصيانة', note:'ما هو داخل الورشة الآن', body:
