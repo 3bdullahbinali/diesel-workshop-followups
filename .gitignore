@@ -1,3 +1,10 @@
 # ملفات بايثون المؤقتة من سكربتات المهارة — تتولد عند كل تشغيل.
 __pycache__/
 *.pyc
+
+# مخرجات graphify: تُبنى محلياً بالأمر graphify update .
+graphify-out/
+
+# خطّافات graphify تنادي أمر graphify؛ من لم يثبّت الأداة على جهازه يتعطل عنده
+# كل قراءة ملف. لذلك تبقى محلية: شغّل graphify install --project لتفعيلها عندك.
+.claude/settings.json
