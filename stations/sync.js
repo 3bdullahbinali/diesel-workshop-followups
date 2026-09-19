@@ -119,20 +119,28 @@
         ['تحديث الآن', () => pull(user)],
         ['خروج', signOut]
       ]);
-      if (!timer) {
-        const every = Math.max(60, Number(apiConfig.refreshSeconds) || 120);
-        timer = setInterval(() => pull(user).catch(() => {}), every * 1000);
-      }
+      startTimer(() => pull(user));
     } catch (error) {
       stopTimer();
-      setSource('local');
-      show('offline', 'المصدر: النسخة المضمّنة', 'تعذّرت القراءة الموثقة — ' + error.message);
-      buttons([['تسجيل الدخول', promptLogin, 'mini primary']]);
+      setSource('offline');
+      show('offline', 'الاتصال بالشيت منقطع — الحفظ متوقف مؤقتاً',
+        'آخر سجل قُرئ معروض للقراءة فقط. ' + error.message);
+      buttons([
+        ['إعادة المحاولة', () => pull(user), 'mini primary'],
+        ['العمل محلياً', goLocal]
+      ]);
     }
   }
 
   function stopTimer() {
     if (timer) { clearInterval(timer); timer = null; }
+  }
+
+  /** يستبدل المؤقت القائم دائماً: لا يجتمع مؤقتان على حالتي دخول مختلفتين. */
+  function startTimer(task) {
+    stopTimer();
+    const every = Math.max(60, Number(apiConfig.refreshSeconds) || 120);
+    timer = setInterval(() => task().catch(() => {}), every * 1000);
   }
 
   /** قراءة عامة: بيانات حيّة بلا حساب، وزر دخول لمن يريد التحرير. */
@@ -151,16 +159,26 @@
         ['تحديث الآن', pullAnonymous],
         ['تسجيل الدخول', promptLogin, 'mini primary']
       ]);
-      if (!timer) {
-        const every = Math.max(60, Number(apiConfig.refreshSeconds) || 120);
-        timer = setInterval(() => pullAnonymous().catch(() => {}), every * 1000);
-      }
+      startTimer(pullAnonymous);
     } catch (error) {
       stopTimer();
-      setSource('local');
-      show('offline', 'المصدر: النسخة المضمّنة', 'تعذّرت القراءة — ' + error.message);
-      buttons([['إعادة المحاولة', pullAnonymous], ['تسجيل الدخول', promptLogin, 'mini primary']]);
+      setSource('offline');
+      show('offline', 'الاتصال بالشيت منقطع', 'تعذّرت القراءة — ' + error.message);
+      buttons([
+        ['إعادة المحاولة', pullAnonymous, 'mini primary'],
+        ['العمل محلياً', goLocal]
+      ]);
     }
+  }
+
+  /** الوضع المحلي اختيار معلَن: النسخة المضمّنة، والحفظ في هذا المتصفح وحده. */
+  function goLocal() {
+    stopTimer();
+    window.StationsStore.replaceBase(window.STATIONS_DATA);
+    setSource('local');
+    show('offline', 'المصدر: النسخة المضمّنة',
+      'وضع محلي باختيارك. الحفظ في هذا المتصفح فقط، ولا يصل إلى الشيت.');
+    buttons([['محاولة الاتصال', () => (api.session ? pull(api.session) : pullAnonymous()), 'mini primary']]);
   }
 
   async function signOut() {

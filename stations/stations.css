@@ -263,3 +263,46 @@ dialog#editor::backdrop{background:#0f2a2199}
 .sync-dot.pending{background:#a07b37}
 /* حين يكون الشيت هو المصدر، التحرير يتم هناك لا هنا. */
 body[data-source="sheet"] .review-banner.local{display:none}
+
+/* ————————————————————————————— شريط الأقسام على الجوال —————————————————————————————
+   عشرة أقسام تتوزع على أربعة صفوف في 390 بكسل، فيصير الوصول للمحتوى تمريراً طويلاً.
+   شريط أفقي واحد يُبقي كل قسم على بُعد ضغطة، بلا قائمة «المزيد» تُخفي نصفها. */
+@media (max-width:760px){
+  .tabs{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;margin-bottom:18px;
+    /* تدرّج عند الحافة يقول إن خلفها المزيد. */
+    -webkit-mask-image:linear-gradient(to left,transparent 0,#000 18px);
+    mask-image:linear-gradient(to left,transparent 0,#000 18px)}
+  .tabs::-webkit-scrollbar{display:none}
+  .tabs button{flex:0 0 auto;scroll-snap-align:start;padding:11px 13px;font-size:.9375rem}
+  .review-banner{padding:10px 14px;font-size:.875rem;align-items:flex-start}
+  .review-banner svg{margin-top:3px}
+}
+
+/* زر «التفاصيل» داخل اللافتة: يفتح التحذير الطويل بدل أن يشغل سطرين دائماً. */
+.banner-more{background:transparent;color:#785b27;font-weight:700;text-decoration:underline;
+  padding:0 4px;font-size:inherit;min-height:0}
+.banner-more:hover{color:#5f4718}
+
+/* ———————————————————————————————— ملف المحطة ————————————————————————————————
+   البطاقة مدخل لا لوحة: الضغط يفتح ما يخص الموقع في مكان واحد. */
+.station-card{padding:0;overflow:hidden}
+.card-open{display:block;width:100%;text-align:start;background:transparent;padding:16px 18px;
+  transition:background .16s}
+.card-open:hover{background:#f3f8f5}
+.station-card.is-open{grid-column:1/-1;border-color:var(--green);box-shadow:0 10px 28px -22px rgba(18,78,62,.8)}
+.card-hint{font-size:.8125rem;color:var(--green);font-weight:700;margin-inline-start:auto}
+.station-card .badges{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+.station-file{border-top:1px solid var(--line);padding:6px 18px 18px;background:#fbfdfc}
+.station-block{margin-top:14px}
+.station-block h5{margin:0 0 7px;font-size:.9375rem;color:var(--green);
+  padding-bottom:5px;border-bottom:1px solid var(--line)}
+.station-list{margin:0;padding:0;list-style:none}
+.station-list li{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:8px 0;border-bottom:1px solid #eef3f0}
+.station-list li:last-child{border-bottom:0}
+.station-list-main{min-width:0}
+.station-list-main b{display:block;color:var(--ink);font-size:.9375rem;font-weight:600}
+.station-list-main span{display:block;font-size:.8125rem;color:var(--muted)}
+.station-empty{margin:14px 0 0;color:var(--muted);font-size:.9375rem}

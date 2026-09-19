@@ -3,7 +3,8 @@
   const M = window.StationsModel;
   const store = window.StationsStore;
   let data = store.init(window.STATIONS_DATA);
-  const AS_OF = data.meta.buildDate;
+  // دالة لا ثابت: الصفحة قد تبقى مفتوحة عبر منتصف الليل، وكل إعادة رسم تعيد القراءة.
+  const AS_OF = () => M.today();
 
   let stateLabels, partyLabels, kindLabels, stageLabels, idx, openFollowups;
 
@@ -26,9 +27,9 @@
 
   // ------------------------------------------------------------ أدوات مشتركة
   function ageCell(followup) {
-    const age = M.ageDays(followup, AS_OF);
+    const age = M.ageDays(followup, AS_OF());
     if (age === null) return '<span class="badge">بلا تاريخ</span>';
-    const band = M.band(followup, AS_OF);
+    const band = M.band(followup, AS_OF());
     return `<span class="age-pill age-${band.id}">${num(age)}<small>يوم</small></span>`;
   }
 
@@ -110,10 +111,10 @@
 
   // --------------------------------------------------------------- اللوحة
   function renderDashboard() {
-    const d = M.dashboard(data, AS_OF);
+    const d = M.dashboard(data, AS_OF());
     const bands = { fresh: 0, watch: 0, stalled: 0 };
     for (const followup of openFollowups) {
-      const band = M.band(followup, AS_OF);
+      const band = M.band(followup, AS_OF());
       if (band) bands[band.id] += 1;
     }
     const total = bands.fresh + bands.watch + bands.stalled || 1;
@@ -142,7 +143,7 @@
 
       <div class="aging">
         <div class="aging-head"><h3>عمر آخر إفادة</h3>
-          <p>وسيط العمر ${num(d.medianAge)} أيام · محسوب حتى ${num(AS_OF)}</p></div>
+          <p>وسيط العمر ${num(d.medianAge)} أيام · محسوب حتى اليوم ${num(AS_OF())}</p></div>
         <div class="aging-bar" role="img"
           aria-label="محدّثة ${bands.fresh}، تحتاج متابعة ${bands.watch}، متوقفة ${bands.stalled}">
           <span class="seg-fresh" style="width:${pct(bands.fresh)}"></span>
@@ -161,7 +162,7 @@
           <div class="panel-head"><div><h3>الأقدم بلا إفادة</h3>
             <p>الترتيب بعمر آخر معلومة مؤيدة، لا بتاريخ الإنشاء.</p></div></div>
           <div class="panel-body"><ul class="age-list">${
-            openFollowups.map(f => ({ f, age: M.ageDays(f, AS_OF) }))
+            openFollowups.map(f => ({ f, age: M.ageDays(f, AS_OF()) }))
               .filter(entry => entry.age !== null)
               .sort((a, b) => b.age - a.age).slice(0, 8)
               .map(({ f }) => `<li>${ageCell(f)}<div>
@@ -204,7 +205,7 @@
     if (filters.kind !== 'all' && followup.kind !== filters.kind) return false;
     if (filters.state !== 'all' && followup.state !== filters.state) return false;
     if (filters.party !== 'all' && followup.waitingOn !== filters.party) return false;
-    if (filters.band !== 'all' && M.band(followup, AS_OF)?.id !== filters.band) return false;
+    if (filters.band !== 'all' && M.band(followup, AS_OF())?.id !== filters.band) return false;
     if (filters.review && !followup.needsReview) return false;
     if (filters.q) {
       const hay = [followup.title, followup.reference, followup.notes, followup.nextAction,
@@ -241,7 +242,7 @@
 
   function renderFollowups() {
     const rows = data.followups.filter(matches)
-      .sort((a, b) => (M.ageDays(b, AS_OF) ?? -1) - (M.ageDays(a, AS_OF) ?? -1));
+      .sort((a, b) => (M.ageDays(b, AS_OF()) ?? -1) - (M.ageDays(a, AS_OF()) ?? -1));
     const kindCount = (id) => data.followups.filter(f => id === 'all' || f.kind === id).length;
 
     el('view-followups').innerHTML = `
@@ -505,26 +506,82 @@
   }
 
   // ---------------------------------------------------------------- المحطات
+  // ملف المحطة: البطاقة مدخل لا لوحة أرقام. الضغط يفتح كل ما يخص الموقع
+  // في مكان واحد — متابعاته وطلبات شرائه وأوامر عمله وكتبه وأنشطته — بدل أن
+  // يبحث الموظف عن الاسم نفسه في خمس شاشات.
+  let openStation = null;
+
+  function stationFile(place) {
+    const view = M.stationView(data, place.id);
+    const prs = view.followups.filter(f => f.kind === 'pr');
+    const openOnes = view.followups.filter(f => !f.closed);
+
+    const section = (title, count, body) => count
+      ? `<div class="station-block"><h5>${esc(title)} <span class="tab-count">${num(count)}</span></h5>${body}</div>`
+      : '';
+
+    return `<div class="station-file">
+      ${section('المتابعات المفتوحة', openOnes.length, `<ul class="station-list">${
+        openOnes.map(f => `<li>
+          <span class="station-list-main"><b>${esc(f.title)}</b>
+            <span>${esc(f.stateDetail || stateLabels[f.state] || '')}</span></span>
+          ${ageCell(f)}
+        </li>`).join('')}</ul>`)}
+
+      ${section('متابعات مغلقة', view.followups.length - openOnes.length, `<ul class="station-list">${
+        view.followups.filter(f => f.closed).map(f => `<li>
+          <span class="station-list-main"><b>${esc(f.title)}</b>
+            <span>أُغلقت ${esc(f.closeDate || 'بلا تاريخ')} · ${esc(f.closeProof || 'بلا دليل')}</span></span>
+        </li>`).join('')}</ul>`)}
+
+      ${section('طلبات الشراء', prs.length, `<ul class="station-list">${
+        prs.map(f => `<li><span class="station-list-main"><b>${esc(f.reference || f.title)}</b>
+          <span>${esc(stageLabels[f.prStage] || 'المرحلة غير مثبتة')}</span></span></li>`).join('')}</ul>`)}
+
+      ${section('أوامر العمل', view.orders.length, `<ul class="station-list">${
+        view.orders.map(w => `<li><span class="station-list-main"><b>${esc(w.number)}</b>
+          <span>${w.multiStation ? 'مشترك مع ' + num(w.stations.length) + ' موقعاً' : 'خاص بهذا الموقع'}</span></span></li>`).join('')}</ul>`)}
+
+      ${section('كتب التراسل', view.letters.length, `<ul class="station-list">${
+        view.letters.map(l => `<li><span class="station-list-main"><b>${esc(l.subject)}</b>
+          <span>${esc(l.number || '')} · ${l.direction === 'outgoing' ? 'صادر' : 'وارد'}</span></span></li>`).join('')}</ul>`)}
+
+      ${section('آخر الأنشطة', Math.min(view.daily.length, 8), `<ul class="station-list">${
+        view.daily.slice(-8).reverse().map(a => `<li>
+          <span class="station-list-main"><b>${esc(a.description)}</b>
+            <span>${esc(a.date || 'بلا تاريخ')}${a.staff ? ' · ' + esc(a.staff) : ''}</span></span>
+        </li>`).join('')}</ul>`)}
+
+      ${view.followups.length || view.daily.length || view.orders.length ? ''
+        : '<p class="station-empty">لا سجل لهذا الموقع بعد: لا متابعة ولا نشاط ولا أمر عمل.</p>'}
+    </div>`;
+  }
+
   function renderStations() {
     const card = (place) => {
       const view = M.stationView(data, place.id);
-      return `<div class="card">
-        <h4>${esc(place.name)}</h4><span class="card-id">${esc(place.id)}</span>
-        <div class="card-stats">
-          <span><b>${num(view.followups.length)}</b>متابعة</span>
-          <span><b>${num(view.daily.length)}</b>نشاط</span>
-          <span><b>${num(view.orders.length)}</b>أمر عمل</span>
-        </div>
-        ${view.sharedOrders.length ? `<div class="badges"><span class="badge badge-conflict">
-          ${num(view.sharedOrders.length)} أمر مشترك مع موقع آخر</span></div>` : ''}
-        <div class="badges"><span class="badge badge-review">الجاهزية غير موثقة</span></div>
+      const isOpen = openStation === place.id;
+      return `<div class="card station-card${isOpen ? ' is-open' : ''}">
+        <button type="button" class="card-open" data-station="${esc(place.id)}" aria-expanded="${isOpen}">
+          <h4>${esc(place.name)}</h4><span class="card-id">${esc(place.id)}</span>
+          <div class="card-stats">
+            <span><b>${num(view.followups.length)}</b>متابعة</span>
+            <span><b>${num(view.daily.length)}</b>نشاط</span>
+            <span><b>${num(view.orders.length)}</b>أمر عمل</span>
+          </div>
+          ${view.sharedOrders.length ? `<div class="badges"><span class="badge badge-conflict">
+            ${num(view.sharedOrders.length)} أمر مشترك مع موقع آخر</span></div>` : ''}
+          <div class="badges"><span class="badge badge-review">الجاهزية غير موثقة</span>
+            <span class="card-hint">${isOpen ? 'إخفاء الملف' : 'افتح ملف الموقع'}</span></div>
+        </button>
+        ${isOpen ? stationFile(place) : ''}
       </div>`;
     };
 
     el('view-stations').innerHTML = `
       <h2>المحطات والمواقع</h2>
       <p class="lead">${num(data.stations.length)} محطة، و${num(data.locations.length)} موقعاً وجهة أخرى فُصلت عنها.
-        الجاهزية غير موثقة لأي منها، فلا تُعرض كمعلومة.</p>
+        اضغط أي بطاقة ليُفتح ملف الموقع كاملاً. الجاهزية غير موثقة لأي منها، فلا تُعرض كمعلومة.</p>
       <section class="panel" style="margin-bottom:18px">
         <div class="panel-head"><div><h3>المحطات <span class="tab-count">${num(data.stations.length)}</span></h3></div></div>
         <div class="cards">${data.stations.map(card).join('')}</div>
@@ -534,6 +591,14 @@
           <p>ورش ومساندة أقسام ومواقع غير محددة. ليست محطات، ولا تدخل في تعدادها.</p></div></div>
         <div class="cards">${data.locations.map(card).join('')}</div>
       </section>`;
+
+    for (const button of el('view-stations').querySelectorAll('[data-station]')) {
+      button.onclick = () => {
+        openStation = openStation === button.dataset.station ? null : button.dataset.station;
+        renderStations();
+        applyCapabilities();
+      };
+    }
   }
 
   // ------------------------------------------------------------- كتب تراسل
@@ -688,9 +753,19 @@
    *   data-local-only   — ما لا معنى له إلا محلياً: إلغاء التعديلات، والإنشاء من نشاط.
    * تُستدعى بعد كل إعادة رسم وبعد كل تغيّر في المصدر.
    */
+  // نص اللافتة يتبع الاتصال: جملة ثابتة تصف وضعاً غير قائم تُفقد اللافتة معناها.
+  const BANNER = {
+    api: 'السجل يُقرأ من الشيت مباشرة، والتعديل يُحفظ فيه.',
+    'api-public': 'السجل يُقرأ من الشيت. التعديل يحتاج تسجيل دخول.',
+    offline: 'الاتصال منقطع — المعروض آخر سجل قُرئ، والحفظ متوقف مؤقتاً.',
+    local: 'نسخة مضمّنة للمراجعة، والحفظ في هذا المتصفح وحده.'
+  };
+
   const applyCapabilities = () => {
     const source = document.body.dataset.source || 'local';
     const local = source === 'local';
+    const mode = el('banner-mode');
+    if (mode) mode.textContent = BANNER[source] || BANNER.local;
     // القراءة العامة تعرض كل شيء ولا تحرّر: الجلسة والصلاحية شرطا التحرير.
     const canEdit = local || (source === 'api' && Boolean(window.StationsApi?.canWrite));
     for (const el of document.querySelectorAll('[data-local-only]')) el.hidden = !local;
@@ -701,6 +776,14 @@
 
   document.querySelectorAll('[data-view]').forEach(button =>
     button.addEventListener('click', () => show(button.dataset.view)));
+
+  const bannerToggle = el('banner-toggle');
+  if (bannerToggle) bannerToggle.onclick = () => {
+    const detail = el('banner-detail');
+    detail.hidden = !detail.hidden;
+    bannerToggle.setAttribute('aria-expanded', String(!detail.hidden));
+    bannerToggle.textContent = detail.hidden ? 'التفاصيل' : 'إخفاء';
+  };
 
   el('build-date').textContent = data.meta.buildDate;
   el('latest-daily').textContent = data.meta.latestDailyDate;
