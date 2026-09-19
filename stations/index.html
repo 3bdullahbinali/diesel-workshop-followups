@@ -54,10 +54,7 @@
     <span class="sync-dot pending" id="sync-dot" aria-hidden="true"></span>
     <strong id="sync-label"></strong>
     <span id="sync-detail"></span>
-    <span class="sync-actions">
-      <button type="button" class="mini" id="sync-refresh">تحديث الآن</button>
-      <a id="sync-link" target="_blank" rel="noopener noreferrer">فتح الشيت</a>
-    </span>
+    <span class="sync-actions" id="sync-actions"></span>
   </div>
 
   <nav class="tabs" role="tablist" aria-label="أقسام الموقع">
@@ -101,14 +98,36 @@
   </form>
 </dialog>
 
+<dialog id="login">
+  <form method="dialog">
+    <div class="editor-head"><h3>تسجيل الدخول</h3>
+      <button type="button" id="login-cancel" class="mini" aria-label="إغلاق">إلغاء</button></div>
+    <div id="editor-body">
+      <p class="form-note">حساب فريق المحطات الخارجية. القراءة لا تتم قبل التحقق،
+        ولا يُشارَك ملف الشيت نفسه بالرابط.</p>
+      <label class="form-row"><span class="form-label">اسم المستخدم</span>
+        <input id="login-username" name="username" autocomplete="username" required></label>
+      <label class="form-row"><span class="form-label">كلمة المرور</span>
+        <input id="login-password" name="password" type="password" autocomplete="current-password" required></label>
+      <p id="login-error" class="form-note danger" hidden></p>
+    </div>
+    <div class="editor-foot">
+      <p class="form-hint">تنتهي الجلسة بإغلاق التبويب أو بعد ١٢ ساعة.</p>
+      <button type="submit" id="login-submit" class="action primary">دخول</button>
+    </div>
+  </form>
+</dialog>
+
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
 <script src="./data.js"></script>
 <script src="./sheets-config.js"></script>
+<script src="./api-config.js"></script>
 <script src="./model.js"></script>
 <script src="./store.js"></script>
 <script src="./app.js"></script>
 <script src="./editor.js"></script>
+<script src="./api.js"></script>
 <script src="./sheets.js"></script>
 <script src="./sync.js"></script>
 </body>

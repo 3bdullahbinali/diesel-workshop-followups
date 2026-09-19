@@ -3,7 +3,7 @@ window.STATIONS_SHEET_CONFIG = {
  "spreadsheetId": "1nUVhyx2UreJ3TftmMHdqx8ZLJN5oti4EFycWoF6u-Gc",
  "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1nUVhyx2UreJ3TftmMHdqx8ZLJN5oti4EFycWoF6u-Gc/edit",
  "refreshSeconds": 60,
- "note": "مصدر مستقل عن ورشة الديزل. القراءة عبر gviz تتطلب أن يكون الملف قابلاً للعرض بالرابط؛ ما لم يُشارَك يبقى الموقع على النسخة المضمّنة.",
+ "note": "مصدر مستقل عن ورشة الديزل. المسار المعتمد هو الواجهة الموثقة في api-config.json. allowPublicRead=true يفعّل قراءة gviz المباشرة، وهي تتطلب ملفاً مقروءاً لكل من يملك الرابط.",
  "tabs": {
   "followups": {
    "name": "Followups",
@@ -37,5 +37,6 @@ window.STATIONS_SHEET_CONFIG = {
    "name": "PR_Items",
    "range": "A1:Q501"
   }
- }
+ },
+ "allowPublicRead": false
 };

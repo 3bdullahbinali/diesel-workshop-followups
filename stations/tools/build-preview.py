@@ -15,16 +15,20 @@ def inline(html, pattern, path, wrap):
     return html.replace(pattern, wrap.format(body=body), 1)
 
 
+CONFIGS = [("sheets-config", "STATIONS_SHEET_CONFIG"), ("api-config", "STATIONS_API_CONFIG")]
+
+
 def sync_config():
-    """يولّد sheets-config.js من sheets-config.json حتى لا يتفرّعا."""
-    source = ROOT / "sheets-config.json"
-    if not source.exists():
-        return
+    """يولّد ملفات الإعداد بصيغة js من نظيرتها json حتى لا تتفرّع."""
     import json
-    data = json.loads(source.read_text(encoding="utf-8"))
-    (ROOT / "sheets-config.js").write_text(
-        "// مولَّد من sheets-config.json — لا يُحرَّر مباشرة.\nwindow.STATIONS_SHEET_CONFIG = "
-        + json.dumps(data, ensure_ascii=False, indent=1) + ";\n", encoding="utf-8")
+    for name, global_name in CONFIGS:
+        source = ROOT / f"{name}.json"
+        if not source.exists():
+            continue
+        data = json.loads(source.read_text(encoding="utf-8"))
+        (ROOT / f"{name}.js").write_text(
+            f"// مولَّد من {name}.json — لا يُحرَّر مباشرة.\nwindow.{global_name} = "
+            + json.dumps(data, ensure_ascii=False, indent=1) + ";\n", encoding="utf-8")
 
 
 def build():
@@ -32,8 +36,8 @@ def build():
     html = (ROOT / "index.html").read_text(encoding="utf-8")
     html = inline(html, '<link rel="stylesheet" href="./stations.css">',
                   "stations.css", "<style>\n{body}\n</style>")
-    for name in ("data.js", "sheets-config.js", "model.js", "store.js",
-                 "app.js", "editor.js", "sheets.js", "sync.js"):
+    for name in ("data.js", "sheets-config.js", "api-config.js", "model.js",
+                 "store.js", "app.js", "editor.js", "api.js", "sheets.js", "sync.js"):
         html = inline(html, f'<script src="./{name}"></script>', name,
                       "<script>\n{body}\n</script>")
 

@@ -680,9 +680,10 @@
   store.subscribe(() => { refreshContext(); syncCounts(); show(current); });
 
   // بعد كل إعادة رسم تُعاد أزرار التحرير للحالة التي يفرضها المصدر الحالي.
+  // التحرير المحلي متاح في الوضع المحلي وحده؛ أي مصدر خارجي يعطّله.
   const applySourceVisibility = () => {
-    const fromSheet = document.body.dataset.source === 'sheet';
-    for (const el of document.querySelectorAll('[data-local-only]')) el.hidden = fromSheet;
+    const local = (document.body.dataset.source || 'local') === 'local';
+    for (const el of document.querySelectorAll('[data-local-only]')) el.hidden = !local;
   };
   const originalShow = show;
   show = (name) => { originalShow(name); applySourceVisibility(); };

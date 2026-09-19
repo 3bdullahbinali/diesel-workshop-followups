@@ -13,19 +13,26 @@
   const TIMEOUT = 9000;
 
   // ---------------------------------------------------------- أدوات التحويل
-  const text = (cell) => String(cell?.f ?? cell?.v ?? '').trim();
+  // تقبل شكل خلية gviz ({v,f}) والقيمة المجردة الآتية من واجهة Apps Script.
+  const raw = (cell) => (cell && typeof cell === 'object' && ('v' in cell || 'f' in cell))
+    ? (cell.f ?? cell.v) : cell;
+
+  const text = (cell) => {
+    const value = raw(cell);
+    return value === null || value === undefined ? '' : String(value).trim();
+  };
 
   const bool = (cell) => {
-    const value = cell?.v;
+    const value = raw(cell);
     if (typeof value === 'boolean') return value;
     return /^(true|نعم|1)$/i.test(text(cell));
   };
 
   /** يقبل Date(y,m,d) من gviz وصيغة dd/mm/yyyy المعروضة في الشيت. */
   function dateValue(cell) {
-    const raw = cell?.v;
-    if (raw instanceof Date) return raw.toISOString().slice(0, 10);
-    const serial = /^Date\((\d+),(\d+),(\d+)/.exec(String(raw ?? ''));
+    const value = (cell && typeof cell === 'object' && 'v' in cell) ? cell.v : raw(cell);
+    if (value instanceof Date) return value.toISOString().slice(0, 10);
+    const serial = /^Date\((\d+),(\d+),(\d+)/.exec(String(value ?? ''));
     if (serial) {
       const [, y, m, d] = serial;
       return `${y}-${String(+m + 1).padStart(2, '0')}-${String(+d).padStart(2, '0')}`;
@@ -38,8 +45,9 @@
 
   const list = (cell) => text(cell).split(/[;،]/).map(s => s.trim()).filter(Boolean);
   const number = (cell) => {
-    const value = typeof cell?.v === 'number' ? cell.v : parseFloat(text(cell).replace(/,/g, ''));
-    return Number.isFinite(value) ? value : null;
+    const value = raw(cell);
+    const parsed = typeof value === 'number' ? value : parseFloat(text(cell).replace(/,/g, ''));
+    return Number.isFinite(parsed) ? parsed : null;
   };
 
   // ------------------------------------------------------------- طلب gviz
@@ -274,28 +282,30 @@
    * يعيد بناء نسخة العرض من الشيت فوق النسخة المضمّنة.
    * أي تبويب يفشل يُترك على بيانات النسخة المضمّنة ويُذكر في warnings.
    */
-  async function load(config, snapshot) {
-    const tabs = config.tabs;
-    const warnings = [];
-    const get = async (key, transform) => {
+  /**
+   * يبني نسخة العرض من صفوف خام، أياً كان مصدرها: gviz العام أو الواجهة الموثقة.
+   * التحويل واحد للمسارين حتى لا يتفرّع سلوك القراءة بينهما.
+   */
+  function build(tabData, snapshot, warnings, sourceName) {
+    const take = (key, transform) => {
+      const list = tabData[key];
+      if (!Array.isArray(list)) return null;
       try {
-        return transform(rows(await query(config.spreadsheetId, tabs[key].name, tabs[key].range), tabs[key].name));
+        return transform(list);
       } catch (error) {
-        warnings.push(error.message);
+        warnings.push(`${key}: ${error.message}`);
         return null;
       }
     };
 
-    const [f, pr, prItems, d, l, s, i, src] = await Promise.all([
-      get('followups', list => followups(list, snapshot)),
-      get('procurement', procurement),
-      get('items', items),
-      get('daily', list => daily(list, snapshot)),
-      get('letters', letters),
-      get('stations', places),
-      get('issues', issues),
-      get('sources', sources)
-    ]);
+    const f = take('followups', list => followups(list, snapshot));
+    const pr = take('procurement', procurement);
+    const prItems = take('items', items);
+    const d = take('daily', list => daily(list, snapshot));
+    const l = take('letters', letters);
+    const s = take('stations', places);
+    const i = take('issues', issues);
+    const src = take('sources', sources);
 
     if (!f) throw new Error('تعذّر قراءة تبويب المتابعات؛ أُبقي العرض على النسخة المضمّنة. ' + warnings.join(' '));
 
@@ -308,7 +318,7 @@
       sources: src || snapshot.sources,
       procurement: pr || [],
       prItems: prItems || [],
-      meta: { ...snapshot.meta, source: 'google-sheets', fetchedAt: new Date().toISOString() }
+      meta: { ...snapshot.meta, source: sourceName, fetchedAt: new Date().toISOString() }
     };
 
     if (s) {
@@ -318,6 +328,31 @@
 
     rebuildDerived(merged, snapshot);
     merged.warnings = warnings;
+    return merged;
+  }
+
+  /** المسار العام: قراءة gviz مباشرة. يتطلب ملفاً قابلاً للعرض بالرابط. */
+  async function loadPublic(config, snapshot) {
+    const warnings = [];
+    const tabData = {};
+    await Promise.all(Object.keys(config.tabs).map(async (key) => {
+      const tab = config.tabs[key];
+      try {
+        tabData[key] = rows(await query(config.spreadsheetId, tab.name, tab.range), tab.name);
+      } catch (error) {
+        warnings.push(error.message);
+      }
+    }));
+    return build(tabData, snapshot, warnings, 'google-sheets-public');
+  }
+
+  /** المسار الموثق: القراءة عبر Apps Script بعد تسجيل الدخول. */
+  async function loadAuthenticated(snapshot) {
+    const response = await root.StationsApi.read();
+    const warnings = (response.missing || []).map(name => `الورقة غير موجودة: ${name}`);
+    const merged = build(response.tabs || {}, snapshot, warnings, 'apps-script');
+    merged.meta.readAt = response.readAt;
+    merged.meta.reader = response.user;
     return merged;
   }
 
@@ -391,5 +426,5 @@
     };
   }
 
-  root.StationsSheets = { load, query, rows, dateValue };
+  root.StationsSheets = { loadPublic, loadAuthenticated, build, query, rows, dateValue };
 })(globalThis);
