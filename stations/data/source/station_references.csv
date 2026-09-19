@@ -1,0 +1,43 @@
+﻿Reference_ID,Name,Readiness,Location_Only
+BIDIYA-EPS,Bidiya EPS • البدّية (حسب الجدول),غير موثقة,False
+BIRDI-EPS,Birdi EPS,غير موثقة,False
+BIRDI-LAGOON,Birdi Lagoon,غير موثقة,False
+DARARI-PS,الدراري • FP0008,غير موثقة,False
+FL009,المجاز 3 • FL009,غير موثقة,False
+FL014,الجازات • FL014,غير موثقة,False
+FL035,FL035,غير موثقة,False
+GL013,الدراري • GL013,غير موثقة,False
+GL062,المنصورة • GL062,غير موثقة,False
+GL082,GL082,غير موثقة,False
+GL083,المطار • GL083,غير موثقة,False
+GL084,المطار • GL084,غير موثقة,False
+GL085,المطار • GL085,غير موثقة,False
+GL086,المطار • GL086,غير موثقة,False
+HOUMA-STP,الحومة STP • مساندة,غير موثقة,True
+IND-03,الصناعية 3,غير موثقة,True
+JUBAIL,الجبيل • مساندة,غير موثقة,True
+KASHISHA,الخشيشة EPS,غير موثقة,False
+MAJAZ-02,المجاز 2,غير موثقة,False
+MULTI,عدة محطات / غير محدد,غير موثقة,True
+NABBA,النبّاع,غير موثقة,False
+NEW-BIDIYA,New Bidiya • البدّية الجديدة,غير موثقة,False
+PLANETARIUM,Planetarium EPS,غير موثقة,False
+PS-009,PS-009 • مويلح,غير موثقة,False
+PS-01,PS-1 • بوطينة,غير موثقة,False
+PS-01B,PS-01B • FP001B,غير موثقة,False
+PS-02,PS-2 • السور,غير موثقة,False
+PS-03,PS-3 • FP003,غير موثقة,False
+PS-04,PS-4 • FP004,غير موثقة,False
+QARAIN,القرائن EPS,غير موثقة,False
+QASSIMIYA,القاسمية EPS,غير موثقة,False
+SAMNAN,السمنان EPS,غير موثقة,False
+SECTOR-01,القطاع 1 • قرب أدنوك,غير موثقة,True
+SEED-BANK,بنك البذور • الذيد,غير موثقة,False
+SHAHBA,الشهباء EPS,غير موثقة,False
+SHEMOUS,الشموس EPS,غير موثقة,False
+STATIONS-WORKSHOP,ورشة فريق المحطات,غير موثقة,True
+TEAM,متابعة إدارية,غير موثقة,True
+UNASSIGNED,الموقع بحاجة تأكيد,غير موثقة,True
+VACUUM-02,Vacuum Station 02,غير موثقة,False
+VACUUM-03,Vacuum Station 03,غير موثقة,False
+VACUUM-04,Vacuum Station 04,غير موثقة,False
