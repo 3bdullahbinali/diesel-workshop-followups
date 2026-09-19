@@ -37,6 +37,15 @@
   const sectorSheetName='القطاعات';
   const sectorHeaders=['رمز القطاع','القطاع','المسؤول الرئيسي','الرقم الوظيفي','الهاتف الرئيسي','المسؤول البديل','هاتف البديل','آخر تحديث فعلي','حُدّث بواسطة','ملاحظات','المعدات بالقطاع','تعمل','جاهزة احتياط','للصيانة والإصلاح','مسلّمة','بيانات فعلية','بيانات تجريبية'];
 
+  // بعد العمود السادس والعشرين تصير الأحرف مزدوجة: Z ثم AA. حساب الحرف
+  // بجمع رقم واحد على رمز 'A' ينتج ']' عند العمود التاسع والعشرين، ونطاقاً
+  // ترفضه Google فيسقط طلب الورقة كله.
+  function columnLetter(index){
+    let letter='';
+    for(let n=index;n>0;n=Math.floor((n-1)/26))letter=String.fromCharCode(65+(n-1)%26)+letter;
+    return letter;
+  }
+
   // خلية فارغة ⇦ null. قيمة مكتوبة ⇦ مفتاحها، أو رفض. لا تخمين بينهما.
   function optionalEnum(value,map,label){
     const raw=text(value);
@@ -244,6 +253,6 @@
     equipmentSheetName,equipmentHeaders,hoseSheetName,hoseHeaders,
     catalogSheetName,catalogHeaders,sectorSheetName,sectorHeaders,
     equipmentEntries,hoseEntries,catalogEntries,sectorEntries,
-    summary,sizeGroups,filters,filterLabels,optionalEnum,optionalNumber,sectorOf
+    summary,sizeGroups,filters,filterLabels,optionalEnum,optionalNumber,sectorOf,columnLetter
   };
 })(globalThis);

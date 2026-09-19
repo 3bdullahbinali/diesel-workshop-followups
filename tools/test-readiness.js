@@ -117,6 +117,15 @@ check('القطاعات تُقرأ', M.sectorEntries([sectorRow({2:'فلان', 4
 check('البديل وهاتفه يُقرآن', M.sectorEntries([sectorRow({5:'بديل', 6:'051'})])[0].deputyPhone === '051');
 throws('رمز قطاع خاطئ في ورقة القطاعات يُرفض', () => M.sectorEntries([sectorRow({0:'S2'})]), 'رمز قطاع غير معروف');
 
+// ٩) حرف آخر عمود في النطاق — تجاوز Z هو ما أسقط قراءة ورقة المعدات
+check('حروف الأعمدة حتى Z', ['A','G','Q','T','Z'].every((x, i) => M.columnLetter([1,7,17,20,26][i]) === x));
+check('العمود ٢٧ يصير AA', M.columnLetter(27) === 'AA');
+check('العمود ٢٩ يصير AC لا ]', M.columnLetter(29) === 'AC');
+check('العمود ٥٢ يصير AZ', M.columnLetter(52) === 'AZ');
+check('نطاق كل ورقة داخل حدود الأحرف',
+  [M.equipmentHeaders, M.hoseHeaders, M.catalogHeaders, M.sectorHeaders]
+    .every(h => /^[A-Z]{1,2}$/.test(M.columnLetter(h.length))));
+
 // ٩) رؤوس الأعمدة تطابق القالب المسلَّم للفريق
 // الرؤوس منقولة من الشيت القائم؛ أي انحراف هنا يعني رفض الورقة كلها
 check('رؤوس المعدات ٢٩ عموداً', M.equipmentHeaders.length === 29);

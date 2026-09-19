@@ -190,7 +190,7 @@
       if(!id){loading=false;return;}
       // العناوين في الصف الأول؛ وورقة يعلوها سطر إرشاد تبقى مقروءة أيضاً.
       const tab=(name,headers,parse,rows)=>{
-        const last=String.fromCharCode(64+headers.length);
+        const last=M.columnLetter(headers.length);
         const at=start=>S.query(id,name,'A'+start+':'+last+(rows+start-1),12000).then(response=>parse(S.tableRows(response,headers)));
         return at(1).catch(()=>at(2));
       };
