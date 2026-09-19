@@ -8,3 +8,6 @@ graphify-out/
 # خطّافات graphify تنادي أمر graphify؛ من لم يثبّت الأداة على جهازه يتعطل عنده
 # كل قراءة ملف. لذلك تبقى محلية: شغّل graphify install --project لتفعيلها عندك.
 .claude/settings.json
+
+# ناتج معاينة مولَّد
+stations/preview.html

@@ -14,6 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "data" / "source"
 OUT = ROOT / "data.json"
+OUT_JS = ROOT / "data.js"
 
 BUILD_DATE = "2026-09-19"
 LATEST_DAILY = "2026-09-17"
@@ -187,7 +188,12 @@ def build():
         if fid.startswith("SUP-"):
             kind = "support"
 
-        orders = orders_in(row["Reference"], *[daily_by_id[r]["order"] for r in related if r in daily_by_id])
+        # أرقام المرجع + كل مرجع أمر ورد في الأنشطة المرتبطة، رقمياً كان أو نصياً.
+        orders = orders_in(row["Reference"])
+        for rid in related:
+            ref = daily_by_id.get(rid, {}).get("order")
+            if ref and ref not in orders:
+                orders.append(ref)
 
         followups.append({
             "id": fid,
@@ -271,6 +277,8 @@ def build():
         places = sorted(entry["stations"])
         work_orders.append({
             "number": number,
+            # مرجع غير رقمي مثل ELE-JAVED: تنسيق داخلي، لا أمر SAP.
+            "isSapNumber": bool(ORDER_RE.fullmatch(number)),
             "stations": places,
             # رقم واحد عبر مواقع متعددة: قد يكون أمراً جامعاً وقد يكون خطأ إدخال.
             "multiStation": len(places) > 1,
@@ -351,7 +359,10 @@ def build():
         "buildProblems": problems,
     }
 
-    OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
+    payload = json.dumps(data, ensure_ascii=False, indent=1)
+    OUT.write_text(payload, encoding="utf-8")
+    # نسخة script حتى تعمل الصفحة من file:// دون fetch.
+    OUT_JS.write_text(f"window.STATIONS_DATA = {payload};\n", encoding="utf-8")
 
     print(f"متابعات: {len(followups)} | أنشطة: {len(daily)} | أوامر عمل: {len(work_orders)}")
     print(f"محطات: {len(stations)} | مواقع وجهات أخرى: {len(locations)}")

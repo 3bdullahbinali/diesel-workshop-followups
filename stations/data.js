@@ -1,4 +1,4 @@
-{
+window.STATIONS_DATA = {
  "schemaVersion": 2,
  "meta": {
   "name": "فريق صيانة المحطات الخارجية",
@@ -5131,4 +5131,4 @@
   }
  ],
  "buildProblems": []
-}
+};

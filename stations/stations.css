@@ -1,0 +1,174 @@
+/* هوية المحطات الخارجية: نفس رموز ورشة الديزل، بلمسة تمييز نحاسية للمسار المستقل. */
+:root{
+  --green:#124e3e;--green-deep:#103e32;--green-pale:#ecf4f0;--gold:#bd9951;
+  --ink:#1c302b;--muted:#63736d;--line:#dfe7e3;--page:#f4f7f5;--white:#fff;
+  --high:#984536;--high-bg:#fbede8;--blue:#315d84;--blue-bg:#edf3f8;
+  --warn:#8a672e;--warn-bg:#f8f0df;--ok:#2c6b52;--ok-bg:#e9f3ed;
+  --radius:12px;font-size:16px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);line-height:1.75;
+  font-family:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",Arial,sans-serif}
+button,input,select{font:inherit}button,select{cursor:pointer}button{border:0}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+[hidden]{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0)}
+bdi,.num{font-family:Arial,sans-serif;font-variant-numeric:tabular-nums;unicode-bidi:isolate}
+
+/* ---------------------------------------------------------------- الترويسة */
+.masthead{color:#fff;background:var(--green);border-bottom:4px solid var(--gold)}
+.masthead-inner{max-width:1600px;margin:auto;padding:22px 40px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.identity{display:flex;align-items:center;gap:18px}
+.identity-mark{width:54px;height:54px;display:grid;place-items:center;border:1px solid #be9c62;color:#e4c68b;font-size:1.9rem;border-radius:9px}
+.institution{color:#d0e1da;font-size:.875rem;margin-bottom:2px}
+h1{font-size:1.375rem;line-height:1.5;margin:0;font-weight:700}
+.header-end{display:flex;flex-direction:column;align-items:flex-end;gap:6px;color:#e1ece7;font-size:.875rem}
+.scope-tag{font-size:.8125rem;color:#eddbb5;border:1px solid #7c968c;padding:1px 11px;border-radius:30px}
+
+main{max-width:1600px;margin:auto;padding:26px 40px 40px}
+
+/* لافتة تبقى ظاهرة: الأرقام هنا للمراجعة، لا للاعتماد التشغيلي. */
+.review-banner{display:flex;align-items:center;gap:12px;background:#fff8eb;border:1px solid #e4c18b;
+  border-radius:10px;padding:12px 18px;margin-bottom:22px;color:#785b27;font-size:.9375rem}
+.review-banner strong{color:#5f4718}
+
+.tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid #c8d8ce;margin-bottom:24px}
+.tabs button{display:flex;align-items:center;gap:9px;color:var(--muted);background:transparent;font-weight:700;
+  padding:11px 17px;font-size:1rem;border-bottom:3px solid transparent;margin-bottom:-1px;min-height:48px}
+.tabs button:hover{color:var(--green)}
+.tabs button[aria-selected=true]{color:var(--green);border-bottom-color:var(--gold);background:#e9f1eb}
+.tabs .tab-count{font:700 .8125rem Arial,sans-serif;min-width:26px;border-radius:5px;padding:2px 7px;background:#fff;color:var(--green)}
+.tabs button[aria-selected=true] .tab-count{background:var(--green);color:#fff}
+
+h2{font-size:1.75rem;line-height:1.45;margin:0 0 4px}
+h3{margin:0;font-size:1.125rem}
+.lead{margin:0 0 20px;color:var(--muted);font-size:.9375rem}
+
+/* ------------------------------------------------------------ بطاقات المؤشر */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:#fff;border:1px solid var(--line);
+  border-radius:var(--radius);overflow:hidden;margin-bottom:18px}
+.kpi{padding:19px 24px;display:flex;flex-direction:column;gap:2px;border-inline-start:1px solid var(--line)}
+.kpi:first-child{border-inline-start:0}
+.kpi-label{font-size:.9375rem;color:var(--muted)}
+.kpi strong{font:700 2.4rem/1.35 Arial,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.kpi-note{font-size:.8125rem;color:var(--muted);line-height:1.6}
+.kpi-alarm{background:var(--high-bg)}
+.kpi-alarm strong{color:var(--high)}
+.kpi-alarm .kpi-note{color:#8a5346}
+.kpi-main{background:var(--green);color:#fff}
+.kpi-main .kpi-label,.kpi-main .kpi-note{color:#d6e7de}
+
+/* شريط توزيع عمر آخر إفادة */
+.aging{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px 24px;margin-bottom:18px}
+.aging-head{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.aging-head p{margin:0;color:var(--muted);font-size:.875rem}
+.aging-bar{display:flex;height:16px;border-radius:8px;overflow:hidden;background:#eef2f0}
+.aging-bar span{display:block}
+.seg-fresh{background:#5b9b7c}.seg-watch{background:#d8a944}.seg-stalled{background:#b46252}
+.aging-key{display:flex;gap:22px;flex-wrap:wrap;margin-top:13px;font-size:.875rem;color:var(--muted)}
+.aging-key i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-inline-end:7px}
+
+.grid-2{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;margin-bottom:18px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:19px 22px 13px}
+.panel-head p{margin:2px 0 0;color:var(--muted);font-size:.8125rem}
+.panel-body{padding:0 22px 20px}
+
+/* قائمة الأقدم: العمر هو المؤشر، لا الترتيب الأبجدي. */
+.age-list{list-style:none;margin:0;padding:0}
+.age-list li{display:flex;align-items:flex-start;gap:14px;padding:13px 0;border-top:1px solid #edf2ef}
+.age-list li:first-child{border-top:0}
+.age-pill{flex:none;min-width:62px;text-align:center;border-radius:7px;padding:5px 8px;
+  font:700 .9375rem/1.4 Arial,sans-serif;font-variant-numeric:tabular-nums}
+.age-pill small{display:block;font:400 .6875rem Tahoma,sans-serif}
+.age-fresh{background:var(--ok-bg);color:var(--ok)}
+.age-watch{background:var(--warn-bg);color:var(--warn)}
+.age-stalled{background:var(--high-bg);color:var(--high)}
+.age-list .age-title{margin:0;font-size:.9375rem;font-weight:600;line-height:1.6}
+.age-list .age-meta{margin:2px 0 0;font-size:.8125rem;color:var(--muted)}
+
+.party-list{list-style:none;margin:0;padding:0}
+.party-list li{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid #edf2ef}
+.party-list li:first-child{border-top:0}
+.party-list .party-name{flex:1;font-size:.9375rem}
+.party-list .party-count{font:700 1rem Arial,sans-serif;color:var(--green);min-width:24px;text-align:center}
+.party-track{flex:none;width:96px;height:7px;border-radius:4px;background:#eef2f0;overflow:hidden}
+.party-track span{display:block;height:100%;background:var(--green)}
+.party-ours .party-track span{background:var(--gold)}
+
+.alerts{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.alert{background:#fff;border:1px solid var(--line);border-inline-start:3px solid var(--gold);border-radius:10px;padding:15px 18px}
+.alert strong{display:block;font:700 1.6rem/1.4 Arial,sans-serif;color:var(--high)}
+.alert h4{margin:0 0 3px;font-size:.9375rem}
+.alert p{margin:0;font-size:.8125rem;color:var(--muted);line-height:1.65}
+
+/* ------------------------------------------------------------------ الفلاتر */
+.toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;padding:0 22px 18px;border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:5px;flex-wrap:wrap}
+.chip{background:transparent;color:var(--muted);border-radius:6px;padding:7px 12px;font-size:.875rem;min-height:38px}
+.chip:hover{background:#f1f5f2}
+.chip[aria-pressed=true]{background:var(--green-pale);color:var(--green);font-weight:700}
+.chip .chip-count{font:400 .8125rem Arial,sans-serif;margin-inline-start:6px}
+.search-field{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fafcfb;
+  border-radius:8px;padding:6px 11px;color:var(--muted);min-width:240px;flex:1}
+.search-field input{width:100%;min-width:0;border:0;background:transparent;color:var(--ink);font-size:.875rem;outline:0}
+select.filter{background:#fff;border:1px solid var(--line);border-radius:8px;min-height:40px;padding:5px 11px;color:var(--ink);font-size:.875rem}
+
+/* ------------------------------------------------------------------ الجداول */
+table{width:100%;border-collapse:collapse;text-align:right}
+th{background:#f6f8f6;color:var(--muted);font-size:.875rem;font-weight:400;padding:12px 16px;vertical-align:top}
+td{padding:17px 16px;vertical-align:top;border-top:1px solid #e8eeea;overflow-wrap:anywhere}
+tbody tr:hover{background:#fbfdfb}
+.row-title{margin:0 0 4px;font-size:.9375rem;font-weight:700;line-height:1.6}
+.row-ref{font:400 .8125rem/1.6 Arial,sans-serif;color:#697a72;unicode-bidi:plaintext;display:block}
+.row-action{margin:0;font-size:.875rem;line-height:1.7}
+.row-owner{margin:5px 0 0;font-size:.8125rem;color:var(--muted)}
+
+.badge{display:inline-block;font-size:.75rem;border-radius:4px;padding:1px 9px;white-space:nowrap;background:#f0f2f1;color:#5b6a63}
+.badge-state{font-size:.875rem;font-weight:600;background:transparent;padding:0;color:var(--green)}
+.state-awaiting_reply{color:var(--blue)}
+.state-stale{color:var(--high)}
+.state-needs_data{color:var(--warn)}
+.badge-review{background:var(--warn-bg);color:var(--warn)}
+.badge-derived{background:var(--blue-bg);color:var(--blue)}
+.badge-conflict{background:var(--high-bg);color:var(--high)}
+.badge-ok{background:var(--ok-bg);color:var(--ok)}
+.badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+
+.note-line{margin:8px 0 0;font-size:.8125rem;line-height:1.7;color:#6b5a38;background:#fbf7ee;
+  border-inline-start:3px solid #ddc48c;border-radius:4px;padding:6px 11px}
+.conflict-line{color:#8a4b3d;background:#fdf1ee;border-inline-start-color:#d9a99c}
+
+.empty{padding:50px 24px;text-align:center;color:var(--muted)}
+.day-head{padding:13px 22px;background:#eaf1ed;color:var(--green);font-weight:700;font-size:.9375rem;
+  border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.day-head .badge{font-weight:400}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;padding:20px 22px}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:15px 17px}
+.card h4{margin:0 0 3px;font-size:1rem}
+.card .card-id{font:400 .8125rem Arial,sans-serif;color:var(--muted);unicode-bidi:plaintext}
+.card-stats{display:flex;gap:16px;margin-top:11px;font-size:.8125rem;color:var(--muted)}
+.card-stats b{display:block;font:700 1.25rem Arial,sans-serif;color:var(--green)}
+
+.letter-card{border-inline-start:3px solid var(--blue)}
+.issue-card{border-inline-start:3px solid var(--gold)}
+.issue-high{border-inline-start-color:var(--high)}
+.issue-card p{margin:7px 0 0;font-size:.875rem;line-height:1.7}
+.issue-card .issue-action{color:var(--green);font-weight:600}
+
+footer{margin-top:26px;display:flex;justify-content:space-between;gap:15px;color:#67746d;font-size:.8125rem;flex-wrap:wrap}
+footer p{margin:0}
+
+@media(max-width:1100px){.grid-2{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}
+  .kpi:nth-child(3){border-inline-start:0}.kpi:nth-child(n+3){border-top:1px solid var(--line)}}
+@media(max-width:760px){
+  main{padding:18px 16px 30px}.masthead-inner{padding:16px}
+  .kpis{grid-template-columns:1fr}.kpi{border-inline-start:0;border-top:1px solid var(--line)}
+  .kpi:first-child{border-top:0}
+  thead{display:none}tbody tr{display:block;padding:15px 16px;border-top:1px solid var(--line)}
+  td{display:block;border:0;padding:0 0 7px}
+  .cards{grid-template-columns:1fr;padding:16px}
+  .toolbar{padding:0 16px 14px}.panel-head,.panel-body{padding-inline:16px}
+}

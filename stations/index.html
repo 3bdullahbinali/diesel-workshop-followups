@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#124e3e">
+<meta name="description" content="متابعات فريق صيانة المحطات الخارجية: الأعمال وطلبات الشراء وكتب تراسل.">
+<title>فريق صيانة المحطات الخارجية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="./stations.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="identity">
+      <span class="identity-mark" aria-hidden="true">م</span>
+      <div>
+        <div class="institution">بلدية مدينة الشارقة · إدارة الصرف الصحي</div>
+        <h1>فريق صيانة المحطات الخارجية</h1>
+      </div>
+    </div>
+    <div class="header-end">
+      <span class="scope-tag">نسخة مراجعة · مسار مستقل</span>
+      <span>آخر جدول يومي: <bdi id="latest-daily"></bdi></span>
+      <span>تاريخ النسخة: <bdi id="build-date"></bdi></span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="review-banner">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+    <p style="margin:0"><strong><span id="banner-counts"></span> متابعة تحتاج تثبيت حالة أو استكمال دليل.</strong>
+      الأرقام هنا للمراجعة وترتيب الأفكار، وليست بيانات تشغيل حية ولا إثباتاً للجاهزية.</p>
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="أقسام الموقع">
+    <button type="button" role="tab" data-view="dashboard" aria-selected="true">لوحة المتابعة</button>
+    <button type="button" role="tab" data-view="followups" aria-selected="false">المتابعات <span class="tab-count">44</span></button>
+    <button type="button" role="tab" data-view="orders" aria-selected="false">أوامر العمل <span class="tab-count">43</span></button>
+    <button type="button" role="tab" data-view="unlinked" aria-selected="false">أنشطة بلا متابعة <span class="tab-count">44</span></button>
+    <button type="button" role="tab" data-view="daily" aria-selected="false">السجل اليومي <span class="tab-count">119</span></button>
+    <button type="button" role="tab" data-view="stations" aria-selected="false">المحطات <span class="tab-count">34</span></button>
+    <button type="button" role="tab" data-view="letters" aria-selected="false">كتب تراسل <span class="tab-count">2</span></button>
+    <button type="button" role="tab" data-view="review" aria-selected="false">مراجعة البيانات <span class="tab-count">10</span></button>
+  </nav>
+
+  <div id="view-dashboard" role="tabpanel"></div>
+  <div id="view-followups" role="tabpanel" hidden></div>
+  <div id="view-orders" role="tabpanel" hidden></div>
+  <div id="view-unlinked" role="tabpanel" hidden></div>
+  <div id="view-daily" role="tabpanel" hidden></div>
+  <div id="view-stations" role="tabpanel" hidden></div>
+  <div id="view-letters" role="tabpanel" hidden></div>
+  <div id="view-review" role="tabpanel" hidden></div>
+
+  <footer>
+    <p>المصدر: ٨ جداول عمل يومية (٧–١٧ سبتمبر) · السجل المرجعي السابق · مستندات طلبات الشراء وكتب تراسل.</p>
+    <p>مسار مستقل عن ورشة الديزل: لا يقرأ بياناتها ولا صلاحياتها.</p>
+  </footer>
+</main>
+
+<script src="./data.js"></script>
+<script src="./model.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
