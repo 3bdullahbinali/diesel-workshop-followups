@@ -641,7 +641,9 @@
   const views = {
     dashboard: renderDashboard, followups: renderFollowups, procurement: renderProcurement,
     orders: renderOrders, unlinked: renderUnlinked, daily: renderDaily,
-    stations: renderStations, letters: renderLetters, review: renderReview
+    stations: renderStations, letters: renderLetters, review: renderReview,
+    // شاشة الأصول: ملفاتها مستقلة، وتُرسم من بياناتها الخاصة لا من سجل المتابعات.
+    health: () => window.StationsHealth.render(el('view-health'))
   };
   let current = 'dashboard';
 
@@ -663,7 +665,8 @@
       daily: data.daily.length,
       stations: data.stations.length,
       letters: data.letters.length,
-      review: data.issues.length
+      review: data.issues.length,
+      health: data.stations.length
     };
     for (const [key, value] of Object.entries(counts)) {
       const badge = document.querySelector(`[data-view="${key}"] .tab-count`);

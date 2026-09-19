@@ -1,0 +1,142 @@
+'use strict';
+/**
+ * اشتقاق صحة المحطات.
+ *
+ * قاعدة حاكمة: هذه الصفحة تعرض **صحة السجل** لا صحة المعدة. المحطة التي لا
+ * متابعة مفتوحة عليها ليست «سليمة» — هي محطة لا نعلم عنها شيئاً. الخلط بين
+ * «لا يوجد بلاغ» و«لا يوجد عطل» هو الخطأ الذي يجعل لوحات الحالة تكذب.
+ *
+ * لذلك لكل محطة حالتان منفصلتان لا تُدمجان:
+ *   evidence — ما يقوله سجل المتابعات، ومصدره موجود.
+ *   assets   — ما تقوله المضخات والخطوط، ولا يزال فارغاً حتى تُزوَّد.
+ */
+(function (root) {
+
+  const ref = () => root.STATIONS_HEALTH_REF || {};
+  const model = () => root.StationsModel;
+
+  /** حالة الدليل: مشتقة من المتابعات وحدها، ومعلَّمة بذلك صراحة. */
+  const EVIDENCE = {
+    stalled: { id: 'stalled', name: 'إفادة متوقفة', tone: 'high',
+      note: 'متابعة مفتوحة مضى على آخر إفادة فيها أكثر من ثلاثة أسابيع.' },
+    watch:   { id: 'watch',   name: 'تحتاج متابعة', tone: 'warn',
+      note: 'متابعة مفتوحة مضى على آخر إفادة فيها أكثر من أسبوع.' },
+    active:  { id: 'active',  name: 'متابعة حديثة', tone: 'ok',
+      note: 'متابعة مفتوحة وإفادتها خلال أسبوع.' },
+    closed:  { id: 'closed',  name: 'لا متابعة مفتوحة', tone: 'calm',
+      note: 'كل متابعات هذه المحطة مغلقة. لا يعني ذلك سلامة المعدات.' },
+    none:    { id: 'none',    name: 'بلا سجل متابعة', tone: 'none',
+      note: 'لم تَرِد هذه المحطة في أي متابعة. غياب البلاغ ليس دليل سلامة.' }
+  };
+
+  /** حالة الأصول: ثلاث حالات فقط ما دامت البيانات لم تصل. */
+  const ASSETS = {
+    supplied:  { id: 'supplied',  name: 'مزوَّدة',     tone: 'ok'   },
+    partial:   { id: 'partial',   name: 'ناقصة',      tone: 'warn' },
+    missing:   { id: 'missing',   name: 'لم تُزوَّد',  tone: 'none' }
+  };
+
+  function evidenceOf(view, asOf) {
+    const open = view.followups.filter(f => !f.closed);
+    if (!view.followups.length) return { state: EVIDENCE.none, open: [], oldestAge: null };
+    if (!open.length) return { state: EVIDENCE.closed, open: [], oldestAge: null };
+    const ages = open.map(f => model().ageDays(f, asOf)).filter(n => n != null);
+    const oldest = ages.length ? Math.max(...ages) : null;
+    const state = oldest == null ? EVIDENCE.watch
+      : oldest > 21 ? EVIDENCE.stalled
+      : oldest > 7 ? EVIDENCE.watch
+      : EVIDENCE.active;
+    return { state, open, oldestAge: oldest };
+  }
+
+  function assetsOf(stationId) {
+    const r = ref();
+    const pumps = (r.pumps || []).filter(p => p.stationId === stationId);
+    const lines = (r.lines || []).filter(l => l.stationId === stationId);
+    const state = pumps.length && lines.length ? ASSETS.supplied
+      : pumps.length || lines.length ? ASSETS.partial
+      : ASSETS.missing;
+    return { pumps, lines, state };
+  }
+
+  /** آخر يوم عمل مسجَّل في المحطة — من السجل اليومي لا من المتابعة. */
+  function lastActivity(view) {
+    const dates = view.daily.map(a => a.date).filter(Boolean).sort();
+    return dates.length ? dates[dates.length - 1] : null;
+  }
+
+  function stationHealth(data, place, asOf) {
+    const view = model().stationView(data, place.id);
+    const evidence = evidenceOf(view, asOf);
+    const assets = assetsOf(place.id);
+    const r = ref();
+    const main = (r.mainStations || []).find(m => m.linked === place.id || m.proposed === place.id);
+    const vac = (r.vacuumSystem?.stations || []).find(v => v.proposed === place.id);
+    return {
+      id: place.id,
+      name: place.name,
+      tier: main ? (main.linked === place.id ? 'main' : 'main_proposed') : null,
+      mainName: main ? main.name : null,
+      capacityLps: vac ? vac.capacityLps : null,
+      builtYear: vac ? vac.builtYear : null,
+      vacuum: Boolean(vac),
+      vacuumProposed: Boolean(vac && vac.proposed === place.id),
+      evidence, assets,
+      followups: view.followups,
+      openCount: evidence.open.length,
+      closedCount: view.followups.filter(f => f.closed).length,
+      orders: view.orders,
+      daily: view.daily,
+      lastActivity: lastActivity(view),
+      letters: view.letters
+    };
+  }
+
+  /**
+   * التغطية: الفجوة بين ما يقوله العرض (157 محطة) وما يعرفه الموقع.
+   * هذا الرقم هو رسالة الصفحة الحقيقية، لا عدّاد الحالات الملوّنة.
+   */
+  function coverage(rows) {
+    const r = ref();
+    const total = r.fleet?.total ?? null;
+    const tracked = rows.length;
+    return {
+      total,
+      tracked,
+      untracked: total == null ? null : Math.max(0, total - tracked),
+      trackedPercent: total ? Math.round((tracked / total) * 100) : null,
+      sewage: r.fleet?.sewage ?? null,
+      storm: r.fleet?.storm ?? null,
+      main: r.fleet?.main ?? null,
+      mainLinked: (r.mainStations || []).filter(m => m.linked).length,
+      mainProposed: (r.mainStations || []).filter(m => !m.linked && m.proposed).length,
+      mainUnknown: (r.mainStations || []).filter(m => !m.linked && !m.proposed).length,
+      withPumps: rows.filter(s => s.assets.pumps.length).length,
+      withLines: rows.filter(s => s.assets.lines.length).length,
+      pumpRows: (r.pumps || []).length,
+      lineRows: (r.lines || []).length
+    };
+  }
+
+  function byEvidence(rows) {
+    const out = {};
+    for (const key of Object.keys(EVIDENCE)) out[key] = 0;
+    for (const s of rows) out[s.evidence.state.id] += 1;
+    return out;
+  }
+
+  /** ترتيب افتراضي: ما يحتاج نظراً أولاً، ثم الأقدم إفادةً. */
+  const RANK = { stalled: 0, watch: 1, active: 2, none: 3, closed: 4 };
+  function build(data, asOf) {
+    const places = [...(data.stations || [])];
+    const rows = places.map(p => stationHealth(data, p, asOf));
+    rows.sort((a, b) => {
+      const d = RANK[a.evidence.state.id] - RANK[b.evidence.state.id];
+      if (d) return d;
+      return (b.evidence.oldestAge ?? -1) - (a.evidence.oldestAge ?? -1);
+    });
+    return { rows, coverage: coverage(rows), byEvidence: byEvidence(rows), ref: ref() };
+  }
+
+  root.StationsHealthModel = { build, EVIDENCE, ASSETS, stationHealth, coverage };
+})(globalThis);
