@@ -37,19 +37,34 @@
       الأرقام هنا للمراجعة وترتيب الأفكار، وليست بيانات تشغيل حية ولا إثباتاً للجاهزية.</p>
   </div>
 
+  <div class="review-banner local" id="local-state" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 11l4 4 4-4M4 21h16"/></svg>
+    <p style="margin:0"><strong><span id="local-count"></span> تعديلاً محفوظاً في هذا المتصفح فقط.</strong>
+      لا ينتقل إلى جهاز أو مستخدم آخر، ولا يُكتب في تراسل أو SAP أو Google Sheets.
+      صدّر نسخة JSON من «مراجعة البيانات» قبل إغلاق الصفحة.</p>
+  </div>
+
+  <div class="review-banner danger" id="storage-warning" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+    <p style="margin:0"><strong>تعذّر الحفظ المحلي في هذا المتصفح.</strong>
+      التعديلات تبقى في الذاكرة حتى إغلاق الصفحة. صدّر نسخة JSON فور الانتهاء.</p>
+  </div>
+
   <nav class="tabs" role="tablist" aria-label="أقسام الموقع">
     <button type="button" role="tab" data-view="dashboard" aria-selected="true">لوحة المتابعة</button>
-    <button type="button" role="tab" data-view="followups" aria-selected="false">المتابعات <span class="tab-count">44</span></button>
-    <button type="button" role="tab" data-view="orders" aria-selected="false">أوامر العمل <span class="tab-count">43</span></button>
-    <button type="button" role="tab" data-view="unlinked" aria-selected="false">أنشطة بلا متابعة <span class="tab-count">44</span></button>
-    <button type="button" role="tab" data-view="daily" aria-selected="false">السجل اليومي <span class="tab-count">119</span></button>
-    <button type="button" role="tab" data-view="stations" aria-selected="false">المحطات <span class="tab-count">34</span></button>
-    <button type="button" role="tab" data-view="letters" aria-selected="false">كتب تراسل <span class="tab-count">2</span></button>
-    <button type="button" role="tab" data-view="review" aria-selected="false">مراجعة البيانات <span class="tab-count">10</span></button>
+    <button type="button" role="tab" data-view="followups" aria-selected="false">المتابعات <span class="tab-count">—</span></button>
+    <button type="button" role="tab" data-view="procurement" aria-selected="false">طلبات الشراء <span class="tab-count">—</span></button>
+    <button type="button" role="tab" data-view="orders" aria-selected="false">أوامر العمل <span class="tab-count">—</span></button>
+    <button type="button" role="tab" data-view="unlinked" aria-selected="false">أنشطة بلا متابعة <span class="tab-count">—</span></button>
+    <button type="button" role="tab" data-view="daily" aria-selected="false">السجل اليومي <span class="tab-count">—</span></button>
+    <button type="button" role="tab" data-view="stations" aria-selected="false">المحطات <span class="tab-count">—</span></button>
+    <button type="button" role="tab" data-view="letters" aria-selected="false">كتب تراسل <span class="tab-count">—</span></button>
+    <button type="button" role="tab" data-view="review" aria-selected="false">مراجعة البيانات <span class="tab-count">—</span></button>
   </nav>
 
   <div id="view-dashboard" role="tabpanel"></div>
   <div id="view-followups" role="tabpanel" hidden></div>
+  <div id="view-procurement" role="tabpanel" hidden></div>
   <div id="view-orders" role="tabpanel" hidden></div>
   <div id="view-unlinked" role="tabpanel" hidden></div>
   <div id="view-daily" role="tabpanel" hidden></div>
@@ -63,8 +78,25 @@
   </footer>
 </main>
 
+<dialog id="editor">
+  <form method="dialog">
+    <div class="editor-head"><h3 id="editor-title"></h3>
+      <button type="button" id="editor-cancel" class="mini" aria-label="إغلاق النافذة">إلغاء</button></div>
+    <div id="editor-body"></div>
+    <p id="editor-error" class="form-note danger" hidden></p>
+    <div class="editor-foot">
+      <p class="form-hint">الحفظ محلي في هذا المتصفح، ولا يُرسل إلى أي نظام.</p>
+      <button type="submit" class="action primary">حفظ</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
 <script src="./data.js"></script>
 <script src="./model.js"></script>
+<script src="./store.js"></script>
 <script src="./app.js"></script>
+<script src="./editor.js"></script>
 </body>
 </html>

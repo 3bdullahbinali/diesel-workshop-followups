@@ -19,7 +19,7 @@ def build():
     html = (ROOT / "index.html").read_text(encoding="utf-8")
     html = inline(html, '<link rel="stylesheet" href="./stations.css">',
                   "stations.css", "<style>\n{body}\n</style>")
-    for name in ("data.js", "model.js", "app.js"):
+    for name in ("data.js", "model.js", "store.js", "app.js", "editor.js"):
         html = inline(html, f'<script src="./{name}"></script>', name,
                       "<script>\n{body}\n</script>")
 

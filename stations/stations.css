@@ -172,3 +172,79 @@ footer p{margin:0}
   .cards{grid-template-columns:1fr;padding:16px}
   .toolbar{padding:0 16px 14px}.panel-head,.panel-body{padding-inline:16px}
 }
+
+/* ------------------------------------------------- رؤوس الشاشات والإجراءات */
+.view-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:6px}
+.view-head .lead{margin-bottom:14px}
+.view-actions{display:flex;gap:8px;flex-wrap:wrap}
+.action{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 15px;
+  color:var(--green);font-size:.875rem;min-height:42px;white-space:nowrap}
+.action:hover{background:var(--green-pale);border-color:#bbcec4}
+.action.primary{background:var(--green);color:#fff;border-color:var(--green)}
+.action.primary:hover{background:var(--green-deep)}
+.action.danger{color:var(--high)}
+.action.danger:hover{background:var(--high-bg);border-color:#e0bdb4}
+.mini{background:#fff;border:1px solid var(--line);border-radius:6px;padding:4px 11px;
+  color:var(--green);font-size:.8125rem;min-height:32px}
+.mini:hover{background:var(--green-pale);border-color:#bbcec4}
+.row-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+
+/* لافتات الحالة المحلية */
+.review-banner.local{background:#eef4f7;border-color:#b9cfdd;color:#31536b}
+.review-banner.local strong{color:#21405a}
+.review-banner.danger{background:#fdf1ee;border-color:#e0bdb4;color:#8a4b3d}
+.review-banner.danger strong{color:#6e3629}
+.badge-local{background:var(--blue-bg);color:var(--blue)}
+
+/* --------------------------------------------------------- تفصيل المتابعة */
+tr.is-open{background:#f7faf8}
+.detail-row td{background:#f7faf8;border-top:0;padding:0 16px 20px}
+.detail-grid{background:#fff;border:1px solid #d9e5dd;border-inline-start:3px solid var(--gold);
+  border-radius:8px;padding:18px 20px;display:grid;grid-template-columns:1fr 1fr;gap:18px 26px}
+.detail-block h4{margin:0 0 6px;font-size:.875rem;font-weight:700;color:var(--green)}
+.detail-block p{margin:0}
+ul.plain{list-style:none;margin:0;padding:0;font-size:.875rem;line-height:1.8}
+ul.plain li{padding:5px 0;border-top:1px solid #eef2f0;overflow-wrap:anywhere}
+ul.plain li:first-child{border-top:0}
+ul.plain .row-ref{display:inline;margin-inline-start:6px}
+
+/* ---------------------------------------------------------- طلبات الشراء */
+.stage-heading{margin:0;padding:14px 22px;background:#eaf1ed;color:var(--green);font-size:1rem;
+  border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.stage-heading span{font:400 .875rem Arial,sans-serif;color:var(--muted)}
+.linked-letters{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+
+/* ------------------------------------------------------------ نافذة التحرير */
+dialog#editor{width:min(640px,94vw);border:0;border-radius:14px;padding:0;
+  box-shadow:0 24px 70px #10322599;color:var(--ink);background:#fff}
+dialog#editor::backdrop{background:#0f2a2199}
+.editor-head{display:flex;justify-content:space-between;align-items:center;gap:14px;
+  padding:18px 22px;border-bottom:1px solid var(--line);background:var(--green-pale)}
+.editor-head h3{color:var(--green)}
+#editor-body{padding:20px 22px;max-height:64vh;overflow:auto}
+.editor-foot{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:15px 22px;border-top:1px solid var(--line);background:#fafcfb}
+.form-row{display:block;margin-bottom:15px}
+.form-label{display:block;font-size:.875rem;font-weight:600;margin-bottom:5px}
+.form-row input,.form-row select,.form-row textarea{width:100%;border:1px solid var(--line);
+  border-radius:8px;padding:9px 12px;font-size:.9375rem;color:var(--ink);background:#fff;min-height:44px}
+.form-row textarea{line-height:1.7;resize:vertical}
+.form-hint{display:block;font-size:.8125rem;color:var(--muted);margin-top:4px;line-height:1.6}
+.form-check{display:flex;align-items:center;gap:9px;font-size:.9375rem;margin-top:4px}
+.form-check input{width:18px;height:18px;min-height:0}
+.form-note{margin:0 0 14px;font-size:.875rem;line-height:1.7;background:#f6f8f7;
+  border-inline-start:3px solid var(--line);border-radius:6px;padding:9px 13px}
+.form-note.warn{background:#fbf7ee;border-inline-start-color:#ddc48c;color:#6b5a38}
+.form-note.danger{background:#fdf1ee;border-inline-start-color:#d9a99c;color:#8a4b3d;margin:0 22px}
+
+/* ------------------------------------------------------------------ التنبيه */
+.toast{position:fixed;inset-block-end:22px;inset-inline-start:22px;z-index:40;max-width:min(460px,92vw);
+  background:#fff;border:1px solid #cfded5;border-inline-start:4px solid var(--green);border-radius:10px;
+  padding:13px 17px;font-size:.9375rem;line-height:1.7;box-shadow:0 12px 34px #12382e26}
+.toast-error{border-inline-start-color:var(--high);color:#8a4b3d}
+
+@media(max-width:760px){
+  .detail-grid{grid-template-columns:1fr;padding:15px}
+  .view-head{flex-direction:column}
+  #editor-body{max-height:70vh}
+}
