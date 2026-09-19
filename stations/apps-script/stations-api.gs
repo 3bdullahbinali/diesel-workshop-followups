@@ -1,9 +1,11 @@
 /**
- * واجهة القراءة الموثقة لسجل فريق صيانة المحطات الخارجية.
+ * واجهة سجل فريق صيانة المحطات الخارجية.
  *
- * تختلف عن واجهة ورشة الديزل في نقطة جوهرية: هناك القراءة عامة والسكربت للكتابة،
- * وهنا القراءة نفسها موثقة. لا يُقرأ صف واحد قبل التحقق من الجلسة، ولا يُفتح الملف
- * بالرابط للعموم.
+ * القراءة مفتوحة عبر read-public، والكتابة خلف تسجيل الدخول والصلاحية.
+ * الشيت نفسه يبقى غير مشارَك: الواجهة تقرأ نيابة عن الزائر، فلا يصل أحد إلى
+ * الملف الخام ولا إلى أوراق المستخدمين والجلسات.
+ *
+ * لإقفال القراءة أيضاً: اجعل CONFIG.publicRead = false.
  *
  * النشر: نشر ← عملية نشر جديدة ← تطبيق ويب ← التنفيذ: باسمي ← الوصول: أي شخص.
  *   «أي شخص» هنا تعني أن الرابط يستقبل الطلب، لا أن البيانات مكشوفة؛
@@ -19,6 +21,9 @@ var CONFIG = {
   sessionsSheet: 'الجلسات',
   auditSheet: 'سجل الوصول',
   timeZone: 'Asia/Dubai',
+  // القراءة العامة: يقرأ الزائر السجل بلا حساب، والكتابة تبقى خلف تسجيل الدخول.
+  // اجعلها false ليصبح كل شيء — القراءة أيضاً — خلف تسجيل الدخول.
+  publicRead: true,
   sessionHours: 12,
   hashRounds: 4000,
   maxAttempts: 5,
@@ -121,7 +126,14 @@ function handle(body) {
   if (action === 'session') return sessionInfo(body.token);
   if (action === 'logout') return logout(body.token);
 
-  // ما بعد هذا السطر لا يُنفَّذ بلا جلسة صالحة. القراءة نفسها تمر من هنا.
+  // القراءة العامة: الإجراء الوحيد الذي يعمل بلا جلسة، ويخدم تبويبات البيانات وحدها.
+  // أوراق المستخدمين والجلسات ليست في TABS فلا تصلها هذه الدالة أصلاً.
+  if (action === 'read-public') {
+    if (!CONFIG.publicRead) throw new Error('القراءة العامة معطّلة. سجّل الدخول.');
+    return readAll({username: 'زائر', name: '', role: 'viewer'}, body.tabs, true);
+  }
+
+  // ما بعد هذا السطر لا يُنفَّذ بلا جلسة صالحة.
   var user = requireUser(body.token);
   if (action === 'read') return readAll(user, body.tabs);
 
@@ -227,9 +239,9 @@ function cleanSessions() {
 
 /* ————— القراءة الموثقة ————— */
 
-function readAll(user, wanted) {
+function readAll(user, wanted, isPublic) {
   var requested = Array.isArray(wanted) && wanted.length ? wanted : Object.keys(TABS);
-  var payload = {ok: true, readAt: new Date().toISOString(), tabs: {}, missing: []};
+  var payload = {ok: true, readAt: new Date().toISOString(), tabs: {}, missing: [], "public": Boolean(isPublic)};
   var total = 0;
   for (var i = 0; i < requested.length; i++) {
     var key = requested[i];
@@ -242,7 +254,9 @@ function readAll(user, wanted) {
     total += rows.length;
   }
   payload.user = {username: user.username, name: user.name, role: user.role};
-  audit(user, 'قراءة السجل', requested.join('، ') + ' — ' + total + ' صفاً');
+  // القراءات العامة لا تُدوَّن: هوية الزائر غير معروفة، وتدوينها يغرق سجل الوصول
+  // بصفوف بلا معنى فيخفي الدخول والكتابة وهي ما يُراجَع فعلاً.
+  if (!isPublic) audit(user, 'قراءة السجل', requested.join('، ') + ' — ' + total + ' صفاً');
   return payload;
 }
 

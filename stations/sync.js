@@ -1,13 +1,14 @@
 'use strict';
 (() => {
   /**
-   * يربط الموقع بمصدره. الترتيب مقصود:
-   *   1. واجهة Apps Script الموثقة — تتطلب تسجيل دخول، ولا تكشف صفاً قبله.
-   *   2. قراءة gviz العامة — لا تعمل إلا إذا فُعّلت صراحةً في الإعداد.
-   *   3. النسخة المضمّنة.
+   * يربط الموقع بمصدره.
    *
-   * القراءة العامة لا تُجرَّب تلقائياً عند فشل الواجهة: الرجوع الصامت إلى مسار
-   * بلا تحقق يُفرغ التوثيق من معناه.
+   * القراءة مفتوحة: الزائر يرى السجل الحيّ بلا حساب. التحرير وحده خلف تسجيل
+   * الدخول، والرفض من الخادم لا من إخفاء الأزرار.
+   *
+   * ترتيب الإقلاع: جلسة محفوظة ← قراءة عامة عبر الواجهة ← النسخة المضمّنة.
+   * قراءة gviz المباشرة مسار قديم لا يُفعَّل إلا بإذن صريح، وتتطلب مشاركة
+   * الشيت بالرابط؛ الواجهة تغني عنها وتُبقي الملف غير مشارَك.
    *
    * قاعدة تفادي الازدواج: حين يكون المصدر خارجياً يتعطّل التحرير المحلي، لأن
    * تعديلاً يظنه صاحبه محفوظاً وهو ليس كذلك أسوأ من غياب التحرير.
@@ -134,13 +135,39 @@
     if (timer) { clearInterval(timer); timer = null; }
   }
 
+  /** قراءة عامة: بيانات حيّة بلا حساب، وزر دخول لمن يريد التحرير. */
+  async function pullAnonymous() {
+    show('pending', 'جارٍ قراءة السجل', 'قراءة عامة عبر الواجهة.');
+    try {
+      const data = await sheets.loadPublicApi(window.STATIONS_DATA);
+      window.StationsStore.replaceBase(data);
+      setSource('api-public');
+      const counts = data.meta.coverage;
+      const time = new Date().toLocaleTimeString('ar-AE', { hour: '2-digit', minute: '2-digit' });
+      show(data.warnings?.length ? 'partial' : 'live', 'المصدر: الشيت — قراءة عامة',
+        `${counts.followups} متابعة · ${counts.activities} نشاطاً · آخر قراءة ${time}`
+        + ' · سجّل الدخول للتحرير');
+      buttons([
+        ['تحديث الآن', pullAnonymous],
+        ['تسجيل الدخول', promptLogin, 'mini primary']
+      ]);
+      if (!timer) {
+        const every = Math.max(60, Number(apiConfig.refreshSeconds) || 120);
+        timer = setInterval(() => pullAnonymous().catch(() => {}), every * 1000);
+      }
+    } catch (error) {
+      stopTimer();
+      setSource('local');
+      show('offline', 'المصدر: النسخة المضمّنة', 'تعذّرت القراءة — ' + error.message);
+      buttons([['إعادة المحاولة', pullAnonymous], ['تسجيل الدخول', promptLogin, 'mini primary']]);
+    }
+  }
+
   async function signOut() {
     stopTimer();
     await api.logout();
-    window.StationsStore.replaceBase(window.STATIONS_DATA);
-    setSource('local');
-    show('offline', 'المصدر: النسخة المضمّنة', 'سُجّل الخروج. التحرير المحلي متاح.');
-    buttons([['تسجيل الدخول', promptLogin, 'mini primary']]);
+    // الخروج يُنهي التحرير لا القراءة: يعود الزائر إلى العرض العام.
+    await pullAnonymous();
   }
 
   /** القراءة العامة: مسار اختياري لا يُفعَّل إلا بإذن صريح في الإعداد. */
@@ -162,7 +189,7 @@
 
   // تُستدعى بعد كل كتابة ناجحة حتى يعرض الموقع ما في الشيت لا ما أرسله المتصفح.
   window.StationsSync = {
-    refresh: () => (api.session ? pull(api.session) : Promise.resolve()),
+    refresh: () => (api.session ? pull(api.session) : pullAnonymous()),
     get user() { return api.session; }
   };
 
@@ -170,12 +197,9 @@
   (async () => {
     setSource('local');
     if (useApi) {
-      show('pending', 'جارٍ التحقق من الجلسة', 'واجهة موثقة — القراءة تتطلب تسجيل دخول.');
+      show('pending', 'جارٍ تحميل السجل', 'قراءة من الشيت عبر الواجهة.');
       const user = await api.resume();
-      if (user) return pull(user);
-      show('offline', 'المصدر: النسخة المضمّنة', 'سجّل الدخول لقراءة السجل الحيّ من الشيت.');
-      buttons([['تسجيل الدخول', promptLogin, 'mini primary']]);
-      return;
+      return user ? pull(user) : pullAnonymous();
     }
     if (allowPublic) return pullPublic();
   })();

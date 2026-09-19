@@ -688,6 +688,7 @@
   const applyCapabilities = () => {
     const source = document.body.dataset.source || 'local';
     const local = source === 'local';
+    // القراءة العامة تعرض كل شيء ولا تحرّر: الجلسة والصلاحية شرطا التحرير.
     const canEdit = local || (source === 'api' && Boolean(window.StationsApi?.canWrite));
     for (const el of document.querySelectorAll('[data-local-only]')) el.hidden = !local;
     for (const el of document.querySelectorAll('[data-edit-action]')) el.hidden = !canEdit;

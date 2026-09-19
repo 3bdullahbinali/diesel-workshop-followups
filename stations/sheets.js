@@ -353,9 +353,18 @@
 
   /** المسار الموثق: القراءة عبر Apps Script بعد تسجيل الدخول. */
   async function loadAuthenticated(snapshot) {
-    const response = await root.StationsApi.read();
+    return fromApi(snapshot, () => root.StationsApi.read(), 'apps-script');
+  }
+
+  /** القراءة العامة عبر الواجهة: بيانات حيّة بلا حساب، والشيت يبقى غير مشارَك. */
+  async function loadPublicApi(snapshot) {
+    return fromApi(snapshot, () => root.StationsApi.readPublic(), 'apps-script-public');
+  }
+
+  async function fromApi(snapshot, fetcher, sourceName) {
+    const response = await fetcher();
     const warnings = (response.missing || []).map(name => `الورقة غير موجودة: ${name}`);
-    const merged = build(response.tabs || {}, snapshot, warnings, 'apps-script');
+    const merged = build(response.tabs || {}, snapshot, warnings, sourceName);
     merged.meta.readAt = response.readAt;
     merged.meta.reader = response.user;
     return merged;
@@ -431,5 +440,5 @@
     };
   }
 
-  root.StationsSheets = { loadPublic, loadAuthenticated, build, query, rows, dateValue };
+  root.StationsSheets = { loadPublic, loadPublicApi, loadAuthenticated, build, query, rows, dateValue };
 })(globalThis);
