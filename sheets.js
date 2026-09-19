@@ -280,5 +280,5 @@
     }
     return Object.fromEntries(entries);
   }
-  root.WorkshopSheets={load,merge,tableRows,dateValue,translationEntries,letterEntries,headers,sourceHeaders,optionalHeaders,letterHeaders,letterSheetName,equipmentHeaders,equipmentSheetName,jobHeaders,jobSheetName,stages,areas,actions,directions,workStates,replyStates,closureStates,phases,handovers,equipmentEntries,parties,jobKinds,jobStates,jobEntries};
+  root.WorkshopSheets={load,query,merge,tableRows,dateValue,translationEntries,letterEntries,headers,sourceHeaders,optionalHeaders,letterHeaders,letterSheetName,equipmentHeaders,equipmentSheetName,jobHeaders,jobSheetName,stages,areas,actions,directions,workStates,replyStates,closureStates,phases,handovers,equipmentEntries,parties,jobKinds,jobStates,jobEntries};
 })(globalThis);

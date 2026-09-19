@@ -10,7 +10,7 @@
   let rows=[],stage='all',query='',feed=null;
   let selectedView=null;
   const expanded=new Set();
-  const panels={procurement:'procurement-panel',letters:'letters-panel',jobs:'jobs-panel',stats:'stats-panel',closed:'closed-panel'};
+  const panels={procurement:'procurement-panel',letters:'letters-panel',jobs:'jobs-panel',stats:'stats-panel',closed:'closed-panel',readiness:'readiness-panel'};
   function selectView(view,updateHash=true){
     const purchase=view==='procurement';
     const general=['non-purchase','jobs'].includes(view);
