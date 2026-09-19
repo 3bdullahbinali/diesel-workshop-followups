@@ -2,9 +2,9 @@
 /**
  * لوحة جاهزية المضخات والخراطيم.
  *
- * مستقلة عن دورة قراءة سجل المتابعات عمداً: تُقرأ عند فتح التبويب أول مرة،
- * ومن ملف Google Sheets آخر. تعطّل السجل الجديد أو بطؤه لا يمس السجل القائم،
- * والعكس صحيح. إن غاب معرّف الملف من الإعداد اختفى التبويب كله.
+ * صفحة قائمة بذاتها، تُفتح من زر في سجل المتابعات ولا تُحمَّل معه. الفصل
+ * كامل: ملف Google Sheets آخر، ودورة قراءة أخرى، فلا يمس تعطّلُ أحد
+ * السجلين الآخر. وإن غاب معرّف الملف من الإعداد قالت الصفحة ذلك صراحة.
  */
 (() => {
   const M=window.WorkshopReadinessModel;
@@ -117,7 +117,8 @@
     const rows=units();
     if(offset>=rows.length)offset=0;
     const shown=rows.slice(offset,offset+perPage);
-    $('rd-count').textContent=rows.length===data.equipment.length?`${rows.length}`:`${rows.length} / ${data.equipment.length}`;
+    $('rd-count').textContent=rows.length===data.equipment.length
+      ?`${rows.length} معدة`:`معروض ${rows.length} من ${data.equipment.length} معدة`;
     $('rd-empty').hidden=rows.length!==0;
     $('rd-clear').hidden=filtersClear();
     $('rd-units').innerHTML=shown.map(unit=>`<button type="button" class="rd-tile${unit.id===selected?' is-on':''}" data-unit="${escape(unit.id)}" aria-pressed="${unit.id===selected}"><span class="rd-tile-top"><span>${escape(sizeLabel(unit))}</span><span class="rd-state" data-tone="${stateTone(unit)}">${escape(stateLabel(unit))}</span></span><strong dir="ltr">${escape(unit.asset)}</strong><span class="rd-tile-foot">${unit.place?escape(M.places[unit.place]):missing}</span></button>`).join('');
@@ -159,16 +160,16 @@
     if(!data)return;
     renderSummary();renderPlaces();renderFilters();renderDetail();renderList();renderHoses();
     const s=data.summary;
-    $('rd-scope').textContent=s.verified?`${s.verified} من ${s.total} بيانات فعلية`:`لا سجل فعلي بعد · ${s.total} سجلاً`;
     $('rd-note').classList.toggle('rd-provisional',s.demo>0);
     $('rd-note').textContent=s.demo
       ?`${s.demo} من ${s.total} سجلاً حالته وموقعه ما زالا تجريبيين حتى التحقق الميداني — الأرقام أدناه ليست جاهزية تشغيلية معتمدة.`
       :'سجل مستقل عن سجل المتابعات. الخانة الفارغة تعني «لم تُدخل بعد» ولا تعني صفراً.';
     $('rd-source').innerHTML=`المصدر: <a href="${escape(config.readinessSpreadsheetUrl||'#')}" rel="noopener" target="_blank">سجل جاهزية المضخات والخراطيم</a>`+(data.readAt?` · آخر قراءة <bdi>${escape(new Intl.DateTimeFormat('ar-AE',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Dubai'}).format(data.readAt))}</bdi>`:'');
-    $('readiness-tab-count').textContent=s.total;
+    document.title=`جاهزية المضخات والخراطيم (${s.total}) — شعبة ورشة الديزل`;
   }
 
   function failure(message){
+    $('rd-lede').textContent='تعذّرت القراءة.';
     $('rd-summary').innerHTML='';
     $('rd-units').innerHTML='';
     $('rd-note').textContent=message;
@@ -187,7 +188,7 @@
         config=await response.json();
       }
       const id=config.readinessSpreadsheetId;
-      if(!id){loading=false;return;}
+      if(!id)throw new Error('لم يُسجَّل معرّف ملف الجاهزية في إعداد الربط.');
       // العناوين في الصف الأول؛ وورقة يعلوها سطر إرشاد تبقى مقروءة أيضاً.
       const tab=(name,headers,required,parse,rows)=>{
         const last=M.columnLetter(headers.length);
@@ -211,22 +212,16 @@
       $('rd-note').classList.remove('rd-error');
       render();
       window.WorkshopMotion?.reveal($('readiness-panel'));
+      const s=data.summary;
+      $('rd-lede').textContent=`${s.total} معدة · ${s.verified?s.verified+' منها ببيانات فعلية':'لا سجل فعلي بعد'} · سجل مستقل يُقرأ لحظة فتح الصفحة.`;
     }catch(error){
       failure('تعذّرت قراءة سجل الجاهزية. '+error.message);
     }finally{loading=false;}
   }
 
-  // التبويب يظهر فقط حين يكون للملف معرّف في الإعداد.
-  (async()=>{
-    try{
-      const response=await fetch('./sheets-config.json?t='+Date.now(),{cache:'no-store',credentials:'same-origin',signal:AbortSignal.timeout(12000)});
-      if(!response.ok)return;
-      config=await response.json();
-      if(config.readinessSpreadsheetId)$('readiness-tab').hidden=false;
-    }catch{/* غياب الإعداد يُبقي التبويب مخفياً؛ لا رسالة خطأ لسجل لم يُطلب بعد. */}
-  })();
-
-  window.addEventListener('workshop-view',event=>{if(event.detail==='readiness')read();});
+  const today=$('today');
+  if(today)today.textContent=new Intl.DateTimeFormat('ar-AE',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Dubai'}).format(new Date());
+  $('rd-refresh')?.addEventListener('click',()=>{loaded=false;read();});
 
   $('readiness-panel').addEventListener('click',event=>{
     const button=event.target.closest('button');
@@ -249,4 +244,6 @@
   reducedMotion.addEventListener('change',()=>{if(data)renderDetail();});
 
   window.WorkshopReadiness={refresh(){loaded=false;return read();},get data(){return data;}};
+
+  read();
 })();

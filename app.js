@@ -293,7 +293,7 @@
   window.addEventListener('workshop-view',event=>{
     const childView=event.detail==='jobs';
     const next=childView?'non-purchase':event.detail;
-    if(['procurement','stats','letters','closed','readiness'].includes(next))return;
+    if(['procurement','stats','letters','closed'].includes(next))return;
     if(childView || next!==overviewView){selectedGroup='all';selectedCoordination='all';query='';selectedFocus='all';selectedAttention='all';selectedArea='';$('search').value='';}
     overviewView=next;if(data)render();
   });

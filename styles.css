@@ -182,3 +182,5 @@ html[dir=rtl] .job-top .edit-button{margin:0 auto 0 0}
   :root .view-tabs{margin-bottom:14px}
   :root .records-heading{padding:14px 20px}
 }
+/* روابط تنقّل بهيئة أزرار: الرابط بين صفحتي الموقع ليس نصاً مسطراً. */
+a.admin-button{text-decoration:none}

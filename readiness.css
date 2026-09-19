@@ -109,3 +109,6 @@
 @media(pointer:coarse){.rd-tools .group-filters button,.rd-place,.rd-tile,.rd-pager button,.rd-motion{min-height:44px}.rd-source a{display:inline-block;padding:11px 0}}
 /* الشريط التحذيري: ما لم يُتحقق منه ميدانياً ليس جاهزية معتمدة. */
 .rd-provisional{background:#fff8eb;color:#785b27;border-bottom-color:#e4c18b}
+.rd-shown{margin:0 24px 10px;font-size:.8125rem;color:var(--muted)}
+@media(max-width:900px){.rd-shown{margin-inline:18px}}
+@media(max-width:600px){.rd-shown{margin-inline:14px}}
