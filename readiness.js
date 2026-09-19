@@ -48,7 +48,7 @@
       card('ready',s.readyToHandOver,s.total,'جاهزة للتسليم','سليمة فنياً · في الورشة · غير مسلّمة'),
       card('delivered',s.delivered,s.total,'مسلّمة للجهات','عهدة، لا مكان'),
       card('workshop',s.workshop,s.total,'داخل الورشة',s.maintenance?s.maintenance+' منها للصيانة والإصلاح':'لا صيانة مسجّلة'),
-      card('pending',s.pending,s.total,'لم تُدخل حالتها','يجب أن تصل إلى صفر بعد الجرد')
+      card('demo',s.demo,s.total,'بيانات تجريبية',s.verified?s.verified+' سجلاً تحقّق ميدانياً':'لم يتحقق أي سجل ميدانياً بعد')
     ].join('');
   }
 
@@ -98,7 +98,9 @@
       fact('آخر صيانة',unit.lastMaintenance?`<bdi>${escape(date(unit.lastMaintenance))}</bdi>`:missing),
       fact('الصيانة القادمة',unit.nextMaintenance?`<bdi>${escape(date(unit.nextMaintenance))}</bdi>`:missing),
       unit.notes?fact('الأعطال والملاحظات',escape(unit.notes)):'',
-      unit.assetNumberKind==='temporary'?fact('تنبيه','<span class="rd-warn">رقم مؤقت يُستبدل بعد الجرد الفعلي</span>'):''
+      unit.temporaryAsset?fact('تنبيه','<span class="rd-warn">رقم مؤقت يُستبدل بعد الجرد الفعلي</span>'):'',
+      unit.dataKind==='demo'?fact('نوع البيانات','<span class="rd-warn">تجريبية — لم تُتحقق ميدانياً</span>'):
+        unit.dataKind==='verified'?fact('نوع البيانات','فعلية · تحقّق ميداني'):''
     ].join('');
   }
 
@@ -137,9 +139,9 @@
     const cards=hoses.length?hoses.map(hose=>({
       title:[label(M.hoseKinds,hose.kind),hose.size!=null?hose.size+' بوصة':null].filter(Boolean).join(' · ')||hose.code||hose.id,
       code:hose.code,
-      rows:[['الكمية المتاحة',hose.quantity==null?null:hose.quantity+(hose.unit?' '+M.hoseUnits[hose.unit]:'')],
-            ['الطول',hose.length==null?null:hose.length+' متر'],
-            ['الوصلات',hose.coupling],
+      rows:[['الكمية',hose.quantity==null?null:hose.quantity+(hose.unit?' '+M.hoseUnits[hose.unit]:'')],
+            ['إجمالي الطول',hose.totalLength==null?null:hose.totalLength+' متر'],
+            ['سليمة / تحتاج إصلاحاً',hose.sound==null&&hose.needsRepair==null?null:`${hose.sound??'—'} / ${hose.needsRepair??'—'}`],
             ['الجهة',label(M.places,hose.place)],
             ['الحالة',label(M.hoseConditions,hose.condition)]]
     })):catalog.map(item=>({
@@ -157,7 +159,11 @@
     if(!data)return;
     renderSummary();renderPlaces();renderFilters();renderDetail();renderList();renderHoses();
     const s=data.summary;
-    $('rd-scope').textContent=s.pending?`${s.entered} من ${s.total} أُدخلت حالتها الفنية`:`الحالة الفنية مدخلة لكل الـ${s.total}`;
+    $('rd-scope').textContent=s.verified?`${s.verified} من ${s.total} بيانات فعلية`:`لا سجل فعلي بعد · ${s.total} سجلاً`;
+    $('rd-note').classList.toggle('rd-provisional',s.demo>0);
+    $('rd-note').textContent=s.demo
+      ?`${s.demo} من ${s.total} سجلاً حالته وموقعه ما زالا تجريبيين حتى التحقق الميداني — الأرقام أدناه ليست جاهزية تشغيلية معتمدة.`
+      :'سجل مستقل عن سجل المتابعات. الخانة الفارغة تعني «لم تُدخل بعد» ولا تعني صفراً.';
     $('rd-source').innerHTML=`المصدر: <a href="${escape(config.readinessSpreadsheetUrl||'#')}" rel="noopener" target="_blank">سجل جاهزية المضخات والخراطيم</a>`+(data.readAt?` · آخر قراءة <bdi>${escape(new Intl.DateTimeFormat('ar-AE',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Dubai'}).format(data.readAt))}</bdi>`:'');
     $('readiness-tab-count').textContent=s.total;
   }
@@ -182,11 +188,11 @@
       }
       const id=config.readinessSpreadsheetId;
       if(!id){loading=false;return;}
-      // القالب يضع سطر إرشاد فوق العناوين، لكن ورقة أُنشئت بلا هذا السطر تبقى مقروءة.
+      // العناوين في الصف الأول؛ وورقة يعلوها سطر إرشاد تبقى مقروءة أيضاً.
       const tab=(name,headers,parse,rows)=>{
         const last=String.fromCharCode(64+headers.length);
         const at=start=>S.query(id,name,'A'+start+':'+last+(rows+start-1),12000).then(response=>parse(S.tableRows(response,headers)));
-        return at(2).catch(()=>at(1));
+        return at(1).catch(()=>at(2));
       };
       // المعدات وحدها إلزامية؛ غياب ورقة أخرى يُفرغ قسمها ولا يُسقط اللوحة.
       const soft=promise=>promise.catch(()=>null);
@@ -200,7 +206,6 @@
         summary:M.summary(equipment),sizes:M.sizeGroups(equipment),readAt:new Date()};
       loaded=true;
       $('rd-note').classList.remove('rd-error');
-      $('rd-note').textContent='سجل مستقل عن سجل المتابعات. الخانة الفارغة تعني «لم تُدخل بعد» ولا تعني صفراً.';
       render();
       window.WorkshopMotion?.reveal($('readiness-panel'));
     }catch(error){

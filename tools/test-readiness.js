@@ -19,7 +19,7 @@ const throws = (label, fn, fragment) => {
 };
 
 // صف معدة: هوية فقط، وهو ما سيبدو عليه الشيت يوم إنشائه.
-const bare = over => Object.assign(new Array(23).fill(''), {0:'EQ-0001', 1:'SY/6-33', 2:'مضخة', 3:'6', 4:'Sykes', 21:'معدة', 22:'دائم'}, over);
+const bare = over => Object.assign(new Array(29).fill(''), {0:'EQ-0001', 1:'SY/6-33', 2:'مضخة', 3:'6', 4:'Sykes', 21:'تجريبية', 22:'من السجل', 27:'2026/09/19'}, over);
 const one = over => M.equipmentEntries([bare(over)])[0];
 
 // ١) الشيت الفارغ لا يسقط ولا يُخمَّن
@@ -39,6 +39,16 @@ throws('قيمة فنية غير معروفة تُرفض', () => one({7:'جاه�
 throws('الرفض يذكر رقم المعدة', () => one({8:'شغالة'}), 'SY/6-33');
 throws('مقاس غير رقمي يُرفض', () => one({3:'ستة'}), 'قيمة رقمية غير صالحة');
 check('الأرقام العربية تُقرأ', one({15:'١٢٥٠'}).operatingHours === 1250);
+check('التاريخ سنة/شهر/يوم يُقرأ', one({14:'2026/01/05'}).handoverDate === '2026-01-05');
+check('التاريخ سنة-شهر-يوم يُقرأ', one({14:'2026-01-05'}).handoverDate === '2026-01-05');
+check('نوع البيانات التجريبي يُقرأ', one().dataKind === 'demo');
+check('نوع البيانات الفعلي يُقرأ', one({21:'فعلية'}).dataKind === 'verified');
+throws('نوع بيانات غير معروف يُرفض', () => one({21:'مبدئية'}), 'قيمة غير معروفة');
+// «نوع رقم المعدة» وصفي لا يحرّك عدّاداً، فلا يُسقط الصف مهما كُتب فيه
+check('رقم المعدة الدائم ليس مؤقتاً', one().temporaryAsset === false);
+check('الرقم المؤقت يُلتقط', one({22:'مؤقت للتجربة'}).temporaryAsset === true);
+check('نص غير متوقع في نوع الرقم لا يُسقط الصف', one({22:'من الجرد'}).asset === 'SY/6-33');
+check('أعمدة الربط تُقرأ', one({23:'base-12', 24:'PR10012345'}).taskId === 'base-12');
 
 // ٣) القطاع يُشتق، والتناقض يُرفَض
 check('القطاع يُشتق من الجهة', one({9:'القطاع ٣'}).sector === 'SEC-3');
@@ -71,13 +81,17 @@ check('داخل الورشة يشمل الجاهزة وتحت الصيانة', s
 check('الصيانة تجمع «تحتاج» و«تحت»', s.maintenance === 2, String(s.maintenance));
 check('بلا جهة مُحصاة صراحة', s.placeless === 1);
 check('القطاعات خمسة دائماً', s.sectors.length === 5 && s.sectors[0].count === 1);
+check('كلها تجريبية ما لم تُحقَّق', s.demo === 7 && s.verified === 0);
+check('المتحقق منه يُحصى وحده',
+  M.summary(M.equipmentEntries([bare({0:'v', 1:'v', 21:'فعلية'}), bare({0:'d', 1:'d'})])).verified === 1);
 
 // معدة مسلّمة وعائدة للورشة للصيانة ليست جاهزة للتسليم
 check('مسلّمة داخل الورشة لا تُعد جاهزة للتسليم',
   M.summary(M.equipmentEntries([bare({7:'جاهزة', 9:'الورشة', 12:'مسلّمة'})])).readyToHandOver === 0);
 
 // ٦) المرشّحات
-check('مرشّح «لم تُدخل حالتها» يلتقط الفارغ', fleet.filter(M.filters.pending).length === 1);
+check('مرشّح «بلا حالة فنية» يلتقط الفارغ', fleet.filter(M.filters.pending).length === 1);
+check('مرشّح التجريبي يطابق العدّاد', fleet.filter(M.filters.demo).length === s.demo);
 check('مرشّح الجاهزة يطابق العدّاد', fleet.filter(M.filters.ready).length === s.readyToHandOver);
 check('مرشّح المسلّمة يطابق العدّاد', fleet.filter(M.filters.delivered).length === s.delivered);
 
@@ -90,19 +104,27 @@ check('المقاسات مرتبة تصاعدياً', groups.map(g => g.key).joi
 check('عدّ المقاس صحيح', groups[0].count === 2);
 
 // ٨) الخراطيم والدليل والقطاعات
-const hose = M.hoseEntries([Object.assign(new Array(17).fill(''), {0:'HS-1', 1:'14040793', 2:'خرطوم طرد', 3:'4', 4:'100', 6:'لفة', 7:'3'})])[0];
-check('الخرطوم يُقرأ', hose.kind === 'discharge' && hose.unit === 'roll' && hose.quantity === 3);
-check('الكمية الفارغة null لا صفر', M.hoseEntries([Object.assign(new Array(17).fill(''), {0:'HS-2', 1:'x'})])[0].quantity === null);
-throws('نوع خرطوم غير معروف يُرفض', () => M.hoseEntries([Object.assign(new Array(17).fill(''), {0:'HS-3', 2:'خرطوم ضخ'})]), 'قيمة غير معروفة');
-check('دليل الخراطيم يُقرأ', M.catalogEntries([['14040815', 'خرطوم سحب', '6', '6', 'Bauer', 'عدد', '']])[0].size === 6);
-check('القطاعات تُقرأ', M.sectorEntries([['SEC-2', 'القطاع ٢', 'فلان', '', '', '', '', '']])[0].owner === 'فلان');
-throws('رمز قطاع خاطئ في ورقة القطاعات يُرفض', () => M.sectorEntries([['S2', '', '', '', '', '', '', '']]), 'رمز قطاع غير معروف');
+const hoseRow = over => Object.assign(new Array(20).fill(''), {0:'HG-1', 1:'14040793', 2:'خرطوم طرد', 3:'4', 4:'لفة', 5:'3', 6:'100', 7:'300'}, over);
+const hose = M.hoseEntries([hoseRow()])[0];
+check('الخرطوم يُقرأ', hose.kind === 'discharge' && hose.unit === 'roll' && hose.quantity === 3 && hose.totalLength === 300);
+check('الكمية الفارغة null لا صفر', M.hoseEntries([hoseRow({5:''})])[0].quantity === null);
+check('الجهة والقطاع في الخرطوم يُقرآن', M.hoseEntries([hoseRow({10:'القطاع ٢'})])[0].sector === 'SEC-2');
+throws('نوع خرطوم غير معروف يُرفض', () => M.hoseEntries([hoseRow({2:'خرطوم ضخ'})]), 'قيمة غير معروفة');
+check('دليل الخراطيم يُقرأ', (c => c.size === 6 && c.unit === 'piece' && c.coupling === 'Bauer Female / Male')
+  (M.catalogEntries([['14040815', 'خرطوم سحب', '6', '6', 'عدد', 'Bauer Female / Male', 'صنف مرجعي']])[0]));
+const sectorRow = over => Object.assign(new Array(17).fill(''), {0:'SEC-2', 1:'القطاع ٢'}, over);
+check('القطاعات تُقرأ', M.sectorEntries([sectorRow({2:'فلان', 4:'050', 5:'بديل'})])[0].owner === 'فلان');
+check('البديل وهاتفه يُقرآن', M.sectorEntries([sectorRow({5:'بديل', 6:'051'})])[0].deputyPhone === '051');
+throws('رمز قطاع خاطئ في ورقة القطاعات يُرفض', () => M.sectorEntries([sectorRow({0:'S2'})]), 'رمز قطاع غير معروف');
 
 // ٩) رؤوس الأعمدة تطابق القالب المسلَّم للفريق
-check('رؤوس المعدات ٢٣ عموداً', M.equipmentHeaders.length === 23);
-check('أول رأس معرف السجل وآخره نوع رقم المعدة',
-  M.equipmentHeaders[0] === 'معرف السجل' && M.equipmentHeaders[22] === 'نوع رقم المعدة');
-check('رؤوس الخراطيم ١٧ عموداً', M.hoseHeaders.length === 17);
+// الرؤوس منقولة من الشيت القائم؛ أي انحراف هنا يعني رفض الورقة كلها
+check('رؤوس المعدات ٢٩ عموداً', M.equipmentHeaders.length === 29);
+check('أول رأس معرف السجل وآخره مراجعة البيانات',
+  M.equipmentHeaders[0] === 'معرف السجل' && M.equipmentHeaders[28] === 'مراجعة البيانات');
+check('رؤوس الخراطيم ٢٠ والدليل ٧ والقطاعات ١٧',
+  M.hoseHeaders.length === 20 && M.catalogHeaders.length === 7 && M.sectorHeaders.length === 17);
+check('رأس الخراطيم الأول معرف مجموعة الخراطيم', M.hoseHeaders[0] === 'معرف مجموعة الخراطيم');
 
 console.log(failures ? `\nفشل ${failures} اختباراً.` : `\nنجحت كل الاختبارات.`);
 process.exit(failures ? 1 : 0);
