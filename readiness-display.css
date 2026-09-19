@@ -1,0 +1,83 @@
+/* «مدار» — شاشة العرض التلقائي. داكنة لأنها تُعرض على جدار في قاعة، والذهب
+   فيها للمعنى لا للزينة: الأرقام والعناوين وحدها تحمله. */
+body.rdx-open{overflow:hidden}
+#rdx{position:fixed;inset:0;z-index:1000;display:grid;grid-template-rows:auto 1fr auto;
+  background:radial-gradient(ellipse at 50% 120%,#12261e 0%,#0a1512 55%,#060f0c 100%);
+  color:#eaf2ec;font-family:"IBM Plex Sans Arabic",Tahoma,Arial,sans-serif}
+#rdx[hidden]{display:none}
+
+.rdx-head{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;
+  padding:26px 40px 10px;position:relative;z-index:2}
+.rdx-brand{display:flex;align-items:center;gap:14px;min-width:0}
+.rdx-mark{width:44px;height:46px;flex:none;display:grid;place-items:center;border-radius:6px 16px 6px 16px;
+  border:1px solid #6d8a76;color:#e8c88a;font:400 1.7rem/1 Arial,sans-serif}
+.rdx-brand small{display:block;color:#9fb6a8;font-size:.8125rem}
+.rdx-brand strong{font-size:1.0625rem;font-weight:600}
+.rdx-titles{text-align:center;flex:1;min-width:0}
+#rdx-title{margin:0;font-size:clamp(28px,3.4vw,58px);font-weight:600;letter-spacing:-.5px;line-height:1.25}
+#rdx-lede{margin:6px 0 0;color:#a9c2b3;font-size:clamp(13px,1.15vw,20px)}
+.rdx-metric{text-align:left;flex:none;min-width:150px}
+#rdx-metric{display:block;font:400 clamp(44px,5.4vw,96px)/1.05 Arial,sans-serif;
+  font-variant-numeric:tabular-nums;color:#e8c88a;letter-spacing:-2px}
+#rdx-caption{color:#9fb6a8;font-size:clamp(12px,1vw,17px)}
+
+.rdx-stage{position:relative;min-height:0}
+#rdx-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+.rdx-foot{display:flex;align-items:center;justify-content:space-between;gap:20px;
+  padding:12px 40px 22px;position:relative;z-index:2;flex-wrap:wrap}
+#rdx-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:clamp(11px,.95vw,15px);color:#b6cabc}
+#rdx-legend span{display:inline-flex;align-items:center;gap:7px}
+#rdx-legend i{width:11px;height:11px;border-radius:50%;flex:none}
+#rdx-honesty{margin:0;font-size:clamp(11px,.95vw,15px);color:#e8c88a;
+  border-inline-start:3px solid #8a6a2f;padding-inline-start:12px;max-width:62ch}
+
+.rdx-controls{display:flex;align-items:center;gap:8px}
+.rdx-controls button{min-height:44px;min-width:44px;padding:9px 15px;border-radius:9px;
+  background:#16281f;border:1px solid #30493a;color:#dcebe0;font:inherit;font-size:.9375rem;
+  display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.rdx-controls button:hover{background:#1d3327;border-color:#47624f}
+.rdx-controls button:focus-visible{outline:3px solid #e8c88a;outline-offset:3px}
+#rdx-close{background:#3a2020;border-color:#5d3232}
+#rdx-step{color:#9fb6a8;font:400 .875rem/1 Arial,sans-serif;font-variant-numeric:tabular-nums;min-width:46px;text-align:center}
+#rdx-dots{display:flex;gap:6px}
+#rdx-dots span{width:8px;height:8px;border-radius:50%;background:#2f4438;display:block}
+#rdx-dots span.is-on{background:#e8c88a;width:22px;border-radius:5px}
+
+/* شريط تقدّم المشهد: مؤشر زمن لا زخرفة، ويتوقف مع الإيقاف */
+.rdx-progress{position:absolute;inset-inline:0;top:0;height:3px;background:#16281f;overflow:hidden}
+#rdx-bar{height:100%;width:100%;transform-origin:right;background:linear-gradient(90deg,#e8c88a,#7fd8a4);
+  animation:rdx-sweep 9s linear infinite}
+@keyframes rdx-sweep{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+@media(max-width:900px){
+  .rdx-head{padding:16px 18px 8px;flex-wrap:wrap;gap:12px}
+  .rdx-titles{order:3;flex-basis:100%;text-align:start}
+  .rdx-metric{text-align:start}
+  .rdx-foot{padding:10px 18px 16px}
+  #rdx-legend{gap:12px}
+  #rdx-honesty{max-width:100%}
+}
+@media(prefers-reduced-motion:reduce){
+  #rdx-bar{animation:none;transform:scaleX(1)}
+}
+/* الهاتف: الشاشة مصمَّمة للجدار، لكنها لا تُكسر على الجيب. */
+@media(max-width:620px){
+  .rdx-head{padding:14px 14px 6px}
+  .rdx-brand small{display:none}
+  .rdx-metric{order:2;min-width:0;display:flex;align-items:baseline;gap:8px}
+  #rdx-metric{font-size:clamp(30px,9vw,44px);letter-spacing:-1px}
+  #rdx-title{font-size:clamp(21px,6.2vw,30px)}
+  #rdx-lede{font-size:12px}
+  .rdx-foot{padding:8px 14px 14px;gap:10px}
+  #rdx-legend{font-size:11px;gap:10px;order:3}
+  #rdx-honesty{order:2;font-size:11px;padding-inline-start:9px}
+  .rdx-controls{order:1;width:100%;justify-content:space-between;gap:6px}
+  .rdx-controls button{padding:9px 11px;font-size:.875rem}
+  #rdx-dots{display:none}
+}
+/* صفّ الأزرار الأطول من الشاشة كان يمطّ الشبكة فتتجاوز اللوحةُ عرضَ الجهاز
+   وتُرسم نقاط خارجه. الشبكة وأبناؤها لا يتمدّدون لمحتواهم. */
+#rdx{overflow:hidden}
+.rdx-head,.rdx-stage,.rdx-foot{min-width:0}
+.rdx-controls{flex-wrap:wrap;min-width:0}
