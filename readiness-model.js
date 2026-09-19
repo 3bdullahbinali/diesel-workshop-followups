@@ -15,7 +15,9 @@
   const technicalStates={ready:'جاهزة',needs_maintenance:'تحتاج صيانة',under_maintenance:'تحت الصيانة',needs_inspection:'تحتاج فحصًا',write_off:'مرشحة للشطب'};
   const operationStates={running:'تعمل',standby:'احتياط',stopped:'متوقفة',unused:'غير مستخدمة'};
   const handoverStates={delivered:'مسلّمة',not_delivered:'غير مسلّمة'};
-  const equipmentKinds={pump:'مضخة',dam:'وحدة سد'};
+  const equipmentKinds={pump:'مضخة',dam:'وحدة السد'};
+  // التسمية بلا «ال» مقروءة أيضاً، فلا يسقط صف كُتب بالصيغة الأخرى.
+  const equipmentKindAliases={'وحدة سد':'dam'};
   const dataKinds={demo:'تجريبية',verified:'فعلية'};
   const hoseKinds={discharge:'خرطوم طرد',suction:'خرطوم سحب'};
   // «نوع رقم المعدة» عمود وصفي لا يحرّك عدّاداً، فيُعرض كما كُتب بدل رفض الصف.
@@ -44,6 +46,34 @@
     let letter='';
     for(let n=index;n>0;n=Math.floor((n-1)/26))letter=String.fromCharCode(65+(n-1)%26)+letter;
     return letter;
+  }
+
+  /**
+   * مطابقة العناوين لهذا السجل وحده.
+   *
+   * قارئ المتابعات يشترط تطابق عدد الأعمدة تماماً، وهذا صحيح هناك لأن خدمة
+   * الكتابة تملك الورقة وتضمن شكلها. أما هنا فالورقة ملك غيرنا وستنمو بأعمدة
+   * ربط وملاحظات ومعادلات، فاشتراط العدد يكسر القراءة عند أول عمود يُضاف.
+   *
+   * القاعدة: تُطابَق الأعمدة المعروفة بأسمائها بالترتيب، ويُتجاهل ما بعدها،
+   * ويُشترط بلوغ آخر عمود نقرأه فعلاً. والرسالة عند الفشل تسمّي الورقة ورقم
+   * العمود والاسمين معاً، فلا يبقى الخطأ مبهماً كما بقي أول مرة.
+   */
+  function sheetRows(response,headers,required,tab){
+    if(response?.status!=='ok'||!response.table||!Array.isArray(response.table.rows))
+      return fail('تعذر قراءة ورقة «'+tab+'».');
+    const cols=response.table.cols||[];
+    if(cols.length<required)
+      return fail('ورقة «'+tab+'» رجعت بـ'+cols.length+' عموداً، والمطلوب '+required+' على الأقل. أول عمود: '+(text(cols[0]?.label)||'بلا عنوان')+'.');
+    for(let i=0;i<Math.min(cols.length,headers.length);i++){
+      const got=text(cols[i]?.label);
+      if(got!==headers[i])
+        return fail('عنوان العمود '+(i+1)+' في ورقة «'+tab+'» هو «'+(got||'فارغ')+'» والمتوقع «'+headers[i]+'».');
+    }
+    const width=Math.min(cols.length,headers.length);
+    return response.table.rows
+      .map(row=>Array.from({length:width},(_,i)=>row.c?.[i]?.v??null))
+      .filter(row=>row.some(v=>v!=null&&v!==''));
   }
 
   // خلية فارغة ⇦ null. قيمة مكتوبة ⇦ مفتاحها، أو رفض. لا تخمين بينهما.
@@ -91,7 +121,7 @@
       const place=optionalEnum(row[9],places,'الجهة الحالية في '+where);
       return {
         id,asset,
-        kind:optionalEnum(row[2],equipmentKinds,'نوع المعدة في '+where),
+        kind:optionalEnum(equipmentKindAliases[text(row[2])]||row[2],equipmentKinds,'نوع المعدة في '+where),
         size:optionalNumber(row[3],'المقاس في '+where),
         make:text(row[4])||null,
         model:text(row[5])||null,
@@ -253,6 +283,6 @@
     equipmentSheetName,equipmentHeaders,hoseSheetName,hoseHeaders,
     catalogSheetName,catalogHeaders,sectorSheetName,sectorHeaders,
     equipmentEntries,hoseEntries,catalogEntries,sectorEntries,
-    summary,sizeGroups,filters,filterLabels,optionalEnum,optionalNumber,sectorOf,columnLetter
+    summary,sizeGroups,filters,filterLabels,optionalEnum,optionalNumber,sectorOf,columnLetter,sheetRows
   };
 })(globalThis);

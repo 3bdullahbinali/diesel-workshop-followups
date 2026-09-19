@@ -189,18 +189,21 @@
       const id=config.readinessSpreadsheetId;
       if(!id){loading=false;return;}
       // العناوين في الصف الأول؛ وورقة يعلوها سطر إرشاد تبقى مقروءة أيضاً.
-      const tab=(name,headers,parse,rows)=>{
+      const tab=(name,headers,required,parse,rows)=>{
         const last=M.columnLetter(headers.length);
-        const at=start=>S.query(id,name,'A'+start+':'+last+(rows+start-1),12000).then(response=>parse(S.tableRows(response,headers)));
-        return at(1).catch(()=>at(2));
+        const at=start=>S.query(id,name,'A'+start+':'+last+(rows+start-1),12000)
+          .then(response=>parse(M.sheetRows(response,headers,required,name)));
+        // العناوين في الصف الأول عادةً؛ وورقة يعلوها سطر إرشاد تبقى مقروءة.
+        // يُبلَّغ عن خطأ المحاولة الأولى لأنها الشكل المتوقع، فلا يحجبه خطأ الثانية.
+        return at(1).catch(first=>at(2).catch(()=>{throw first;}));
       };
       // المعدات وحدها إلزامية؛ غياب ورقة أخرى يُفرغ قسمها ولا يُسقط اللوحة.
       const soft=promise=>promise.catch(()=>null);
       const [equipment,hoses,catalog,sectors]=await Promise.all([
-        tab(M.equipmentSheetName,M.equipmentHeaders,M.equipmentEntries,5000),
-        soft(tab(M.hoseSheetName,M.hoseHeaders,M.hoseEntries,5000)),
-        soft(tab(M.catalogSheetName,M.catalogHeaders,M.catalogEntries,500)),
-        soft(tab(M.sectorSheetName,M.sectorHeaders,M.sectorEntries,50))
+        tab(M.equipmentSheetName,M.equipmentHeaders,23,M.equipmentEntries,5000),
+        soft(tab(M.hoseSheetName,M.hoseHeaders,20,M.hoseEntries,5000)),
+        soft(tab(M.catalogSheetName,M.catalogHeaders,7,M.catalogEntries,500)),
+        soft(tab(M.sectorSheetName,M.sectorHeaders,10,M.sectorEntries,50))
       ]);
       data={equipment,hoses:hoses||[],catalog:catalog||[],sectors:sectors||[],
         summary:M.summary(equipment),sizes:M.sizeGroups(equipment),readAt:new Date()};

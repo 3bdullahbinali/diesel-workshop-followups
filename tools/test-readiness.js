@@ -28,7 +28,10 @@ check('الحالة الفنية الفارغة null لا صفر', one().technic
 check('الجهة الفارغة null', one().place === null && one().sector === null);
 check('التاريخ الفارغ null', one().handoverDate === null && one().lastMaintenance === null);
 check('المقاس يُقرأ رقماً', one().size === 6);
-check('وحدة السد بلا مقاس مقبولة', M.equipmentEntries([bare({2:'وحدة سد', 3:''})])[0].size === null);
+check('وحدة السد بلا مقاس مقبولة', M.equipmentEntries([bare({2:'وحدة السد', 3:''})])[0].size === null);
+// الشيت يكتبها «وحدة السد»؛ والصيغة بلا «ال» تبقى مقروءة
+check('«وحدة السد» كما في الشيت', M.equipmentEntries([bare({2:'وحدة السد'})])[0].kind === 'dam');
+check('«وحدة سد» بلا تعريف مقروءة', M.equipmentEntries([bare({2:'وحدة سد'})])[0].kind === 'dam');
 
 // ٢) القيم المكتوبة تُقرأ بصرامة
 check('الحالة الفنية بالعربية تُقرأ مفتاحاً', one({7:'تحتاج صيانة'}).technical === 'needs_maintenance');
@@ -116,6 +119,29 @@ const sectorRow = over => Object.assign(new Array(17).fill(''), {0:'SEC-2', 1:'�
 check('القطاعات تُقرأ', M.sectorEntries([sectorRow({2:'فلان', 4:'050', 5:'بديل'})])[0].owner === 'فلان');
 check('البديل وهاتفه يُقرآن', M.sectorEntries([sectorRow({5:'بديل', 6:'051'})])[0].deputyPhone === '051');
 throws('رمز قطاع خاطئ في ورقة القطاعات يُرفض', () => M.sectorEntries([sectorRow({0:'S2'})]), 'رمز قطاع غير معروف');
+
+// ٩) مطابقة العناوين: تتسامح مع نمو الورقة، وتسمّي العمود عند الفشل
+const gviz = (labels, rows = []) => ({status:'ok', table:{cols:labels.map(l => ({label:l})),
+  rows:rows.map(r => ({c:r.map(v => ({v}))}))}});
+const EQ = M.equipmentHeaders;
+check('العناوين المطابقة تُقبل',
+  M.sheetRows(gviz(EQ, [EQ.map((_, i) => 'v' + i)]), EQ, 23, 'المعدات').length === 1);
+check('عمود إضافي في آخر الورقة لا يكسر القراءة',
+  M.sheetRows(gviz([...EQ, 'عمود أضافه الفريق'], [[...EQ.map(() => 'v'), 'x']]), EQ, 23, 'المعدات')[0].length === EQ.length);
+check('عمود ناقص بعد آخر ما نقرأه مقبول',
+  M.sheetRows(gviz(EQ.slice(0, 26), [EQ.slice(0, 26).map(() => 'v')]), EQ, 23, 'المعدات')[0].length === 26);
+throws('نقص عمود نقرأه يُرفض ويذكر العدد',
+  () => M.sheetRows(gviz(EQ.slice(0, 20)), EQ, 23, 'المعدات'), '20 عموداً');
+throws('عنوان مختلف يُسمّى برقمه واسمه',
+  () => M.sheetRows(gviz(EQ.map((h, i) => i === 7 ? 'الحالة' : h)), EQ, 23, 'المعدات'), 'العمود 8');
+throws('الرسالة تذكر المتوقع والموجود',
+  () => M.sheetRows(gviz(EQ.map((h, i) => i === 7 ? 'الحالة' : h)), EQ, 23, 'المعدات'), 'والمتوقع «الحالة الفنية»');
+throws('الرسالة تسمّي الورقة',
+  () => M.sheetRows(gviz(['س'], [], []), EQ, 23, 'المعدات'), 'المعدات');
+throws('جواب غير سليم من Google يُرفض',
+  () => M.sheetRows({status:'error'}, EQ, 23, 'الخراطيم'), 'تعذر قراءة ورقة «الخراطيم»');
+check('الصفوف الفارغة تُسقط',
+  M.sheetRows(gviz(EQ, [EQ.map(() => null), EQ.map(() => 'v')]), EQ, 23, 'المعدات').length === 1);
 
 // ٩) حرف آخر عمود في النطاق — تجاوز Z هو ما أسقط قراءة ورقة المعدات
 check('حروف الأعمدة حتى Z', ['A','G','Q','T','Z'].every((x, i) => M.columnLetter([1,7,17,20,26][i]) === x));
