@@ -46,6 +46,12 @@
     return data;
   }
 
+  function withToken(action, payload) {
+    const token = store.get();
+    if (!token) return Promise.reject(new Error('يلزم تسجيل الدخول.'));
+    return call(action, { token, ...payload });
+  }
+
   const api = {
     configure(config) {
       endpoint = config?.apiUrl || null;
@@ -85,9 +91,29 @@
 
     /** قراءة السجل. تفشل بلا جلسة صالحة؛ لا يوجد مسار قراءة مجهول. */
     async read(tabs) {
-      const token = store.get();
-      if (!token) throw new Error('يلزم تسجيل الدخول.');
-      return call('read', { token, tabs });
+      return withToken('read', { tabs });
+    },
+
+    /** الصلاحية تُفحص في الخادم أيضاً؛ هذه لإخفاء ما لا يُفيد عرضه. */
+    get canWrite() {
+      return session?.role === 'editor' || session?.role === 'admin';
+    },
+
+    createFollowup(fields) { return withToken('followup-create', { fields }); },
+    createLetter(fields) { return withToken('letter-create', { fields }); },
+
+    /**
+     * expectedUpdatedAt هو ختم التعديل الذي حُمِّل مع الصف.
+     * اختلافه عن المحفوظ يعني أن شخصاً آخر عدّل السجل، فيُرفض الحفظ بدل الكتابة فوقه.
+     */
+    updateFollowup(id, fields, expectedUpdatedAt) {
+      return withToken('followup-update', { id, fields, expectedUpdatedAt });
+    },
+    updateLetter(id, fields, expectedUpdatedAt) {
+      return withToken('letter-update', { id, fields, expectedUpdatedAt });
+    },
+    close(kind, id, closeDate, closeProof, expectedUpdatedAt) {
+      return withToken('close', { kind, id, closeDate, closeProof, expectedUpdatedAt });
     }
   };
 

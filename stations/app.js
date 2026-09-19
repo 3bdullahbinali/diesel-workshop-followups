@@ -57,7 +57,7 @@
   }
 
   function rowActions(followup) {
-    return `<div class="row-actions" data-local-only>
+    return `<div class="row-actions" data-edit-action>
       <button type="button" class="mini" data-edit="${esc(followup.id)}">تعديل</button>
       ${followup.closed ? '' : `<button type="button" class="mini" data-close="${esc(followup.id)}">إغلاق بدليل</button>`}
     </div>`;
@@ -249,7 +249,7 @@
         <div><h2>المتابعات</h2>
           <p class="lead">مرتبة بعمر آخر إفادة. الحالة مصنَّفة، ونص المصدر الأصلي معروض تحتها.</p></div>
         <div class="view-actions">
-          <button type="button" class="action" id="add-followup" data-local-only>إضافة متابعة</button>
+          <button type="button" class="action" id="add-followup" data-edit-action>إضافة متابعة</button>
           <button type="button" class="action" id="export-followups">تصدير النتائج CSV</button>
         </div>
       </div>
@@ -548,7 +548,7 @@
       <div class="view-head">
         <div><h2>كتب تراسل</h2>
           <p class="lead">إغلاق الكتاب لا يغيّر حالة العمل أو طلب الشراء، والرد يُسجَّل كتاباً آخر مرتبطاً.</p></div>
-        <div class="view-actions"><button type="button" class="action" id="add-letter" data-local-only>إضافة كتاب</button></div>
+        <div class="view-actions"><button type="button" class="action" id="add-letter" data-edit-action>إضافة كتاب</button></div>
       </div>
       ${groups.map(([id, title, test]) => {
         const rows = data.letters.filter(test);
@@ -679,14 +679,21 @@
 
   store.subscribe(() => { refreshContext(); syncCounts(); show(current); });
 
-  // بعد كل إعادة رسم تُعاد أزرار التحرير للحالة التي يفرضها المصدر الحالي.
-  // التحرير المحلي متاح في الوضع المحلي وحده؛ أي مصدر خارجي يعطّله.
-  const applySourceVisibility = () => {
-    const local = (document.body.dataset.source || 'local') === 'local';
+  /**
+   * ما يظهر يتبع المصدر والصلاحية معاً:
+   *   data-edit-action  — تحرير السجلات: محلياً، أو عبر الواجهة لمن يملك صلاحية كتابة.
+   *   data-local-only   — ما لا معنى له إلا محلياً: إلغاء التعديلات، والإنشاء من نشاط.
+   * تُستدعى بعد كل إعادة رسم وبعد كل تغيّر في المصدر.
+   */
+  const applyCapabilities = () => {
+    const source = document.body.dataset.source || 'local';
+    const local = source === 'local';
+    const canEdit = local || (source === 'api' && Boolean(window.StationsApi?.canWrite));
     for (const el of document.querySelectorAll('[data-local-only]')) el.hidden = !local;
+    for (const el of document.querySelectorAll('[data-edit-action]')) el.hidden = !canEdit;
   };
   const originalShow = show;
-  show = (name) => { originalShow(name); applySourceVisibility(); };
+  show = (name) => { originalShow(name); applyCapabilities(); };
 
   document.querySelectorAll('[data-view]').forEach(button =>
     button.addEventListener('click', () => show(button.dataset.view)));
@@ -696,5 +703,9 @@
   syncCounts();
   show('dashboard');
 
-  window.StationsApp = { refresh: () => show(current), get current() { return current; } };
+  window.StationsApp = {
+    refresh: () => show(current),
+    applyCapabilities,
+    get current() { return current; }
+  };
 })();

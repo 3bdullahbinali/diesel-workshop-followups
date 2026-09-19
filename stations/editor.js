@@ -10,6 +10,24 @@
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   const data = () => store.data;
+  // مرجع كسول: يُقرأ عند الاستدعاء لا عند التحميل، فلا يكسره ترتيب الوسوم.
+  const api = () => window.StationsApi;
+  /** المصدر يقرّر أين يُحفظ التعديل: الشيت عبر الواجهة، أم النسخة المحلية. */
+  const remote = () => document.body.dataset.source === 'api';
+  const partyLabel = (id) => (data().enums.parties.find(p => p.id === id) || {}).label || id;
+
+  async function submitting(run) {
+    const submit = dialog.querySelector('button[type="submit"]');
+    const original = submit.textContent;
+    submit.disabled = true;
+    submit.textContent = 'جارٍ الحفظ…';
+    try {
+      await run();
+    } finally {
+      submit.disabled = false;
+      submit.textContent = original;
+    }
+  }
   const field = (name) => dialog.querySelector(`[name="${name}"]`);
   const value = (name) => (field(name)?.value || '').trim();
 
@@ -27,13 +45,14 @@
     body.innerHTML = html;
     dialog.querySelector('#editor-error').hidden = true;
     dialog.showModal();
-    dialog.querySelector('form').onsubmit = (event) => {
+    dialog.querySelector('form').onsubmit = async (event) => {
       event.preventDefault();
+      const box = dialog.querySelector('#editor-error');
+      box.hidden = true;
       try {
-        onSubmit();
+        await onSubmit();
         dialog.close();
       } catch (error) {
-        const box = dialog.querySelector('#editor-error');
         box.textContent = error.message;
         box.hidden = false;
       }
@@ -71,11 +90,12 @@
       }</select>`)}
       ${row('المرجع', `<input name="reference" value="${esc(record?.reference || '')}">`,
         'رقم أمر العمل أو رقم الطلب أو مرجع التنسيق كما ورد.')}
-      ${row('الحالة', `<select name="state">${options(
+      ${remote() ? '' : row('الحالة', `<select name="state">${options(
         data().enums.states.filter(s => s.id !== 'closed'), record?.state || 'in_progress')}</select>`,
         'الإغلاق لا يتم من هنا؛ يحتاج تاريخاً ودليلاً عبر زر الإغلاق.')}
-      ${row('نص الحالة كما ورد', `<input name="stateDetail" value="${esc(record?.stateDetail || '')}">`,
-        'يُحفظ كما هو ولا يُستبدل بالتصنيف.')}
+      ${row('نص الحالة', `<input name="stateDetail" value="${esc(record?.stateDetail || '')}">`,
+        remote() ? 'هذا هو Recorded_Status في الشيت. التصنيف يُشتق منه عند العرض ولا يُخزَّن.'
+                 : 'يُحفظ كما هو ولا يُستبدل بالتصنيف.')}
       ${row('الجهة المنتظر ردها', `<select name="waitingOn">${options(data().enums.parties, record?.waitingOn || 'internal')}</select>`)}
       ${row('الإجراء التالي', `<textarea name="nextAction" rows="2">${esc(record?.nextAction || '')}</textarea>`)}
       ${row('المسؤول حسب المصدر', `<input name="ownerPerSource" value="${esc(record?.ownerPerSource || '')}">`)}
@@ -87,18 +107,37 @@
       <label class="form-check"><input type="checkbox" name="needsReview"
         ${record ? (record.needsReview ? 'checked' : '') : 'checked'}>
         <span>تحتاج تثبيت حالة أو استكمال دليل</span></label>
-    `, () => {
+    `, async () => {
       const changes = {
         title: value('title'), kind: value('kind'), stationId: value('stationId'),
-        reference: value('reference'), state: value('state'),
-        stateDetail: value('stateDetail') || 'حالة مُدخلة محلياً',
+        reference: value('reference'),
+        stateDetail: value('stateDetail'),
         waitingOn: value('waitingOn'), waitingOnDerived: false,
         nextAction: value('nextAction'), ownerPerSource: value('ownerPerSource'),
         evidenceDate: value('evidenceDate') || null, dueDate: value('dueDate') || null,
         notes: value('notes'), needsReview: field('needsReview').checked
       };
       if (!changes.title) throw new Error('الموضوع مطلوب.');
+      if (!remote()) changes.state = value('state');
 
+      if (remote()) {
+        const fields = {
+          Type: changes.kind, Subject: changes.title, Station: changes.stationId,
+          Reference: changes.reference, Recorded_Status: changes.stateDetail,
+          Waiting_On: partyLabel(changes.waitingOn), Next_Action: changes.nextAction,
+          Owner_Per_Source: changes.ownerPerSource, Evidence_Date: changes.evidenceDate || '',
+          Due_Date: changes.dueDate || '', Notes: changes.notes, Needs_Review: changes.needsReview
+        };
+        await submitting(async () => {
+          if (record) await api().updateFollowup(id, fields, record.updatedAt || null);
+          else await api().createFollowup(fields);
+          await window.StationsSync.refresh();
+        });
+        toast(record ? 'حُفظ التعديل في الشيت.' : 'أُضيفت المتابعة إلى الشيت.');
+        return;
+      }
+
+      changes.stateDetail = changes.stateDetail || 'حالة مُدخلة محلياً';
       if (record) {
         store.patchFollowup(id, changes);
         toast('حُفظ التعديل محلياً في هذا المتصفح.');
@@ -131,8 +170,18 @@
       ${row('دليل الإغلاق', '<textarea name="closeProof" rows="3" required></textarea>',
         'مرجع الفحص أو الاستلام أو الرد المعتمد. الإغلاق بلا دليل مرفوض.')}
       <p class="form-note warn">${esc(consequence)}</p>
-    `, () => {
-      store.close(kind, id, { date: value('closeDate'), proof: value('closeProof') });
+    `, async () => {
+      const date = value('closeDate');
+      const proof = value('closeProof');
+      if (remote()) {
+        await submitting(async () => {
+          await api().close(kind === 'followup' ? 'followups' : 'letters', id, date, proof, record.updatedAt || null);
+          await window.StationsSync.refresh();
+        });
+        toast('أُغلق السجل في الشيت بتاريخ ودليل.');
+        return;
+      }
+      store.close(kind, id, { date, proof });
       toast('أُغلق السجل محلياً بتاريخ ودليل.');
     });
   }
@@ -179,8 +228,20 @@
       ${row('الإجراء المطلوب', '<textarea name="action" rows="2"></textarea>')}
       <p class="form-note warn">الرد يُسجَّل كتاباً آخر مرتبطاً، ولا يُحوَّل الوارد إلى صادر.
         هذه الشاشة لا ترسل شيئاً عبر تراسل.</p>
-    `, () => {
+    `, async () => {
       if (!value('subject') || !value('number')) throw new Error('الموضوع ورقم الكتاب مطلوبان.');
+      if (remote()) {
+        await submitting(async () => {
+          await api().createLetter({
+            Number: value('number'), Direction: value('direction'), Date: value('date'),
+            Subject: value('subject'), Party: value('party'), Action: value('action'),
+            Parent_ID: value('linkedId')
+          });
+          await window.StationsSync.refresh();
+        });
+        toast('أُضيف الكتاب إلى الشيت.');
+        return;
+      }
       store.addLetter({
         id: 'LTR-NEW-' + Date.now().toString(36).toUpperCase(),
         number: value('number'), direction: value('direction'), date: value('date'),

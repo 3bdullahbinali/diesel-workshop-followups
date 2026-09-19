@@ -44,7 +44,8 @@
 
   function setSource(source) {
     document.body.dataset.source = source;
-    for (const node of document.querySelectorAll('[data-local-only]')) node.hidden = source !== 'local';
+    // منطق الإظهار في مكان واحد داخل app.js حتى لا يتفرّع بين الملفين.
+    window.StationsApp?.applyCapabilities?.();
   }
 
   function buttons(list) {
@@ -110,7 +111,8 @@
       const time = new Date().toLocaleTimeString('ar-AE', { hour: '2-digit', minute: '2-digit' });
       show(data.warnings?.length ? 'partial' : 'live',
         `المصدر: الشيت عبر واجهة موثقة — ${user.name}`,
-        `${counts.followups} متابعة · ${counts.activities} نشاطاً · آخر قراءة ${time}`
+        `${api.canWrite ? 'تحرير' : 'قراءة فقط'} · ${counts.followups} متابعة`
+        + ` · ${counts.activities} نشاطاً · آخر قراءة ${time}`
         + (data.warnings?.length ? ` · ${data.warnings.length} تنبيه` : ''));
       buttons([
         ['تحديث الآن', () => pull(user)],
@@ -157,6 +159,12 @@
       buttons([]);
     }
   }
+
+  // تُستدعى بعد كل كتابة ناجحة حتى يعرض الموقع ما في الشيت لا ما أرسله المتصفح.
+  window.StationsSync = {
+    refresh: () => (api.session ? pull(api.session) : Promise.resolve()),
+    get user() { return api.session; }
+  };
 
   // ------------------------------------------------------------ الإقلاع
   (async () => {

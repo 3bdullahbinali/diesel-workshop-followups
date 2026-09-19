@@ -123,6 +123,10 @@
     const known = new Map(snapshot.followups.map(f => [f.id, f]));
     for (const entry of snapshot.enums.states) STATE_BY_TEXT.set(entry.label, entry.id);
     const stateIds = snapshot.enums.states.map(s => s.id);
+    // الشيت يخزّن الجهة بنصها العربي؛ النموذج يعمل برموز، فيُعاد النص إلى رمزه.
+    const partyByLabel = new Map(snapshot.enums.parties.map(p => [p.label, p.id]));
+    const partyIds = new Set(snapshot.enums.parties.map(p => p.id));
+    const partyId = (value) => partyByLabel.get(value) || (partyIds.has(value) ? value : null);
 
     return withId(list, 'ID').map(row => {
       const id = text(row.ID);
@@ -139,8 +143,9 @@
         state: closed ? 'closed' : classify(recorded, stateIds),
         stateDetail: recorded,
         // الجهة المنتظر ردها صارت عموداً في الشيت؛ ما يُدخل هناك ليس مشتقاً.
-        waitingOn: text(row.Waiting_On) || base.waitingOn || 'unknown',
-        waitingOnDerived: !text(row.Waiting_On),
+        // نص غير معروف لا يُسقط السجل: يُعرض «غير محددة» ويبقى موسوماً للمراجعة.
+        waitingOn: partyId(text(row.Waiting_On)) || base.waitingOn || 'unknown',
+        waitingOnDerived: !partyId(text(row.Waiting_On)),
         evidenceDate: dateValue(row.Evidence_Date),
         ownerPerSource: text(row.Owner_Per_Source),
         nextAction: text(row.Next_Action),

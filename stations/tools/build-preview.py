@@ -37,7 +37,7 @@ def build():
     html = inline(html, '<link rel="stylesheet" href="./stations.css">',
                   "stations.css", "<style>\n{body}\n</style>")
     for name in ("data.js", "sheets-config.js", "api-config.js", "model.js",
-                 "store.js", "app.js", "editor.js", "api.js", "sheets.js", "sync.js"):
+                 "api.js", "store.js", "app.js", "editor.js", "sheets.js", "sync.js"):
         html = inline(html, f'<script src="./{name}"></script>', name,
                       "<script>\n{body}\n</script>")
 

@@ -124,6 +124,13 @@ function handle(body) {
   // ما بعد هذا السطر لا يُنفَّذ بلا جلسة صالحة. القراءة نفسها تمر من هنا.
   var user = requireUser(body.token);
   if (action === 'read') return readAll(user, body.tabs);
+
+  // الكتابة تحتاج صلاحية أعلى من القراءة. viewer يقرأ ولا يكتب.
+  if (action === 'followup-create') return createRow(requireWriter(user), 'followups', body.fields);
+  if (action === 'followup-update') return updateRow(requireWriter(user), 'followups', body.id, body.fields, body.expectedUpdatedAt);
+  if (action === 'letter-create') return createRow(requireWriter(user), 'letters', body.fields);
+  if (action === 'letter-update') return updateRow(requireWriter(user), 'letters', body.id, body.fields, body.expectedUpdatedAt);
+  if (action === 'close') return closeRow(requireWriter(user), body.kind, body.id, body.closeDate, body.closeProof, body.expectedUpdatedAt);
   throw new Error('إجراء غير معروف.');
 }
 
@@ -322,4 +329,201 @@ function now() { return Utilities.formatDate(new Date(), CONFIG.timeZone, 'dd/MM
 function message(error) { return String(error && error.message ? error.message : error); }
 function json(value) {
   return ContentService.createTextOutput(JSON.stringify(value)).setMimeType(ContentService.MimeType.JSON);
+}
+
+
+/* ————— الكتابة ————— */
+
+/** الأعمدة التي يملكها الموقع. ما عداها — المعرّف وأعمدة المعادلات — لا يُكتب. */
+var WRITABLE = {
+  followups: ['Type', 'Subject', 'Station', 'Reference', 'Recorded_Status', 'Evidence_Date',
+    'Owner_Per_Source', 'Next_Action', 'Needs_Review', 'Due_Date', 'Closed', 'Sources', 'Notes',
+    'PR_Stage', 'Related_Daily_IDs', 'Priority', 'PR_Number', 'Waiting_On',
+    'Closed_Date', 'Closing_Evidence'],
+  // الاتجاه ليس هنا عمداً: يُثبت عند الإنشاء ولا يتغيّر بالتعديل.
+  letters: ['Number', 'Date', 'Subject', 'Party', 'Action', 'Parent_ID', 'Closed', 'Sources',
+    'Notes', 'Reply_To_ID', 'Closed_Date', 'Closing_Evidence', 'Letter_File']
+};
+
+var BOOLEAN_FIELDS = {Needs_Review: true, Closed: true, Date_Verified: true, Location_Only: true};
+var DATE_FIELDS = {Evidence_Date: true, Due_Date: true, Closed_Date: true, Date: true,
+  Approval_Date: true, LPO_Date: true, Delivery_Due: true, Receipt_Date: true};
+
+var ID_PREFIX = {followups: 'NEW-', letters: 'LTR-'};
+
+function requireWriter(user) {
+  if (user.role !== 'editor' && user.role !== 'admin') {
+    throw new Error('صلاحيتك للقراءة فقط. التعديل يحتاج صلاحية editor أو admin.');
+  }
+  return user;
+}
+
+function headerMap(sheet) {
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var map = {};
+  for (var i = 0; i < headers.length; i++) {
+    var name = String(headers[i]).trim();
+    if (name) map[name] = i + 1;
+  }
+  return map;
+}
+
+function rowById(sheet, keyColumn, id) {
+  var map = headerMap(sheet);
+  var column = map[keyColumn];
+  if (!column) throw new Error('عمود المعرّف غير موجود في الورقة.');
+  var last = sheet.getLastRow();
+  if (last < 2) return 0;
+  var values = sheet.getRange(2, column, last - 1, 1).getValues();
+  var wanted = String(id).trim();
+  for (var i = 0; i < values.length; i++) if (String(values[i][0]).trim() === wanted) return i + 2;
+  return 0;
+}
+
+/** يحوّل قيمة الموقع إلى ما تفهمه الورقة: منطقية، أو تاريخاً، أو نصاً. */
+function writeValue(field, value) {
+  if (BOOLEAN_FIELDS[field]) return value === true || /^(true|نعم|1)$/i.test(String(value));
+  if (DATE_FIELDS[field]) {
+    var raw = String(value == null ? '' : value).trim();
+    if (!raw) return '';
+    var iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
+    if (iso) return new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
+    var dmy = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(raw);
+    if (dmy) return new Date(Number(dmy[3]), Number(dmy[2]) - 1, Number(dmy[1]));
+    throw new Error('تاريخ غير مفهوم في ' + field + ': ' + raw);
+  }
+  return value == null ? '' : String(value);
+}
+
+/**
+ * التحقق في الخادم لا في المتصفح: الإغلاق يتطلب تاريخاً ودليلاً معاً.
+ * يُفحص الدمج بين الموجود والوارد، حتى لا يمر إغلاق بتغيير حقل واحد.
+ */
+function validate(kind, merged) {
+  if (kind === 'followups' || kind === 'letters') {
+    var closed = merged.Closed === true || /^(true|نعم|1)$/i.test(String(merged.Closed || ''));
+    if (closed) {
+      if (!String(merged.Closed_Date || '').trim()) throw new Error('الإغلاق يتطلب تاريخ إغلاق.');
+      if (!String(merged.Closing_Evidence || '').trim()) throw new Error('الإغلاق يتطلب دليل إغلاق.');
+    }
+  }
+  if (kind === 'followups') {
+    if (!String(merged.Subject || '').trim()) throw new Error('الموضوع مطلوب.');
+    if (!String(merged.Recorded_Status || '').trim()) throw new Error('الحالة مطلوبة.');
+  }
+  if (kind === 'letters') {
+    if (!String(merged.Subject || '').trim()) throw new Error('موضوع الكتاب مطلوب.');
+    if (!String(merged.Number || '').trim()) throw new Error('رقم الكتاب مطلوب.');
+  }
+}
+
+function currentRecord(sheet, row) {
+  var map = headerMap(sheet);
+  var values = sheet.getRange(row, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var record = {};
+  for (var name in map) record[name] = values[map[name] - 1];
+  return record;
+}
+
+function createRow(user, kind, fields) {
+  var tab = TABS[kind];
+  var sheet = sheetByName(tab.name);
+  if (!sheet) throw new Error('الورقة غير موجودة: ' + tab.name);
+  var map = headerMap(sheet);
+  fields = fields || {};
+
+  var id = String(fields[tab.key] || '').trim();
+  if (id) {
+    if (!/^[A-Za-z0-9._\/-]+$/.test(id)) throw new Error('المعرّف يقبل الحروف والأرقام والشرطة فقط.');
+    if (rowById(sheet, tab.key, id)) throw new Error('المعرّف مستخدم من قبل: ' + id);
+  } else {
+    id = (ID_PREFIX[kind] || 'NEW-') + Utilities.formatDate(new Date(), CONFIG.timeZone, 'yyMMdd-HHmmss');
+  }
+
+  var merged = {};
+  var allowed = WRITABLE[kind];
+  for (var i = 0; i < allowed.length; i++) {
+    if (fields.hasOwnProperty(allowed[i])) merged[allowed[i]] = fields[allowed[i]];
+  }
+  // الاتجاه يُقبل عند الإنشاء وحده، ثم يصير ثابتاً.
+  if (kind === 'letters') merged.Direction = fields.Direction === 'outgoing' ? 'outgoing' : 'incoming';
+  validate(kind, merged);
+
+  var row = sheet.getLastRow() + 1;
+  var stamp = now();
+  sheet.getRange(row, map[tab.key]).setValue(id);
+  for (var field in merged) {
+    if (map[field]) sheet.getRange(row, map[field]).setValue(writeValue(field, merged[field]));
+  }
+  if (map.Updated_At) sheet.getRange(row, map.Updated_At).setValue(stamp);
+  if (map.Updated_By) sheet.getRange(row, map.Updated_By).setValue(user.name || user.username);
+
+  audit(user, 'إضافة', tab.name + ' · ' + id + ' · ' + (merged.Subject || ''));
+  return {ok: true, id: id, updatedAt: stamp};
+}
+
+function updateRow(user, kind, id, fields, expectedUpdatedAt) {
+  var tab = TABS[kind];
+  var sheet = sheetByName(tab.name);
+  if (!sheet) throw new Error('الورقة غير موجودة: ' + tab.name);
+  var row = rowById(sheet, tab.key, id);
+  if (!row) throw new Error('السجل غير موجود: ' + id);
+  var map = headerMap(sheet);
+  var before = currentRecord(sheet, row);
+
+  // منع الكتابة فوق تعديل شخص آخر: من حمّل نسخة قديمة يُطلب منه التحديث أولاً.
+  if (map.Updated_At && expectedUpdatedAt !== undefined && expectedUpdatedAt !== null) {
+    var stored = String(before.Updated_At || '').trim();
+    if (stored && stored !== String(expectedUpdatedAt).trim()) {
+      throw new Error('عُدّل السجل من جهة أخرى بتاريخ ' + stored + '. حدّث الصفحة ثم أعد المحاولة.');
+    }
+  }
+
+  var allowed = WRITABLE[kind];
+  var merged = {};
+  for (var name in before) merged[name] = before[name];
+  var applied = {};
+  fields = fields || {};
+  for (var i = 0; i < allowed.length; i++) {
+    var field = allowed[i];
+    if (!fields.hasOwnProperty(field)) continue;
+    applied[field] = fields[field];
+    merged[field] = fields[field];
+  }
+  if (kind === 'letters' && fields.hasOwnProperty('Direction')
+      && String(fields.Direction) !== String(before.Direction)) {
+    throw new Error('اتجاه الكتاب ثابت. الرد يُسجَّل كتاباً آخر مرتبطاً.');
+  }
+  validate(kind, merged);
+
+  var changed = [];
+  var stamp = now();
+  for (var key in applied) {
+    if (!map[key]) continue;
+    var next = writeValue(key, applied[key]);
+    var old = before[key];
+    if (String(old) === String(next)) continue;
+    sheet.getRange(row, map[key]).setValue(next);
+    changed.push(key);
+  }
+  if (!changed.length) return {ok: true, id: id, updatedAt: String(before.Updated_At || ''), changed: []};
+
+  if (map.Updated_At) sheet.getRange(row, map.Updated_At).setValue(stamp);
+  if (map.Updated_By) sheet.getRange(row, map.Updated_By).setValue(user.name || user.username);
+
+  audit(user, 'تعديل', tab.name + ' · ' + id + ' · ' + changed.join('، '));
+  return {ok: true, id: id, updatedAt: stamp, changed: changed};
+}
+
+/**
+ * الإغلاق إجراء مستقل: إغلاق الكتاب لا يمس متابعته، وإغلاق المتابعة لا يمس كتبها.
+ * لا يوجد هنا أي تتابع يغيّر سجلاً آخر.
+ */
+function closeRow(user, kind, id, closeDate, closeProof, expectedUpdatedAt) {
+  if (kind !== 'followups' && kind !== 'letters') throw new Error('نوع السجل غير معروف.');
+  if (!String(closeDate || '').trim()) throw new Error('الإغلاق يتطلب تاريخ إغلاق.');
+  if (!String(closeProof || '').trim()) throw new Error('الإغلاق يتطلب دليل إغلاق.');
+  return updateRow(user, kind, id, {
+    Closed: true, Closed_Date: closeDate, Closing_Evidence: String(closeProof).trim()
+  }, expectedUpdatedAt);
 }
