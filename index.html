@@ -9,34 +9,37 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
-  <link rel="icon" href="./favicon.svg?v=2026-09-18-0756" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css?v=2026-09-18-0756">
-  <link rel="stylesheet" href="./motion.css?v=2026-09-18-0756">
-  <link rel="stylesheet" href="./presentation.css?v=2026-09-18-0756">
-  <link rel="stylesheet" href="./admin.css?v=2026-09-18-0756">
-  <link rel="stylesheet" href="./statistics.css?v=2026-09-18-0756">
+  <link rel="icon" href="./favicon.svg?v=2026-09-19-0730" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css?v=2026-09-19-0730">
+  <link rel="stylesheet" href="./motion.css?v=2026-09-19-0730">
+  <link rel="stylesheet" href="./presentation.css?v=2026-09-19-0730">
+  <link rel="stylesheet" href="./admin.css?v=2026-09-19-0730">
+  <link rel="stylesheet" href="./statistics.css?v=2026-09-19-0730">
+  <link rel="stylesheet" href="./readiness.css?v=2026-09-19-0730">
   <title>متابعات شعبة ورشة الديزل</title>
-  <script src="./translations-en.js?v=2026-09-18-0756" defer></script>
-  <script src="./procurement-en.js?v=2026-09-18-0756" defer></script>
-  <script src="./followup-en.js?v=2026-09-18-0756" defer></script>
-  <script src="./i18n.js?v=2026-09-18-0756" defer></script>
-  <script src="./record-time.js?v=2026-09-18-0756" defer></script>
-  <script src="./motion.js?v=2026-09-18-0756" defer></script>
-  <script src="./procurement-model.js?v=2026-09-18-0756" defer></script>
-  <script src="./purchase-orders.js?v=2026-09-18-0756" defer></script>
-  <script src="./presentation.js?v=2026-09-18-0756" defer></script>
-  <script src="./procurement.js?v=2026-09-18-0756" defer></script>
-  <script src="./sheets.js?v=2026-09-18-0756" defer></script>
-  <script src="./followup-model.js?v=2026-09-18-0756" defer></script>
-  <script src="./relations.js?v=2026-09-18-0756" defer></script>
-  <script src="./app.js?v=2026-09-18-0756" defer></script>
-  <script src="./notifications.js?v=2026-09-18-0756" defer></script>
-  <script src="./letters.js?v=2026-09-18-0756" defer></script>
-  <script src="./jobs.js?v=2026-09-18-0756" defer></script>
-  <script src="./archive.js?v=2026-09-18-0756" defer></script>
-  <script src="./statistics.js?v=2026-09-18-0756" defer></script>
-  <script src="./admin.js?v=2026-09-18-0756" defer></script>
-  <link rel="stylesheet" href="./followup-layout.css?v=2026-09-18-0756">
+  <script src="./translations-en.js?v=2026-09-19-0730" defer></script>
+  <script src="./procurement-en.js?v=2026-09-19-0730" defer></script>
+  <script src="./followup-en.js?v=2026-09-19-0730" defer></script>
+  <script src="./i18n.js?v=2026-09-19-0730" defer></script>
+  <script src="./record-time.js?v=2026-09-19-0730" defer></script>
+  <script src="./motion.js?v=2026-09-19-0730" defer></script>
+  <script src="./procurement-model.js?v=2026-09-19-0730" defer></script>
+  <script src="./purchase-orders.js?v=2026-09-19-0730" defer></script>
+  <script src="./presentation.js?v=2026-09-19-0730" defer></script>
+  <script src="./procurement.js?v=2026-09-19-0730" defer></script>
+  <script src="./sheets.js?v=2026-09-19-0730" defer></script>
+  <script src="./followup-model.js?v=2026-09-19-0730" defer></script>
+  <script src="./relations.js?v=2026-09-19-0730" defer></script>
+  <script src="./app.js?v=2026-09-19-0730" defer></script>
+  <script src="./notifications.js?v=2026-09-19-0730" defer></script>
+  <script src="./letters.js?v=2026-09-19-0730" defer></script>
+  <script src="./jobs.js?v=2026-09-19-0730" defer></script>
+  <script src="./archive.js?v=2026-09-19-0730" defer></script>
+  <script src="./statistics.js?v=2026-09-19-0730" defer></script>
+  <script src="./readiness-model.js?v=2026-09-19-0730" defer></script>
+  <script src="./readiness.js?v=2026-09-19-0730" defer></script>
+  <script src="./admin.js?v=2026-09-19-0730" defer></script>
+  <link rel="stylesheet" href="./followup-layout.css?v=2026-09-19-0730">
 </head>
 <body>
   <div class="ambient-background" aria-hidden="true"><div class="ambient-art"></div></div>
@@ -72,6 +75,7 @@
       <button type="button" id="letters-tab" role="tab" aria-controls="letters-panel" aria-selected="false" data-view="letters">مراسلات تراسل <span id="letters-tab-count">—</span></button>
       <button type="button" id="plans-tab" role="tab" aria-controls="overview-panel" aria-selected="false" data-view="plans">خطط التطوير <span id="plans-tab-count">—</span></button>
       <button type="button" id="closed-tab" role="tab" aria-controls="closed-panel" aria-selected="false" data-view="closed">المتابعات المغلقة <span id="closed-tab-count">—</span></button>
+      <button type="button" id="readiness-tab" role="tab" aria-controls="readiness-panel" aria-selected="false" data-view="readiness" hidden>جاهزية المضخات <span id="readiness-tab-count">—</span></button>
       <button type="button" id="stats-tab" role="tab" aria-controls="stats-panel" aria-selected="false" data-view="stats">الإحصائيات</button>
     </div>
     <p id="results-status" role="status" aria-live="polite" class="sr-only"></p>
@@ -132,6 +136,48 @@
     </section>
     </section>
     </div>
+    <section id="readiness-panel" role="tabpanel" aria-labelledby="readiness-tab" hidden>
+      <div class="records-section rd-shell">
+        <div class="records-heading"><h3>جاهزية المضخات والخراطيم <span id="rd-count"></span></h3><span class="sort-hint" id="rd-scope"></span></div>
+        <p class="purchase-note" id="rd-note">سجل مستقل عن سجل المتابعات. الخانة الفارغة تعني «لم تُدخل بعد» ولا تعني صفراً.</p>
+        <p id="rd-status" role="status" aria-live="polite" class="sr-only"></p>
+        <div class="rd-summary" id="rd-summary"></div>
+        <div class="rd-workspace">
+          <section class="rd-card rd-unit" aria-labelledby="rd-unit-title">
+            <div class="rd-unit-head"><div><span class="rd-make" id="rd-unit-make"></span><h4 id="rd-unit-title" dir="ltr"></h4></div><span class="rd-state" id="rd-unit-state"></span></div>
+            <div class="rd-stage" id="rd-stage">
+              <span class="rd-stage-note">رسم توضيحي · ليس شكل الطراز الفعلي</span>
+              <div class="rd-pump" id="rd-pump" role="img" aria-label="رسم توضيحي لمضخة"><span class="rd-wheel rd-wheel-rear"></span><span class="rd-exhaust"></span><span class="rd-body"><span class="rd-vents"></span><span class="rd-door"></span></span><span class="rd-skid"></span><span class="rd-wheel"></span><span class="rd-head"><span class="rd-rotor"></span></span><span class="rd-outlet"></span><span class="rd-flow"></span></div>
+              <span class="rd-stage-size" id="rd-unit-size"></span>
+              <button type="button" id="rd-motion" class="rd-motion" aria-pressed="false" hidden>إيقاف الحركة</button>
+            </div>
+            <dl class="rd-facts" id="rd-unit-facts"></dl>
+          </section>
+          <section class="rd-card rd-places" aria-labelledby="rd-places-title">
+            <div class="rd-card-head"><h4 id="rd-places-title">أين توجد المعدات؟</h4><span class="rd-hint" id="rd-places-hint"></span></div>
+            <div id="rd-places"></div>
+            <div class="rd-card-head rd-sector-head"><h4 id="rd-sectors-title">القطاعات الخمسة</h4></div>
+            <div id="rd-sectors"></div>
+          </section>
+        </div>
+        <div class="rd-tools">
+          <div class="group-filters" id="rd-statuses" role="group" aria-label="حالة المعدة"></div>
+          <div class="group-filters focus-filters" id="rd-sizes" role="group" aria-label="مقاس المضخة"></div>
+        </div>
+        <div class="compact-tools">
+          <label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="rd-search" type="search" autocomplete="off" placeholder="ابحث برقم المعدة أو الشركة أو المستلم" aria-label="البحث في المعدات"></label>
+          <button type="button" class="link-button" id="rd-clear" hidden>مسح التصفية</button>
+        </div>
+        <div class="rd-grid" id="rd-units"></div>
+        <div class="rd-pager" id="rd-pager" hidden><span id="rd-page-count"></span><div><button type="button" class="link-button" id="rd-prev">السابق</button><button type="button" class="link-button" id="rd-next">التالي</button></div></div>
+        <div class="empty-state" id="rd-empty" hidden><h4>لا توجد معدات في هذا العرض</h4><p>غيّر الحالة أو المقاس، أو جرّب كلمة أخرى في البحث.</p></div>
+        <section class="rd-hoses" aria-labelledby="rd-hoses-title">
+          <div class="rd-card-head"><h4 id="rd-hoses-title">الخراطيم</h4><span class="rd-hint" id="rd-hoses-hint"></span></div>
+          <div class="rd-hose-grid" id="rd-hose-grid"></div>
+        </section>
+        <p class="rd-source" id="rd-source"></p>
+      </div>
+    </section>
     <section id="letters-panel" role="tabpanel" aria-labelledby="letters-tab" hidden>
       <div class="records-section">
         <div class="records-heading"><h3>متابعة المراسلات <span id="letters-count"></span></h3><span class="sort-hint"><span id="letters-open-count">0</span> كتاب مفتوح</span></div>

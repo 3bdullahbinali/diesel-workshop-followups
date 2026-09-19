@@ -6,5 +6,7 @@
   "translationSheetId": 186402321,
   "refreshSeconds": 30,
   "orderSheetId": 916202601,
-  "deliverySheetId": 916202602
+  "deliverySheetId": 916202602,
+  "readinessSpreadsheetId": "1AyCyurAtB3wRBxGBsWqwwhR_xQOy_8v1PDKNhZX82Dc",
+  "readinessSpreadsheetUrl": "https://docs.google.com/spreadsheets/d/1AyCyurAtB3wRBxGBsWqwwhR_xQOy_8v1PDKNhZX82Dc/edit"
 }
