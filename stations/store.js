@@ -101,6 +101,13 @@
       return merged;
     },
 
+    /** يستبدل النسخة الأساسية ببيانات حيّة من الشيت، ويعيد بناء العرض. */
+    replaceBase(baseData) {
+      base = baseData;
+      emit();
+      return merged;
+    },
+
     subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
 
     patchFollowup(id, changes) {

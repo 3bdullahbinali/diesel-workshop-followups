@@ -1,0 +1,41 @@
+// مولَّد من sheets-config.json — لا يُحرَّر مباشرة.
+window.STATIONS_SHEET_CONFIG = {
+ "spreadsheetId": "1nUVhyx2UreJ3TftmMHdqx8ZLJN5oti4EFycWoF6u-Gc",
+ "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1nUVhyx2UreJ3TftmMHdqx8ZLJN5oti4EFycWoF6u-Gc/edit",
+ "refreshSeconds": 60,
+ "note": "مصدر مستقل عن ورشة الديزل. القراءة عبر gviz تتطلب أن يكون الملف قابلاً للعرض بالرابط؛ ما لم يُشارَك يبقى الموقع على النسخة المضمّنة.",
+ "tabs": {
+  "followups": {
+   "name": "Followups",
+   "range": "A1:AA501"
+  },
+  "procurement": {
+   "name": "PurchaseRequests",
+   "range": "A1:T201"
+  },
+  "daily": {
+   "name": "DailyActivities",
+   "range": "A1:P1001"
+  },
+  "letters": {
+   "name": "Correspondence",
+   "range": "A1:R501"
+  },
+  "stations": {
+   "name": "Stations",
+   "range": "A1:J301"
+  },
+  "issues": {
+   "name": "DataReview",
+   "range": "A1:K101"
+  },
+  "sources": {
+   "name": "Sources",
+   "range": "A1:G101"
+  },
+  "items": {
+   "name": "PR_Items",
+   "range": "A1:Q501"
+  }
+ }
+};

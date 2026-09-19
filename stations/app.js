@@ -57,7 +57,7 @@
   }
 
   function rowActions(followup) {
-    return `<div class="row-actions">
+    return `<div class="row-actions" data-local-only>
       <button type="button" class="mini" data-edit="${esc(followup.id)}">تعديل</button>
       ${followup.closed ? '' : `<button type="button" class="mini" data-close="${esc(followup.id)}">إغلاق بدليل</button>`}
     </div>`;
@@ -249,7 +249,7 @@
         <div><h2>المتابعات</h2>
           <p class="lead">مرتبة بعمر آخر إفادة. الحالة مصنَّفة، ونص المصدر الأصلي معروض تحتها.</p></div>
         <div class="view-actions">
-          <button type="button" class="action" id="add-followup">إضافة متابعة</button>
+          <button type="button" class="action" id="add-followup" data-local-only>إضافة متابعة</button>
           <button type="button" class="action" id="export-followups">تصدير النتائج CSV</button>
         </div>
       </div>
@@ -453,7 +453,7 @@
                   ${cross ? `<p class="note-line conflict-line">رقم الأمر نفسه مرتبط بمتابعة في موقع آخر:
                     ${cross.followupIds.map(id => esc(idx.followups.get(id)?.title || id)).join(' · ')}. للتحقق فقط، دون ربط.</p>` : ''}
                   <div class="row-actions">
-                    <button type="button" class="mini" data-followup-activity="${esc(activity.id)}">إنشاء متابعة</button>
+                    <button type="button" class="mini" data-followup-activity="${esc(activity.id)}" data-local-only>إنشاء متابعة</button>
                   </div></td>
                 <td>${activity.order ? num(activity.order)
                   : activity.orderRaw ? `<span class="badge badge-conflict">قيمة غير صالحة</span>
@@ -548,7 +548,7 @@
       <div class="view-head">
         <div><h2>كتب تراسل</h2>
           <p class="lead">إغلاق الكتاب لا يغيّر حالة العمل أو طلب الشراء، والرد يُسجَّل كتاباً آخر مرتبطاً.</p></div>
-        <div class="view-actions"><button type="button" class="action" id="add-letter">إضافة كتاب</button></div>
+        <div class="view-actions"><button type="button" class="action" id="add-letter" data-local-only>إضافة كتاب</button></div>
       </div>
       ${groups.map(([id, title, test]) => {
         const rows = data.letters.filter(test);
@@ -592,7 +592,7 @@
         <div class="view-actions">
           <button type="button" class="action" id="export-json">تصدير نسخة JSON</button>
           <button type="button" class="action" id="import-json">استيراد نسخة</button>
-          <button type="button" class="action danger" id="reset-local">إلغاء التعديلات المحلية</button>
+          <button type="button" class="action danger" id="reset-local" data-local-only>إلغاء التعديلات المحلية</button>
         </div>
       </div>
       <section class="panel">
@@ -678,6 +678,14 @@
   }
 
   store.subscribe(() => { refreshContext(); syncCounts(); show(current); });
+
+  // بعد كل إعادة رسم تُعاد أزرار التحرير للحالة التي يفرضها المصدر الحالي.
+  const applySourceVisibility = () => {
+    const fromSheet = document.body.dataset.source === 'sheet';
+    for (const el of document.querySelectorAll('[data-local-only]')) el.hidden = fromSheet;
+  };
+  const originalShow = show;
+  show = (name) => { originalShow(name); applySourceVisibility(); };
 
   document.querySelectorAll('[data-view]').forEach(button =>
     button.addEventListener('click', () => show(button.dataset.view)));

@@ -248,3 +248,18 @@ dialog#editor::backdrop{background:#0f2a2199}
   .view-head{flex-direction:column}
   #editor-body{max-height:70vh}
 }
+
+/* --------------------------------------------------------- شريط حالة المصدر */
+.sync-band{display:flex;align-items:center;gap:11px;flex-wrap:wrap;padding:11px 16px;margin-bottom:20px;
+  background:#eaf2ed;border:1px solid #d3e1d7;border-radius:9px;font-size:.875rem;color:var(--ink)}
+.sync-band strong{font-weight:600}
+.sync-band #sync-detail{color:var(--muted)}
+.sync-actions{margin-inline-start:auto;display:flex;align-items:center;gap:10px}
+.sync-actions a{color:var(--green);font-size:.8125rem;text-underline-offset:3px}
+.sync-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;background:#a07b37}
+.sync-dot.live{background:#2c8862}
+.sync-dot.partial{background:#c08a2c}
+.sync-dot.offline{background:#a1493b}
+.sync-dot.pending{background:#a07b37}
+/* حين يكون الشيت هو المصدر، التحرير يتم هناك لا هنا. */
+body[data-source="sheet"] .review-banner.local{display:none}
