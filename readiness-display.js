@@ -38,11 +38,13 @@
    * تُرسم ساكنة: الرسم يخبر بحالها لا يزيّنها.
    */
   const PART = {
-    body:'#d8ccb2', bodyDark:'#a2957a', bodyInk:'#3a3128', chassis:'#c6b99b',
-    engine:'#2f363d', engineDark:'#1b2026', rust:'#7e5f43', tyre:'#1b1e21',
-    steel:'#8f9aa4', gold:'#c9a758', bronze:'#b8894a', bronzeDark:'#8d6636',
-    piston:'#3f6fd0', vane:'#9fb0bd', water:'#4fa8d8',
-    hose:'#2c3035', blue:'#2f6fb5'
+    body:'#ddd1b7', bodyDark:'#a2957a', bodyInk:'#3a3128',
+    chassis:'#c6b99b', chassisDark:'#9a8e74',
+    engine:'#39424a', engineDark:'#232a31', rust:'#8a6a4a', rustDark:'#664e35',
+    tyre:'#16191c', steel:'#a3aeb8', steelDark:'#6d7780',
+    gold:'#c9a758', bronze:'#c08f4e', bronzeDark:'#8d6636',
+    piston:'#3f6fd0', pistonDark:'#2a4e96', vane:'#c3d2dd', water:'#4fa8d8',
+    hose:'#434a52', blue:'#2f6fb5'
   };
 
   /** ترس محوره x: يُبنى في مستوى xy ثم يُدار ربع دورة فيصير محوره العمود. */
@@ -73,9 +75,9 @@
     return path[0];
   }
 
-  const SUCTION = [[326,-6,16], [250,-4,4], [168,-4,0], [138,-4,0]];
-  const DISCHARGE = [[130,26,0], [130,74,0], [150,96,0], [244,96,0],
-                     [292,90,6], [324,52,20], [334,16,26]];
+  const SUCTION = [[330, 8, 18], [250, 9, 6], [168, 9.5, 0], [140, 9.5, 0]];
+  const DISCHARGE = [[132, 40, 0], [132, 104, 0], [156, 130, 0], [258, 130, 0],
+                     [300, 118, 8], [330, 82, 18]];
 
   /** أجزاء لا تتحرك: تُبنى مرة واحدة ويُعاد استعمالها كل إطار. */
   let STATIC = null;
@@ -84,56 +86,84 @@
     const P = PART, f = [];
     const add = (...xs) => { for (const x of xs) for (const face of x) f.push(face); };
 
-    // المقطورة: مجرّان وعارضتان وذراع جرّ بحلقة قَطر وعجلتان
-    add(S3.box(0,-104, 56, 520,18,20, P.chassis),
-        S3.box(0,-104,-56, 520,18,20, P.chassis),
-        S3.box(-238,-104,0, 18,18,130, P.chassis),
-        S3.box( 238,-104,0, 18,18,130, P.chassis),
-        S3.box(-120,-92,0, 210,8,118, P.chassis),
-        S3.box(-312,-100,0, 112,14,16, P.chassis),
-        S3.cyl(-364,-100,0, 12, 14, 12, P.chassis, 'z'));
-    for (const z of [76, -76])
-      add(S3.cyl(84,-118,z, 42, 22, 13, P.tyre, 'z'),
-          S3.cyl(84,-118,z, 18, 25, 9, P.chassis, 'z'));
+    // ── المقطورة ───────────────────────────────────────────────────────────
+    add(S3.box(0,-104, 58, 520,20,22, P.chassis),
+        S3.box(0,-104,-58, 520,20,22, P.chassis),
+        S3.box(-232,-104,0, 20,20,138, P.chassis),
+        S3.box( 236,-104,0, 20,20,138, P.chassis),
+        S3.box(-120,-92,0, 230,6,112, P.chassisDark),        // فرشة القاعدة
+        S3.box(-316,-100,0, 120,15,17, P.chassis),           // ذراع الجرّ
+        S3.cyl(-372,-100,0, 13, 15, 16, P.chassis, 'z'));
+    for (const z of [80, -80]){                              // عجلتان بحافّة
+      add(S3.cyl(90,-116,z, 45, 24, 26, P.tyre, 'z'),
+          S3.cyl(90,-116,z, 40, 27, 26, '#2a2e33', 'z'),
+          S3.cyl(90,-116,z, 19, 29, 18, P.chassis, 'z'),
+          S3.cyl(90,-116,z,  6, 31, 10, P.steel, 'z'));
+    }
+    for (const x of [-232, 236])                             // قائمتا الاتّكاء
+      add(S3.box(x,-128,62, 14,30,14, P.chassis),
+          S3.box(x,-142,62, 26,6,26, P.chassisDark));
 
-    // كتلة المحرّك: جداران قريبان شفّافان يُرى من خلالهما ما يتحرك
-    const blk = S3.box(-120,-30,0, 160,116,122, P.engine);
-    add(S3.without(blk, ['pz','nx']), S3.ghost(S3.only(blk, ['pz','nx']), .17),
-        S3.box(-120,-30,-56, 150,108,6, P.engineDark),     // ظهر البيت من الداخل
-        S3.box(-120, 36, 0, 138, 26, 98, P.engine),        // غطاء المراجيح
-        S3.cyl(-34, 30, 30, 18, 46, 14, P.engine, 'x'),    // منقّي الهواء
-        S3.box(-32,-30,0, 12, 104, 102, P.engineDark));    // المبرّد
+    // ── قاعدتا تثبيت المحرّك على الفرشة ────────────────────────────────────
+    for (const x of [-190, -74]) add(S3.box(x,-84,0, 26, 22, 96, P.chassisDark));
 
-    // العادم: كاتم أفقي صدئ وماسورة دخول وكوع خارج
-    add(S3.cyl(-236, 54, 40, 19, 98, 14, P.rust, 'x'),
-        S3.tube([[-150,32,40], [-176,44,40], [-190,54,40]], 9, 8, P.rust),
-        S3.tube([[-282,54,40], [-284,86,40], [-284,104,40]], 9, 8, P.rust),
-        S3.cyl(-284, 108, 40, 14, 8, 10, P.rust, 'y'));
+    // ── كتلة المحرّك مقطوعة: جدارها القريب وطرفها مرفوعان فيُرى ما بداخلها.
+    // القطع أصدق من الشفافية وأوضح: الجدار الذي لا يُرى منه شيء لا يُرسم.
+    add(S3.box(-130,-14,-52, 150, 120, 10, P.engineDark),    // الجدار البعيد
+        S3.box(-130,-69,  0, 150, 10, 104, P.engine),        // الأرضية
+        S3.box(-130, 41,  0, 150, 10, 104, P.engine),        // السقف
+        S3.box(-60, -14,  0,  10, 120, 104, P.engine),       // الطرف نحو المضخة
+        S3.box(-130, 57, 0, 132, 22, 96, P.engineDark),      // غطاء المراجيح
+        S3.box(-130, 70, 0, 96, 6, 64, P.engine));
+    for (const x of [-182, -152, -122, -92])                 // براغي الغطاء
+      add(S3.cyl(x, 75, 26, 5, 8, 8, P.steel, 'y'));
+    add(S3.cyl(-40, 58, 22, 17, 42, 20, P.engineDark, 'x'),  // منقّي الهواء
+        S3.cyl(-40, 58, 22, 19, 8, 20, P.engine, 'x'));
+    add(S3.box(-46,-14,0, 10, 112, 96, P.engineDark));       // المبرّد
+    for (let i = 0; i < 9; i++)                              // زعانفه
+      add(S3.box(-46, -60 + i*13, 0, 13, 6, 92, P.engine));
 
-    // عمود المرفق إلى قطار التروس، ثم عمود المضخة
-    add(S3.cyl(-56,-64,0, 9, 210, 12, P.gold, 'x'),
-        S3.cyl( 88, -4,0, 8, 104, 12, P.gold, 'x'),
-        S3.cyl( 60, -4,0, 15, 16, 12, P.steel, 'x'));       // طوق العمود
+    // ── العادم: كاتم صدئ وماسورتان ─────────────────────────────────────────
+    add(S3.cyl(-232, 64, 34, 21, 96, 24, P.rust, 'x'),
+        S3.cyl(-232, 64, 34, 23, 10, 24, P.rustDark, 'x'),
+        S3.tube([[-158, 40, 34], [-180, 56, 34], [-192, 64, 34]], 9, 10, P.rustDark),
+        S3.tube([[-278, 64, 34], [-280, 96, 34], [-280, 116, 34]], 9, 10, P.rustDark),
+        S3.cyl(-280, 120, 34, 15, 8, 14, P.rustDark, 'y'));
 
-    // جسم المضخة: نصف غلاف مصمت وآخر شفّاف، وغطاء أمامي شفّاف
-    const shell = (from, to) => S3.cyl(130,-4,0, 76, 58, 16, P.body, 'x',
-                                       {from, to, caps: 'none'});
-    add(shell(Math.PI, Math.PI*2), S3.ghost(shell(0, Math.PI), .34),
-        S3.cyl(159,-4,0, 76, 3, 16, P.body, 'x'),
-        S3.ghost(S3.cyl(101,-4,0, 76, 3, 16, P.body, 'x'), .30),
-        S3.cyl(96,-4,0, 24, 14, 14, P.body, 'x'));          // صندوق الحشو
+    // ── الأعمدة ────────────────────────────────────────────────────────────
+    add(S3.cyl(-70,-36,0, 10, 280, 16, P.gold, 'x'),
+        S3.cyl( 96, 9.5,0, 8, 100, 16, P.gold, 'x'),
+        S3.cyl( 70, 9.5,0, 15, 14, 16, P.steel, 'x'));
 
-    // السحب محوري، والطرد يصعد ثم ينعطف إلى محبس بيد دوّارة
-    add(S3.cyl(196,-4,0, 34, 74, 16, P.body, 'x'),
-        S3.cyl(234,-4,0, 44, 10, 16, P.steel, 'x'),
-        S3.box(130, 50, 0, 46, 58, 46, P.body),
-        S3.box(178, 96, 0, 96, 44, 44, P.body),
-        S3.box(232, 96, 0, 48, 56, 56, P.body),
-        S3.cyl(232, 132, 0, 11, 34, 10, P.body, 'y'),
-        S3.cyl(232, 150, 0, 26,  6, 16, P.steel, 'y'),
-        S3.cyl(262, 96, 0, 30, 10, 14, P.steel, 'x'),
-        S3.tube([[242,-4,2], [286,-5,10], [330,-6,18]], 32, 9, P.hose),
-        S3.tube([[268,96,0], [300,88,8], [324,56,18], [334,20,26]], 26, 9, P.blue));
+    // ── جسم المضخة: حلزون يتّسع، غطاؤه القريب شفّاف يُرى منه الدوّار ───────
+    const vol = S3.scroll(132, 9.5, 0, 56, 22, 58, 44, P.body);
+    // الغطاء القريب مرفوع كما رُفع جدار المحرّك: يُرى الدوّار في الحلزون
+    add(S3.only(vol, ['side']), S3.only(vol, ['far']),
+        S3.cyl(104, 9.5, 0, 74, 4, 40, '#2f3740', 'x'),        // قاع الغرفة الداكن
+        S3.cyl(160, 9.5, 0, 38, 8, 26, P.bodyDark, 'x'),       // شفّة العنق
+        S3.cyl(100, 9.5, 0, 23, 18, 20, P.body, 'x'),          // صندوق الحشو
+        S3.cyl(196, 9.5, 0, 32, 74, 24, P.body, 'x'),          // عنق السحب
+        S3.cyl(235, 9.5, 0, 42, 11, 24, P.steel, 'x'));        // شفّته
+    for (let i = 0; i < 8; i++){                             // براغي الشفّة
+      const th = (i/8)*Math.PI*2;
+      add(S3.cyl(235, 9.5 + Math.cos(th)*35, Math.sin(th)*35, 4, 13, 8, P.steelDark, 'x'));
+    }
+    // قائمتان تحملان الجسم على القاعدة
+    for (const x of [104, 180]) add(S3.box(x,-76,0, 16, 34, 74, P.body));
+
+    // ── خط الطرد: عنق فكوع فمحبس بيد دوّارة فوصلة ──────────────────────────
+    add(S3.box(132, 106, 0, 46, 62, 46, P.body),
+        S3.box(184, 130, 0, 100, 44, 44, P.body),
+        S3.box(238, 130, 0, 50, 56, 56, P.body),
+        S3.cyl(238, 166, 0, 11, 38, 14, P.body, 'y'),
+        S3.cyl(238, 186, 0, 27, 7, 24, P.steel, 'y'),
+        S3.cyl(238, 186, 0, 9, 11, 12, P.steelDark, 'y'),
+        S3.cyl(272, 130, 0, 28, 10, 20, P.steel, 'x'),
+        S3.box(140, 76, 0, 34, 30, 3, '#e8e2d2'));           // لوحة البيانات
+
+    // ── الخراطيم ───────────────────────────────────────────────────────────
+    add(S3.tube([[246, 9.5, 4], [290, 9, 10], [334, 8, 20]], 31, 16, P.hose),
+        S3.tube([[278,130,0], [306,118,8], [326,94,14], [334,66,20]], 25, 14, P.blue));
 
     STATIC = f;
     return f;
@@ -144,52 +174,57 @@
     const P = PART, f = [];
     const add = (...xs) => { for (const x of xs) for (const face of x) f.push(face); };
 
-    // المكبس على ذراع صلب: موضعه من طول الذراع لا من جيب تمام مباشر
-    const crankR = 22, rod = 52, crankY = -62;
-    const pinY = crankY + Math.cos(a)*crankR, pinZ = Math.sin(a)*crankR;
-    const pistonY = pinY + Math.sqrt(rod*rod - pinZ*pinZ);
-    add(S3.cyl(-150, -14, 0, 28, 82, 16, '#6c7a86', 'y',
-               {from: Math.PI, to: Math.PI*2, caps: 'none'}),   // نصف جدار الأسطوانة البعيد
-        S3.cyl(-150, pistonY, 0, 25, 26, 16, P.piston, 'y'),
-        S3.bar([-150, pinY, pinZ], [-150, pistonY - 12, 0], 12, 14, '#93a2ad'),
-        S3.cyl(-150, crankY, 0, 26, 18, 16, '#93a2ad', 'x'),
-        S3.cyl(-150, pinY, pinZ, 8, 30, 10, P.gold, 'x'));
+    // ثلاث أسطوانات على عمود مرفق واحد، مسامیرها متباعدة ثلث دورة كما في
+    // محرّك ثلاثي. وموضع كل مكبس من طول ذراع ثابت لا من جيب تمام مباشر.
+    const crankR = 20, rod = 38, crankY = -36;
+    for (let c = 0; c < 3; c++){
+      const x = -174 + c*44, th = a + c*(Math.PI*2/3);
+      const pinY = crankY + Math.cos(th)*crankR, pinZ = Math.sin(th)*crankR;
+      const pistonY = pinY + Math.sqrt(rod*rod - pinZ*pinZ);
+      add(S3.cyl(x, 0, 0, 20, 70, 14, '#5c6a76', 'y',
+                 {from: Math.PI, to: Math.PI*2, caps: 'none'}),  // نصف جدار الأسطوانة
+          S3.cyl(x, pistonY, 0, 19, 24, 16, P.piston, 'y'),
+          S3.cyl(x, pistonY + 9, 0, 20, 5, 16, P.pistonDark, 'y'),
+          S3.bar([x, pinY, pinZ], [x, pistonY - 10, 0], 10, 12, '#93a2ad'),
+          S3.cyl(x, crankY, 0, 22, 16, 16, '#8d9aa5', 'x'),
+          S3.cyl(x, pinY, pinZ, 8, 26, 8, P.gold, 'x'));
+    }
 
     // ترسان يتعشّقان: نسبة دورانهما عكس نسبة أسنانهما تماماً
-    add(gearX(40,-64,0, 36, 18, 18, P.bronze, 0.1745 + a),
-        gearX(40, -4,0, 24, 12, 18, P.bronze, 0.2618 - a*1.5));
+    add(gearX(46,-36,0, 28, 16, 20, P.bronze, a),
+        gearX(46,  9.5,0, 17.5, 10, 20, P.bronze, -a*1.6));
 
-    // الدوّار على عمود الترس الثاني: بدورانه واتجاهه
+    // الدوّار: ريش منحنية على عمود الترس الثاني، بدورانه واتجاهه
     const vanes = [];
     for (let i = 0; i < 6; i++){
       const th = (i/6)*Math.PI*2;
-      vanes.push(...S3.bar([118, -4 + Math.cos(th)*20, Math.sin(th)*20],
-                           [118, -4 + Math.cos(th + 0.55)*62, Math.sin(th + 0.55)*62],
-                           11, 28, P.vane));
+      const at = (r, off) => [122, 9.5 + Math.cos(th + off)*r, Math.sin(th + off)*r];
+      vanes.push(...S3.bar(at(18, 0), at(34, 0.24), 9, 34, P.vane),
+                 ...S3.bar(at(34, 0.24), at(50, 0.56), 9, 34, P.vane));
     }
-    add(S3.spin(vanes, 'x', -a*1.5, [118, -4, 0]),
-        S3.cyl(118,-4,0, 20, 30, 14, P.gold, 'x'));
+    add(S3.spin(vanes, 'x', -a*1.6, [122, 9.5, 0]),
+        S3.cyl(122, 9.5, 0, 19, 36, 18, P.gold, 'x'));
 
     // الماء: كتل تمشي على مسار السحب ثم على مسار الطرد
     if (live){
-      for (let i = 0; i < 5; i++){
-        const p = along(SUCTION, ((t*0.28) + i/5) % 1);
-        add(S3.box(p[0], p[1], p[2], 15, 15, 15, P.water));
+      for (let i = 0; i < 4; i++){
+        const p = along(SUCTION, ((t*0.28) + i/4) % 1);
+        add(S3.cyl(p[0], p[1], p[2], 9, 16, 8, P.water, 'x'));
       }
       for (let i = 0; i < 6; i++){
         const p = along(DISCHARGE, ((t*0.28) + i/6) % 1);
-        add(S3.box(p[0], p[1], p[2], 14, 14, 14, P.water));
+        add(S3.cyl(p[0], p[1], p[2], 8, 15, 8, P.water, 'y'));
       }
     }
     return f;
   }
 
   const CALLOUTS = [
-    {name:'المكبس والمرفق',  note:'الاحتراق يدفع المكبس فيدير العمود', at:[-150, 20, 0]},
-    {name:'قطار التروس',     note:'ينقل الدوران إلى عمود المضخة',     at:[40, -34, 0]},
-    {name:'الدوّار والحلزون', note:'الريش تدفع الماء إلى الطرد',        at:[130, -4, 50]},
-    {name:'المحبس وخط الطرد', note:'يُغلق الخط قبل فكّ الخرطوم',        at:[232, 120, 0]},
-    {name:'خرطوم السحب',     note:'يسحب من الغمر إلى عين الدوّار',     at:[290, -5, 12]}
+    {name:'المكابس والمرفق', note:'ثلاث أسطوانات على عمود واحد',      at:[-152, 6, 0]},
+    {name:'قطار التروس',     note:'ينقل الدوران إلى عمود المضخة',     at:[46, -20, 0]},
+    {name:'الدوّار والحلزون', note:'الريش تدفع الماء إلى الطرد',        at:[128, 9.5, 40]},
+    {name:'المحبس وخط الطرد', note:'يُغلق الخط قبل فكّ الخرطوم',        at:[238, 155, 0]},
+    {name:'خرطوم السحب',     note:'يسحب من الغمر إلى عين الدوّار',     at:[292, 9, 14]}
   ];
   const CALLOUT_MS = 1800;
 
@@ -213,7 +248,7 @@
     const off = target(w, h), g = off.getContext('2d');
     const camOff = {
       yaw: 0.62 + sway, pitch: 0.26, focal: 1700,
-      scale: Math.min(off.width/950, off.height/520),
+      scale: Math.min(off.width/960, off.height/560),
       ox: off.width/2, oy: off.height*0.50
     };
     const grow = w/off.width;                    // من لوحة الرسم إلى الشاشة
@@ -225,7 +260,7 @@
     if (!key || key !== CACHE){
       g.clearRect(0, 0, off.width, off.height);
       // ظلّ على الأرض يُجلس المجموعة في مكانها بدل أن تطفو
-      const sh = S3.project([-10,-150, 0], camOff);
+      const sh = S3.project([-10,-162, 0], camOff);
       const rx = 330*camOff.scale, ry = 52*camOff.scale;
       const grad = g.createRadialGradient(sh[0], sh[1], 0, sh[0], sh[1], rx);
       grad.addColorStop(0, 'rgba(0,0,0,.42)'); grad.addColorStop(1, 'rgba(0,0,0,0)');
@@ -239,7 +274,7 @@
     ctx.drawImage(off, 0, 0, w, h);
 
     // ── لوحة الحالة ولوحة الاسم: تُرسمان مسطّحتين فوق المجسّم لتُقرآ ────────
-    const plate = S3.project([120,-104, 60], cam);
+    const plate = S3.project([140,-104, 62], cam);
     ctx.save();
     ctx.textAlign = 'center'; ctx.direction = 'ltr';
     ctx.fillStyle = PART.bodyDark;
@@ -252,7 +287,7 @@
     ctx.fillText(unit && unit.asset ? unit.asset : '—', plate[0], plate[1] + 32);
     ctx.restore();
 
-    const tone = S3.project([-232,-86, 54], cam);
+    const tone = S3.project([-252,-96, 46], cam);
     ctx.fillStyle = PART.chassis;
     ctx.beginPath(); ctx.roundRect(tone[0] - 27, tone[1] - 30, 54, 60, 8); ctx.fill();
     ctx.fillStyle = TONE[toneOf(unit || {})];

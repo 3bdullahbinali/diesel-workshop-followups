@@ -50,7 +50,7 @@
     const X = w/2, Y = h/2, Z = d/2, o = [x, y, z], out = [], no = skip || [];
     const v = (a, b, c) => [x + a*X, y + b*Y, z + c*Z];
     const add = (name, pts) => {
-      if (!no.includes(name)) out.push(outward(pts, colour, o, {n: name}));
+      if (!no.includes(name)) out.push(outward(pts, colour, o, {n: name, o: 1}));
     };
     add('px', [v(1,-1,-1), v(1,-1,1), v(1,1,1), v(1,1,-1)]);
     add('nx', [v(-1,-1,-1), v(-1,-1,1), v(-1,1,1), v(-1,1,-1)]);
@@ -87,7 +87,7 @@
         const h = side*half;
         pts.push(axis === 'x' ? [x+h, y, z] : axis === 'y' ? [x, y+h, z] : [x, y, z+h]);
       }
-      out.push(outward(pts, colour, centre));
+      out.push(outward(pts, colour, centre, {o: 1}));
     };
     if (o.caps === 'both' || o.caps === 'near') cap(1);
     if (o.caps === 'both' || o.caps === 'far') cap(-1);
@@ -107,10 +107,10 @@
     const out = [];
     for (let i = 0; i < 4; i++){
       const j = (i+1)%4;
-      out.push(outward([q[i][0], q[j][0], q[j][1], q[i][1]], colour, mid));
+      out.push(outward([q[i][0], q[j][0], q[j][1], q[i][1]], colour, mid, {o: 1}));
     }
-    out.push(outward(q.map(c => c[0]), colour, mid));
-    out.push(outward(q.map(c => c[1]), colour, mid));
+    out.push(outward(q.map(c => c[0]), colour, mid, {o: 1}));
+    out.push(outward(q.map(c => c[1]), colour, mid, {o: 1}));
     return out;
   };
 
@@ -155,7 +155,30 @@
       out.push(outward([at(a0,r0,-1), at(a1,r1,-1), at(a1,r1,1), at(a0,r0,1)], colour, o));
     }
     for (const side of [1, -1])
-      out.push(outward(rim.map(([a, rad]) => at(a, rad, side)), colour, o));
+      out.push(outward(rim.map(([a, rad]) => at(a, rad, side)), colour, o, {o: 1}));
+    return out;
+  };
+
+  /**
+   * حلزون المضخة: مقطعه لولبي يتّسع من اللسان حتى فتحة الطرد، مبثوق على
+   * محور x. الأوجه مسمّاة (side · near · far) ليُشفّ الغطاء القريب وحده.
+   */
+  S.scroll = (x, y, z, r0, grow, width, seg, colour) => {
+    const prof = [];
+    for (let i = 0; i <= seg; i++){
+      const f = i/seg, th = f*Math.PI*2, r = r0 + grow*f;
+      prof.push([y + Math.cos(th)*r, z + Math.sin(th)*r]);
+    }
+    const o = [x, y, z], out = [], h = width/2;
+    const P = (p, side) => [x + side*h, p[0], p[1]];
+    for (let i = 0; i < prof.length - 1; i++)
+      out.push(outward([P(prof[i],-1), P(prof[i+1],-1), P(prof[i+1],1), P(prof[i],1)],
+                       colour, o, {n: 'side'}));
+    const last = prof[prof.length-1];
+    out.push(outward([P(last,-1), P(prof[0],-1), P(prof[0],1), P(last,1)],
+                     colour, o, {n: 'side', o: 1}));          // اللسان
+    out.push(outward(prof.map(p => P(p, 1)), colour, o, {n: 'near', o: 1}));
+    out.push(outward(prof.map(p => P(p,-1)), colour, o, {n: 'far', o: 1}));
     return out;
   };
 
@@ -179,7 +202,8 @@
     const yaw = cam.yaw, pit = cam.pitch, f = cam.focal || 1500;
     const cy = Math.cos(yaw), sy = Math.sin(yaw);
     const cp = Math.cos(pit), sp = Math.sin(pit);
-    const light = cam.light || norm([-0.45, 0.78, 0.62]);
+    const key = cam.light || norm([-0.42, 0.80, 0.56]);   // الضوء الرئيس
+    const fill = norm([0.62, 0.18, 0.72]);                 // ضوء ملء خافت
     const ready = [];
     for (const face of faces){
       const view = [];
@@ -191,7 +215,10 @@
       }
       const n = normalOf(view);
       if (!face.both && n[2] <= 0) continue;              // وجه مُدبِر: لا يُرسم
-      const lit = 0.40 + 0.60*Math.max(0, dot(norm(n), light));
+      const u = norm(n);
+      // ظلّ ذاتي بسيط: ما قرب من الأرض أعتم مما علا، فيُقرأ الحجم
+      const deep = 0.80 + 0.20*Math.min(1, Math.max(0, (centroid(face.p)[1] + 140)/260));
+      const lit = (0.26 + 0.64*Math.max(0, dot(u, key)) + 0.22*Math.max(0, dot(u, fill)))*deep;
       const flat = view.map(p => {
         const s = f/(f - p[2]);
         return [cam.ox + p[0]*s*cam.scale, cam.oy - p[1]*s*cam.scale];
@@ -203,7 +230,9 @@
       }
       ready.push({flat, z: zm/view.length, a: face.alpha == null ? 1 : face.alpha,
                   big: (x1 - x0) > 6 && (y1 - y0) > 6,
-                  c: shade(face.c, face.flat ? 1 : lit)});
+                  c: shade(face.c, face.flat ? 1 : lit),
+                  // حدّ داكن للأوجه المستوية يقرأ الشكل، ومثل اللون للمنحنية
+                  e: face.o ? shade(face.c, lit*0.42) : null});
     }
     ready.sort((a, b) => a.z - b.z);                      // الأبعد أولاً
     for (const r of ready){
@@ -213,7 +242,8 @@
       for (let i = 1; i < r.flat.length; i++) ctx.lineTo(r.flat[i][0], r.flat[i][1]);
       ctx.closePath();
       ctx.fillStyle = r.c; ctx.fill();
-      if (r.big){ ctx.strokeStyle = r.c; ctx.lineWidth = 0.8; ctx.stroke(); }  // يسدّ شقوق التجاور
+      if (r.e){ ctx.strokeStyle = r.e; ctx.lineWidth = 1.15; ctx.stroke(); }
+      else if (r.big){ ctx.strokeStyle = r.c; ctx.lineWidth = 0.8; ctx.stroke(); }
     }
     ctx.globalAlpha = 1;
     return ready.length;
