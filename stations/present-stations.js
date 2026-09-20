@@ -74,9 +74,14 @@
     const byRing = new Map();
     nodes = built.rows.map((r, i) => {
       const c = cards.get(r.id);
-      let lon, lat;
+      let lon, lat, placed = true;
       if (geographic && c && Number.isFinite(c.lat)) {
         lon = c.lon; lat = c.lat;
+      } else if (geographic) {
+        // حالة مختلطة: بعض المحطات لها إحداثي وبعضها لا. وضع الثانية في ترتيب
+        // تخطيطي يبعثرها عبر الكرة بينما تتجمع الأولى في مكانها، فتُقرأ كأنها
+        // محطات بعيدة. لا تُرسم أصلاً، ويُعلَن عددها.
+        placed = false; lon = 0; lat = 0;
       } else if (demoCoords) {
         const point = demo.coordFor(r.id);
         lon = point.lon; lat = point.lat;
@@ -89,7 +94,7 @@
         lat = Math.sin(angle) * ring * 62;
       }
       return {
-        id: r.id, name: r.name, lon, lat, row: r,
+        id: r.id, name: r.name, lon, lat, placed, row: r,
         tone: r.evidence.state.tone,
         pumps: r.assets.pumps.length, lines: r.assets.lines.length,
         card: c || null, i
@@ -97,7 +102,8 @@
     });
 
     // تقريب يملأ الشاشة بالمواقع: نطاق درجة ونطاق مئة درجة لا يُعرضان بمقياس واحد.
-    const lons = nodes.map(n => n.lon), lats = nodes.map(n => n.lat);
+    const shown = nodes.filter(n => n.placed);
+    const lons = shown.map(n => n.lon), lats = shown.map(n => n.lat);
     const lonMin = Math.min(...lons), lonMax = Math.max(...lons);
     const latMin = Math.min(...lats), latMax = Math.max(...lats);
     // النطاق بوحدة العالم المطبَّع لا بالدرجات، لأن مركاتور يمطّ خطوط العرض.
@@ -324,7 +330,7 @@
   function links(w, h) {
     if (!focus || focus.prev == null) return;
     const a = nodes[focus.prev], b = nodes[focus.index];
-    if (!a || !b) return;
+    if (!a || !b || !a.placed || !b.placed) return;
     ctx.beginPath(); ctx.strokeStyle = 'rgba(57,194,168,.45)'; ctx.lineWidth = 1.4;
     let drawn = false;
     for (let s = 0; s <= 1.0001; s += 0.02) {
@@ -339,6 +345,7 @@
   function dots(w, h, now) {
     const pulse = 0.5 + 0.5 * Math.sin(now / 520);
     for (const node of nodes) {
+      if (!node.placed) continue;
       const p = project(node.lon, node.lat, w, h);
       if (!p.visible) continue;
       const isFocus = focus && focus.index === node.i;
@@ -394,7 +401,7 @@
       orbit.className = 'pv-orbit';
       wrap.append(orbit);
     }
-    if (banner && !geographic) {
+    if (banner) {
       const note = document.createElement('span');
       note.className = 'pv-schematic';
       wrap.append(note);
@@ -424,6 +431,14 @@
     if (!sourceNote) return;
     const imagery = satellite && !tilesDown && cam.t > 0.55;
     sourceNote.classList.toggle('demo', demoCoords);
+    const off = nodes.filter(n => !n.placed).length;
+    if (geographic) {
+      sourceNote.classList.remove('demo');
+      sourceNote.hidden = !off;
+      if (off) sourceNote.textContent = off + ' محطة بلا إحداثيات لا تظهر على الخريطة';
+      return;
+    }
+    sourceNote.hidden = false;
     sourceNote.textContent = !demoCoords
       ? 'ترتيب تخطيطي بحسب حالة الدليل — الإحداثيات غير مزوَّدة'
       : imagery
@@ -443,6 +458,29 @@
   root.addEventListener('resize', resize);
 
   /* ————————————————————————————————— المشاهد ————————————————————————————————— */
+  /**
+   * منفذ قراءة لحالة الخريطة. لا يغيّر شيئاً، ويغني الفحص عن استنتاج الحالة من
+   * بكسلات اللوحة — وهو استنتاج يخطئ حين يشبه لونُ الخلفية لونَ النقطة.
+   */
+  root.StationsPresentMap = {
+    get state() {
+      return {
+        geographic, demoCoords, satellite, tilesDown,
+        fitZoom, center: { ...center }, cam: { ...cam },
+        placed: nodes.filter(n => n.placed).length,
+        unplaced: nodes.filter(n => !n.placed).length,
+        total: nodes.length
+      };
+    },
+    /** امتداد المواقع المرسومة على الشاشة بالبكسل، عند المقاس الممرَّر. */
+    spread(w, h) {
+      const shown = nodes.filter(n => n.placed).map(n => project(n.lon, n.lat, w, h));
+      if (!shown.length) return null;
+      const xs = shown.map(q => q.x), ys = shown.map(q => q.y);
+      return { w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
+    }
+  };
+
   P().register('health', {
     title: 'صحة وأصول المحطات الخارجية',
     scope: 'ما وُثِّق وما لم يوثَّق',
@@ -506,7 +544,7 @@
         } });
 
       // ٥ — الانتقال بين المواقع التي لها أصول
-      const stops = nodes.filter(n => n.pumps || n.lines)
+      const stops = nodes.filter(n => n.placed && (n.pumps || n.lines))
         .sort((a, b) => (b.pumps + b.lines) - (a.pumps + a.lines));
       stops.forEach((node, k) => {
         const r = node.row;
