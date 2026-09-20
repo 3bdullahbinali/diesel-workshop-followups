@@ -17,16 +17,16 @@ const check = (label, ok, detail = '') => {
   if (!ok) failures++;
 };
 
-const pages = ['index.html', 'readiness.html'];
+const pages = ['index.html', 'readiness.html', 'resources.html'];
 const refs = pages.flatMap(page => [...read(page).matchAll(/(?:src|href)="\.\/([^"]+)"/g)].map(m => m[1]));
 // روابط الصفحات بعضها إلى بعض ليست أصولاً مخزَّنة، فلا إصدار عليها.
 const assets = refs.filter(r => !r.split('?')[0].endsWith('.html'));
 
 const missing = refs.map(r => r.split('?')[0]).filter(f => !fs.existsSync(path.join(root, f)));
-check('كل ملف مشار إليه في الصفحتين موجود', missing.length === 0, missing.join('، '));
+check('كل ملف مشار إليه في الصفحات موجود', missing.length === 0, missing.join('، '));
 
 const versions = new Set(assets.map(r => (r.includes('?v=') ? r.split('?v=')[1] : 'بلا إصدار')));
-check('إصدار واحد في الصفحتين معاً', versions.size === 1 && !versions.has('بلا إصدار'), [...versions].join(' / '));
+check('إصدار واحد في كل الصفحات', versions.size === 1 && !versions.has('بلا إصدار'), [...versions].join(' / '));
 
 const between = (source, start, end) => {
   const from = source.indexOf(start);

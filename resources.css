@@ -1,0 +1,26 @@
+/* صفحة الموارد — تبني على أنماط صفحة الجاهزية (rd-) ولا تكرّرها،
+   فالصفحتان وجهان لسجل واحد ويجب أن تُقرآ بلغة بصرية واحدة. */
+.rx-wanted{font-size:1.5rem!important;line-height:1.35!important;letter-spacing:0!important}
+.rd-stat[role=group]{cursor:default}
+.rd-stat[role=group]:hover{background:#fff}
+
+.rx-need+.rx-need{margin-top:14px}
+.rx-need-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:.9375rem}
+.rx-need-head b{font:400 1.125rem/1.4 Arial,sans-serif;font-variant-numeric:tabular-nums;color:var(--green);white-space:nowrap}
+.rx-need-head b small{font:400 .75rem Tahoma,Arial,sans-serif;color:var(--muted)}
+.rx-bar{height:7px;border-radius:4px;background:#eef2ef;overflow:hidden;margin:6px 0 4px}
+.rx-bar span{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),#5c9b78)}
+#rx-needs{padding:0 20px 18px}
+#rx-sectors .rd-place{cursor:default}
+#rx-sectors .rd-place:hover{background:transparent}
+
+.rx-item-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:18px 20px 0;flex-wrap:wrap}
+.rx-item-head h4{margin:3px 0 0;font-size:1.0625rem;overflow-wrap:anywhere;line-height:1.5}
+#rx-item-code{font:400 .8125rem/1.6 Arial,sans-serif;color:var(--muted);display:block;direction:ltr;text-align:start}
+#rx-item-group{flex:none}
+.rx-shown{margin:0 24px 10px;font-size:.8125rem;color:var(--muted)}
+
+@media(max-width:900px){#rx-needs{padding-inline:18px}.rx-shown{margin-inline:18px}}
+@media(max-width:600px){#rx-needs{padding-inline:14px}.rx-shown{margin-inline:14px}.rx-wanted{font-size:1.25rem!important}}
+/* بطاقة الاحتياجات أطول من بطاقة الصنف، فلا تُمطّ الثانية لفراغ لا تملؤه. */
+#resources-panel .rd-workspace{align-items:start}
