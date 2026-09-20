@@ -49,14 +49,20 @@
     return { state, open, oldestAge: oldest };
   }
 
-  function assetsOf(stationId) {
-    const r = ref();
-    const pumps = (r.pumps || []).filter(p => p.stationId === stationId);
-    const lines = (r.lines || []).filter(l => l.stationId === stationId);
+  /**
+   * الأصول تُقرأ من ملف الأصول عبر الواجهة، لا من ملف ثابت.
+   * «مزوَّدة» هنا تعني أن صفوفاً وُجدت، لا أن حالتها مثبتة: صف كل حقوله unknown
+   * سجلٌ موجود ومجهول، والتمييز بينهما هو ما يمنع اللوحة من الكذب.
+   */
+  function assetsOf(data, stationId) {
+    const pumps = (data.pumps || []).filter(p => p.stationId === stationId);
+    const lines = (data.assetLines || []).filter(l => l.stationId === stationId);
+    const card = (data.assetStations || []).find(a => a.id === stationId) || null;
+    const verified = pumps.filter(p => p.inventory === 'verified').length;
     const state = pumps.length && lines.length ? ASSETS.supplied
       : pumps.length || lines.length ? ASSETS.partial
       : ASSETS.missing;
-    return { pumps, lines, state };
+    return { pumps, lines, card, verifiedPumps: verified, state };
   }
 
   /** آخر يوم عمل مسجَّل في المحطة — من السجل اليومي لا من المتابعة. */
@@ -68,17 +74,19 @@
   function stationHealth(data, place, asOf) {
     const view = model().stationView(data, place.id);
     const evidence = evidenceOf(view, asOf);
-    const assets = assetsOf(place.id);
+    const assets = assetsOf(data, place.id);
     const r = ref();
     const main = (r.mainStations || []).find(m => m.linked === place.id || m.proposed === place.id);
     const vac = (r.vacuumSystem?.stations || []).find(v => v.proposed === place.id);
     return {
       id: place.id,
       name: place.name,
+      locationOnly: Boolean(place.locationOnly),
       tier: main ? (main.linked === place.id ? 'main' : 'main_proposed') : null,
       mainName: main ? main.name : null,
       capacityLps: vac ? vac.capacityLps : null,
       builtYear: vac ? vac.builtYear : null,
+      card: assets.card,
       vacuum: Boolean(vac),
       vacuumProposed: Boolean(vac && vac.proposed === place.id),
       evidence, assets,
@@ -96,10 +104,11 @@
    * التغطية: الفجوة بين ما يقوله العرض (157 محطة) وما يعرفه الموقع.
    * هذا الرقم هو رسالة الصفحة الحقيقية، لا عدّاد الحالات الملوّنة.
    */
-  function coverage(rows) {
+  function coverage(rows, data) {
     const r = ref();
     const total = r.fleet?.total ?? null;
-    const tracked = rows.length;
+    // التغطية تقارن المحطات بالمحطات: إدخال المواقع المساندة فيها يضخّم النسبة.
+    const tracked = rows.filter(s => !s.locationOnly).length;
     return {
       total,
       tracked,
@@ -113,8 +122,12 @@
       mainUnknown: (r.mainStations || []).filter(m => !m.linked && !m.proposed).length,
       withPumps: rows.filter(s => s.assets.pumps.length).length,
       withLines: rows.filter(s => s.assets.lines.length).length,
-      pumpRows: (r.pumps || []).length,
-      lineRows: (r.lines || []).length
+      pumpRows: rows.reduce((n, s) => n + s.assets.pumps.length, 0),
+      lineRows: rows.reduce((n, s) => n + s.assets.lines.length, 0),
+      // الفرق بين «سُجِّلت» و«ثُبِّتت» هو رسالة الشاشة كلها.
+      verifiedPumps: rows.reduce((n, s) => n + s.assets.verifiedPumps, 0),
+      unknownHealth: rows.reduce((n, s) =>
+        n + s.assets.pumps.filter(p => !p.health || p.health === 'unknown').length, 0)
     };
   }
 
@@ -128,14 +141,20 @@
   /** ترتيب افتراضي: ما يحتاج نظراً أولاً، ثم الأقدم إفادةً. */
   const RANK = { stalled: 0, watch: 1, active: 2, none: 3, closed: 4 };
   function build(data, asOf) {
-    const places = [...(data.stations || [])];
+    // المواقع المساندة تدخل: أصل مربوط بـIND-03 أو بورشة الفريق أصلٌ قائم،
+    // وإسقاطه لأنه ليس «محطة» يُخفي سجلاً موجوداً. يُعلَّم ولا يُحذف، ويبقى
+    // خارج نسبة التغطية لأن الأسطول 157 محطة لا مواقع.
+    const places = [
+      ...(data.stations || []).map(p => ({ ...p, locationOnly: false })),
+      ...(data.locations || []).map(p => ({ ...p, locationOnly: true }))
+    ];
     const rows = places.map(p => stationHealth(data, p, asOf));
     rows.sort((a, b) => {
       const d = RANK[a.evidence.state.id] - RANK[b.evidence.state.id];
       if (d) return d;
       return (b.evidence.oldestAge ?? -1) - (a.evidence.oldestAge ?? -1);
     });
-    return { rows, coverage: coverage(rows), byEvidence: byEvidence(rows), ref: ref() };
+    return { rows, coverage: coverage(rows, data), byEvidence: byEvidence(rows), ref: ref() };
   }
 
   root.StationsHealthModel = { build, EVIDENCE, ASSETS, stationHealth, coverage };

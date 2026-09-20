@@ -245,6 +245,13 @@
     notes: text(row.Notes)
   }));
 
+  // فارغ ⇦ null لا صفر: الصفر ادعاء بأن العدد معلوم وهو معدوم.
+  const num = (cell) => {
+    const value = text(cell);
+    if (!value) return null;
+    const parsed = Number(String(value).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/,/g, ''));
+    return Number.isFinite(parsed) ? parsed : null;
+  };
   const places = (rowsIn) => withId(rowsIn, 'Reference_ID').map(row => ({
     id: text(row.Reference_ID),
     name: text(row.Name),
@@ -256,6 +263,114 @@
     owner: text(row.Owner),
     notes: text(row.Notes),
     locationOnly: bool(row.Location_Only)
+  }));
+
+  /* ————————————————————— ملف الأصول: المضخات والخطوط وبطاقة المحطة —————————————————————
+     سجل جردي لا حدثي: صف واحد لكل مضخة يُحدَّث سنوات. الخلية الفارغة هنا حالة
+     مشروعة تعني «لم يُثبت بعد»، فلا تُقرأ صفراً ولا تُسقط الصف — بخلاف سجل
+     المتابعات حيث الفراغ نقص. والقيمة تُنقل كما كُتبت: طبقة العرض تسمّيها إن
+     عرفتها وتعرضها خاماً إن لم تعرفها، ولا تُخمّن ولا تحذف. */
+
+  const pumps = (rowsIn) => withId(rowsIn, 'Pump_ID').map(row => ({
+    id: text(row.Pump_ID),
+    stationId: text(row.Station_ID),
+    stationName: text(row.Station_Name),
+    label: text(row.Pump_Label),
+    basis: text(row.Record_Basis),
+    inventory: text(row.Inventory_Status),
+    installation: text(row.Installation_Status),
+    operating: text(row.Operating_State),
+    health: text(row.Health_State),
+    statusAsOf: dateValue(row.Status_AsOf),
+    verifiedBy: text(row.Verified_By),
+    statusEvidence: text(row.Status_Evidence),
+    make: text(row.Manufacturer),
+    model: text(row.Model),
+    serial: text(row.Serial_Number),
+    duty: text(row.Duty_Role),
+    flow: number(row.Design_Flow_m3h),
+    head: number(row.Design_Head_m),
+    kw: number(row.Motor_kW),
+    suctionMm: number(row.Suction_mm),
+    dischargeMm: number(row.Discharge_mm),
+    suctionLineId: text(row.Suction_Line_ID),
+    dischargeLineId: text(row.Discharge_Line_ID),
+    historicalDate: dateValue(row.Historical_Date),
+    historicalNote: text(row.Historical_Note),
+    followupIds: list(row.Linked_Followup_IDs),
+    sourceRef: text(row.Source_Ref),
+    sourceUrl: text(row.Source_URL),
+    nextAction: text(row.Next_Action),
+    updatedAt: text(row.Updated_At),
+    updatedBy: text(row.Updated_By),
+    dataCheck: text(row.Data_Check)
+  }));
+
+  const assetLines = (rowsIn) => withId(rowsIn, 'Line_ID').map(row => ({
+    id: text(row.Line_ID),
+    stationId: text(row.Station_ID),
+    stationName: text(row.Station_Name),
+    label: text(row.Line_Label),
+    inventory: text(row.Inventory_Status),
+    flowState: text(row.Flow_State),
+    health: text(row.Health_State),
+    statusAsOf: dateValue(row.Status_AsOf),
+    verifiedBy: text(row.Verified_By),
+    statusEvidence: text(row.Status_Evidence),
+    service: text(row.Service_Type),
+    role: text(row.Line_Role),
+    fromStationId: text(row.From_Station_ID),
+    fromNode: text(row.From_Node_Label),
+    toStationId: text(row.To_Station_ID),
+    toNode: text(row.To_Node_Label),
+    diameterMm: number(row.Diameter_mm),
+    lengthM: number(row.Length_m),
+    material: text(row.Material),
+    directionBasis: text(row.Direction_Basis),
+    routeVerification: text(row.Route_Verification),
+    valveType: text(row.Valve_Type),
+    valveSizeMm: number(row.Valve_Size_mm),
+    historicalDate: dateValue(row.Historical_Date),
+    historicalNote: text(row.Historical_Note),
+    followupIds: list(row.Linked_Followup_IDs),
+    sourceRef: text(row.Source_Ref),
+    sourceUrl: text(row.Source_URL),
+    nextAction: text(row.Next_Action),
+    updatedAt: text(row.Updated_At),
+    updatedBy: text(row.Updated_By),
+    dataCheck: text(row.Data_Check)
+  }));
+
+  const assetStations = (rowsIn) => withId(rowsIn, 'Station_ID').map(row => ({
+    id: text(row.Station_ID),
+    name: text(row.Station_Name),
+    locationOnly: bool(row.Location_Only),
+    referenceType: text(row.Reference_Type),
+    inventory: text(row.Inventory_Status),
+    operating: text(row.Operating_State),
+    health: text(row.Health_State),
+    statusAsOf: dateValue(row.Status_AsOf),
+    verifiedBy: text(row.Verified_By),
+    statusEvidence: text(row.Status_Evidence),
+    lat: number(row.Latitude),
+    lon: number(row.Longitude),
+    // «المبلَّغ» لا «المثبَّت»: عدد ورد في بيان، ولم يُطابَق بسجلات مرقّمة.
+    reportedInstalled: number(row.Reported_Installed_Pumps),
+    reportedSpares: number(row.Reported_Warehouse_Spares),
+    countAsOf: dateValue(row.Count_AsOf),
+    countEvidence: text(row.Count_Evidence),
+    requiredDuty: number(row.Required_Duty_Pumps),
+    service: text(row.Service_Type),
+    owner: text(row.Owner),
+    historicalNote: text(row.Historical_Note),
+    nextAction: text(row.Next_Action),
+    sourceUrl: text(row.Source_URL),
+    updatedAt: text(row.Updated_At),
+    updatedBy: text(row.Updated_By),
+    registeredPumps: number(row.Registered_Pump_Records),
+    registeredLines: number(row.Registered_Line_Records),
+    verifiedInstalled: number(row.Verified_Installed_Records),
+    dataCheck: text(row.Data_Check)
   }));
 
   const issues = (rowsIn) => withId(rowsIn, 'Finding_ID').map(row => ({
@@ -311,6 +426,9 @@
     const s = take('stations', places);
     const i = take('issues', issues);
     const src = take('sources', sources);
+    const pmp = take('pumps', pumps);
+    const lns = take('lines', assetLines);
+    const ast = take('assets', assetStations);
 
     if (!f) throw new Error('تعذّر قراءة تبويب المتابعات؛ أُبقي العرض على النسخة المضمّنة. ' + warnings.join(' '));
 
@@ -323,6 +441,10 @@
       sources: src || snapshot.sources,
       procurement: pr || [],
       prItems: prItems || [],
+      // سجل الأصول اختياري: تعذّر قراءته لا يمنع عرض سجل المتابعات.
+      pumps: pmp || [],
+      assetLines: lns || [],
+      assetStations: ast || [],
       meta: { ...snapshot.meta, source: sourceName, fetchedAt: new Date().toISOString() }
     };
 

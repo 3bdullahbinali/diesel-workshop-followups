@@ -52,40 +52,79 @@
 
   /* ---------------------------------------------------------- بطاقة محطة */
 
+  const tag = (group, value) => {
+    const L = root.STATIONS_HEALTH_REF.label(group, value);
+    return `<span class="hm-chip tone-${L.tone}${L.known ? '' : ' unknown'}"${
+      L.known ? '' : ' title="قيمة غير معرّفة في المفردات"'}>${esc(L.name)}</span>`;
+  };
+  const cell = (value, suffix) => value == null || value === ''
+    ? dash : esc(value) + (suffix ? ' ' + suffix : '');
+
+  /** سطر المصدر: كل صف في سجل الأصول يحمل من أين جاء، والرابط يفتح الصف نفسه. */
+  const provenance = (row) => {
+    const bits = [];
+    if (row.historicalDate) bits.push('إفادة ' + esc(row.historicalDate));
+    if (row.sourceRef) bits.push(esc(row.sourceRef));
+    if (!bits.length) return '';
+    return `<p class="hm-src">${bits.join(' · ')}${row.sourceUrl
+      ? ` — <a href="${esc(row.sourceUrl)}" target="_blank" rel="noopener noreferrer">الصف المصدر</a>` : ''}</p>`;
+  };
+
   function pumpTable(pumps) {
-    if (!pumps.length) return '';
-    const states = root.STATIONS_HEALTH_REF.pumpStates;
-    return `<table class="hm-table"><thead><tr>
-      <th>الرمز</th><th>الشركة</th><th>الطراز</th><th>القدرة</th><th>الحالة</th><th>آخر صيانة</th>
-      </tr></thead><tbody>${pumps.map(p => {
-        const s = states[p.state];
-        return `<tr><td>${esc(p.tag)}</td><td>${p.make ? esc(p.make) : dash}</td>
-          <td>${p.model ? esc(p.model) : dash}</td>
-          <td>${p.kw == null ? dash : num(p.kw) + ' كيلوواط'}</td>
-          <td>${s ? chip(s) : dash}</td>
-          <td>${p.lastService ? esc(p.lastService) : dash}</td></tr>`;
-      }).join('')}</tbody></table>`;
+    return pumps.map(p => `<div class="hm-asset">
+      <div class="hm-asset-head">
+        <b>${esc(p.label || p.id)}</b>
+        <span class="hm-asset-id">${esc(p.id)}</span>
+      </div>
+      <div class="hm-asset-states">
+        ${tag('inventory', p.inventory)}${tag('installation', p.installation)}
+        ${tag('operating', p.operating)}${tag('health', p.health)}${tag('duty', p.duty)}
+      </div>
+      <dl class="hm-asset-spec">
+        <div><dt>الصانع</dt><dd>${cell(p.make)}</dd></div>
+        <div><dt>الطراز</dt><dd>${cell(p.model)}</dd></div>
+        <div><dt>السيريال</dt><dd>${cell(p.serial)}</dd></div>
+        <div><dt>القدرة</dt><dd>${p.kw == null ? dash : num(p.kw) + ' كيلوواط'}</dd></div>
+        <div><dt>التدفق</dt><dd>${p.flow == null ? dash : num(p.flow) + ' م³/س'}</dd></div>
+        <div><dt>الرفع</dt><dd>${p.head == null ? dash : num(p.head) + ' م'}</dd></div>
+        <div><dt>أساس السجل</dt><dd>${tag('basis', p.basis)}</dd></div>
+        <div><dt>الحالة بتاريخ</dt><dd>${cell(p.statusAsOf)}</dd></div>
+      </dl>
+      ${p.historicalNote ? `<p class="hm-asset-note">${esc(p.historicalNote)}</p>` : ''}
+      ${p.nextAction ? `<p class="hm-asset-next"><b>الإجراء التالي:</b> ${esc(p.nextAction)}</p>` : ''}
+      ${provenance(p)}
+    </div>`).join('');
   }
 
   function lineTable(lines) {
-    if (!lines.length) return '';
-    const states = root.STATIONS_HEALTH_REF.lineStates;
-    return `<table class="hm-table"><thead><tr>
-      <th>الخط</th><th>القطر</th><th>الطول</th><th>المادة</th><th>الحالة</th><th>آخر مسح</th>
-      </tr></thead><tbody>${lines.map(l => {
-        const s = states[l.state];
-        return `<tr><td>${esc(l.tag)}</td>
-          <td>${l.diameterMm == null ? dash : num(l.diameterMm) + ' مم'}</td>
-          <td>${l.lengthM == null ? dash : num(l.lengthM) + ' م'}</td>
-          <td>${l.material ? esc(l.material) : dash}</td>
-          <td>${s ? chip(s) : dash}</td>
-          <td>${l.lastSurvey ? esc(l.lastSurvey) : dash}</td></tr>`;
-      }).join('')}</tbody></table>`;
+    return lines.map(l => `<div class="hm-asset">
+      <div class="hm-asset-head">
+        <b>${esc(l.label || l.id)}</b>
+        <span class="hm-asset-id">${esc(l.id)}</span>
+      </div>
+      <div class="hm-asset-states">
+        ${tag('inventory', l.inventory)}${tag('flowState', l.flowState)}
+        ${tag('health', l.health)}${tag('service', l.service)}${tag('role', l.role)}
+      </div>
+      <dl class="hm-asset-spec">
+        <div><dt>من</dt><dd>${cell(l.fromNode || l.fromStationId)}</dd></div>
+        <div><dt>إلى</dt><dd>${cell(l.toNode || l.toStationId)}</dd></div>
+        <div><dt>القطر</dt><dd>${l.diameterMm == null ? dash : num(l.diameterMm) + ' مم'}</dd></div>
+        <div><dt>الطول</dt><dd>${l.lengthM == null ? dash : num(l.lengthM) + ' م'}</dd></div>
+        <div><dt>المادة</dt><dd>${cell(l.material)}</dd></div>
+        <div><dt>الصمام</dt><dd>${l.valveType
+          ? esc(l.valveType) + (l.valveSizeMm ? ' — ' + num(l.valveSizeMm) + ' مم' : '') : dash}</dd></div>
+        <div><dt>أساس الاتجاه</dt><dd>${tag('directionBasis', l.directionBasis)}</dd></div>
+        <div><dt>المسار</dt><dd>${tag('routeVerification', l.routeVerification)}</dd></div>
+      </dl>
+      ${l.historicalNote ? `<p class="hm-asset-note">${esc(l.historicalNote)}</p>` : ''}
+      ${l.nextAction ? `<p class="hm-asset-next"><b>الإجراء التالي:</b> ${esc(l.nextAction)}</p>` : ''}
+      ${provenance(l)}
+    </div>`).join('');
   }
 
-  const emptyAssets = (what, shape) => `<div class="hm-empty">
-    <p>لا ${what} مسجّلة لهذه المحطة بعد.</p>
-    <code>${esc(shape)}</code>
+  const emptyAssets = (what) => `<div class="hm-empty">
+    <p>لا ${what} مسجّلة لهذه المحطة في ملف الأصول بعد.</p>
   </div>`;
 
   function card(s, index) {
@@ -93,7 +132,8 @@
     const badges = [
       s.tier === 'main' ? '<span class="hm-badge main">محطة رئيسية</span>' : '',
       s.tier === 'main_proposed' ? '<span class="hm-badge propose">رئيسية — مطابقة مقترحة</span>' : '',
-      s.vacuum ? `<span class="hm-badge vac">سحب فراغي${s.vacuumProposed ? ' — مقترحة' : ''}</span>` : ''
+      s.vacuum ? `<span class="hm-badge vac">سحب فراغي${s.vacuumProposed ? ' — مقترحة' : ''}</span>` : '',
+      s.locationOnly ? '<span class="hm-badge site">موقع مساندة — ليس محطة</span>' : ''
     ].join('');
 
     return `<article class="hm-card tone-${ev.state.tone}${isOpen ? ' is-open' : ''}"
@@ -117,21 +157,31 @@
         <span>أنشطة <b>${num(s.daily.length)}</b></span>
         <span>مضخات ${s.assets.pumps.length ? `<b>${num(s.assets.pumps.length)}</b>` : dash}</span>
         <span>خطوط ${s.assets.lines.length ? `<b>${num(s.assets.lines.length)}</b>` : dash}</span>
+        ${s.card && s.card.reportedInstalled != null
+          ? `<span>مبلَّغ <b>${num(s.card.reportedInstalled)}</b></span>` : ''}
       </div>
 
       <div class="hm-card-body" ${isOpen ? '' : 'hidden'}>
         <p class="hm-why">${esc(ev.state.note)}</p>
 
+        ${s.card && (s.card.reportedInstalled != null || s.card.reportedSpares != null) ? `
+          <p class="hm-spec">المبلَّغ في البيان: ${s.card.reportedInstalled == null ? dash
+            : num(s.card.reportedInstalled) + ' مركّبة'}${s.card.reportedSpares == null ? ''
+            : ' · ' + num(s.card.reportedSpares) + ' بالمستودع'}
+          ${s.card.countAsOf ? ` <span class="hm-src">بتاريخ ${esc(s.card.countAsOf)}</span>` : ''}
+          <br><span class="hm-src">المسجَّل بسجلات مرقّمة: ${num(s.assets.pumps.length)} —
+          العدد المبلَّغ ليس إثباتاً لسجلات مطابِقة.</span></p>` : ''}
+
+        ${s.card && s.card.historicalNote ? `<p class="hm-why">${esc(s.card.historicalNote)}</p>` : ''}
+
         ${s.capacityLps != null ? `<p class="hm-spec">السعة ${num(s.capacityLps)} لتر/الثانية ·
           أُنشئت عام ${num(s.builtYear)} <span class="hm-src">— عرض القسم، صفحة 19</span></p>` : ''}
 
         <h4>المضخات</h4>
-        ${s.assets.pumps.length ? pumpTable(s.assets.pumps)
-          : emptyAssets('مضخات', "{ stationId:'" + s.id + "', tag:'P-1', make:null, model:null, kw:null, state:'running', lastService:null }")}
+        ${s.assets.pumps.length ? pumpTable(s.assets.pumps) : emptyAssets('مضخات')}
 
         <h4>الخطوط</h4>
-        ${s.assets.lines.length ? lineTable(s.assets.lines)
-          : emptyAssets('خطوط', "{ stationId:'" + s.id + "', tag:'L-1', diameterMm:null, lengthM:null, material:null, state:'clear', lastSurvey:null }")}
+        ${s.assets.lines.length ? lineTable(s.assets.lines) : emptyAssets('خطوط')}
 
         ${ev.open.length ? `<h4>المتابعات المفتوحة</h4>
           <ul class="hm-list">${ev.open.map(f => `<li>
@@ -174,12 +224,14 @@
       <h3>ما لا يعرفه الموقع بعد</h3>
       <div class="hm-gap-grid">
         ${stat(cov.untracked, 'محطة بلا سجل', 'لم تَرِد في أي متابعة أو نشاط', 'none')}
-        ${stat(cov.pumpRows, 'صف مضخة', 'السجل فارغ حتى تُزوَّد', 'none')}
-        ${stat(cov.lineRows, 'صف خط', 'السجل فارغ حتى تُزوَّد', 'none')}
+        ${stat(cov.pumpRows, 'مضخة مسجّلة', cov.verifiedPumps + ' منها مثبتة', 'none')}
+        ${stat(cov.unknownHealth, 'مضخة حالتها غير مثبتة', 'سُجّلت ولم تُفحص', 'warn')}
+        ${stat(cov.lineRows, 'خط مسجَّل', 'من ملف الأصول', 'none')}
         ${stat(cov.mainUnknown, 'محطة رئيسية بلا مقابل', 'من الثماني، لا سجل لها', 'warn')}
       </div>
-      <p class="hm-note">غياب السجل ليس دليل سلامة. هذه الصفحة تعرض صحة
-      <b>السجل</b>، وصحة المعدة تحتاج بيانات المضخات والخطوط.</p>
+      <p class="hm-note">غياب السجل ليس دليل سلامة، و<b>وجود السجل ليس إثبات حالة</b>:
+      صف كل حقوله «غير مثبت» سجلٌ موجود ومجهول. التمييز بين الاثنين هو ما يمنع
+      هذه الشاشة من أن تكذب.</p>
     </section>`;
   }
 
@@ -265,6 +317,7 @@
           <option value="main"${filters.tier === 'main' ? ' selected' : ''}>الرئيسية فقط</option>
           <option value="vacuum"${filters.tier === 'vacuum' ? ' selected' : ''}>السحب الفراغي</option>
           <option value="assets"${filters.tier === 'assets' ? ' selected' : ''}>لها مضخات أو خطوط</option>
+          <option value="sites"${filters.tier === 'sites' ? ' selected' : ''}>مواقع مساندة</option>
         </select>
         <input type="search" id="hm-q" placeholder="ابحث باسم المحطة أو رمزها"
           value="${esc(filters.query)}" aria-label="بحث">
@@ -277,6 +330,7 @@
     if (filters.tier === 'main' && !s.tier) return false;
     if (filters.tier === 'vacuum' && !s.vacuum) return false;
     if (filters.tier === 'assets' && !s.assets.pumps.length && !s.assets.lines.length) return false;
+    if (filters.tier === 'sites' && !s.locationOnly) return false;
     const q = filters.query.trim();
     if (q && !(s.name + ' ' + s.id).toLowerCase().includes(q.toLowerCase())) return false;
     return true;

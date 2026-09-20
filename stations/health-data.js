@@ -6,7 +6,8 @@
  * منه شيء لم يُذكر صراحة. ما لم يذكره العرض قيمته null لا صفر: الصفر ادعاء،
  * وnull اعتراف بأن البيانات لم تصل بعد.
  *
- * المضخات والخطوط تحديداً فارغة عمداً حتى تُزوَّد. لا يُملأ فراغها بتقدير.
+ * المضخات والخطوط ليست هنا: مكانها ملف «صحة وأصول المحطات الخارجية» وتُقرأ
+ * عبر الواجهة مثل بقية السجل. هذا الملف مفرداتها ومرجع الأسطول فقط.
  */
 (function (root) {
 
@@ -89,44 +90,95 @@
     ]
   };
 
-  /**
-   * حالات المضخة وحالات الخط — القوائم المسموح بها حين تصل البيانات.
-   * القيمة خارج القائمة تُرفض ولا تُخمَّن، كما في بقية الموقع.
-   */
-  const pumpStates = {
-    running:   { name: 'تعمل',            tone: 'ok'   },
-    standby:   { name: 'احتياط جاهز',     tone: 'ok'   },
-    stopped:   { name: 'متوقفة',          tone: 'high' },
-    service:   { name: 'تحت الصيانة',     tone: 'warn' },
-    needs_fix: { name: 'تحتاج صيانة',     tone: 'warn' },
-    write_off: { name: 'مرشحة للشطب',     tone: 'high' }
+  /* ————————————————————————— مفردات سجل الأصول —————————————————————————
+     القيم تأتي من الشيت كما كُتبت. المعروفة تُسمّى بالعربية ويُعطى لها لون،
+     وغير المعروفة تُعرض خاماً وتُعدّ في قائمة «قيم غير معرّفة» بدل أن تُحذف أو
+     تُخمَّن — فالسجل ينمو، ومفردة جديدة يجب أن تَظهر لا أن تَختفي.
+
+     unknown ليست حالة سيئة: هي إقرار بأن الحقل لم يُثبت بعد، وهي الصادقة ما
+     دام لا دليل. الخطر أن تُعرض كـ«سليمة». */
+  const VOCAB = {
+    basis: {
+      numbered_reference:   { name: 'مرجع مرقّم',           tone: 'calm' },
+      serial_identified:    { name: 'معرّفة بالسيريال',      tone: 'calm' },
+      unnumbered_reference: { name: 'مرجع بلا رقم',         tone: 'warn' }
+    },
+    inventory: {
+      verified:           { name: 'مثبتة',          tone: 'ok'   },
+      needs_verification: { name: 'تحتاج تحققاً',    tone: 'warn' }
+    },
+    installation: {
+      installed: { name: 'مركّبة',            tone: 'ok'   },
+      spare:     { name: 'احتياط بالمستودع',  tone: 'calm' },
+      removed:   { name: 'مرفوعة',            tone: 'warn' },
+      unknown:   { name: 'غير مثبت',          tone: 'none' }
+    },
+    operating: {
+      running:  { name: 'تعمل',        tone: 'ok'   },
+      standby:  { name: 'احتياط',      tone: 'ok'   },
+      stopped:  { name: 'متوقفة',      tone: 'high' },
+      unknown:  { name: 'غير مثبت',    tone: 'none' }
+    },
+    health: {
+      healthy:            { name: 'سليمة',         tone: 'ok'   },
+      needs_maintenance:  { name: 'تحتاج صيانة',   tone: 'warn' },
+      under_maintenance:  { name: 'تحت الصيانة',   tone: 'warn' },
+      faulty:             { name: 'معطّلة',         tone: 'high' },
+      write_off:          { name: 'مرشحة للشطب',   tone: 'high' },
+      unknown:            { name: 'غير مثبت',      tone: 'none' }
+    },
+    duty: {
+      duty:    { name: 'تشغيل',    tone: 'ok'   },
+      standby: { name: 'احتياط',   tone: 'calm' },
+      unknown: { name: 'غير مثبت', tone: 'none' }
+    },
+    flowState: {
+      flowing: { name: 'سريان طبيعي', tone: 'ok'   },
+      partial: { name: 'سريان جزئي',  tone: 'warn' },
+      blocked: { name: 'مسدود',       tone: 'high' },
+      isolated:{ name: 'معزول',       tone: 'calm' },
+      unknown: { name: 'غير مثبت',    tone: 'none' }
+    },
+    service: {
+      sewage:       { name: 'صرف صحي',        tone: 'calm' },
+      storm:        { name: 'مياه أمطار',     tone: 'calm' },
+      TSE:          { name: 'مياه معالجة',    tone: 'calm' },
+      vacuum_system:{ name: 'سحب فراغي',      tone: 'calm' },
+      unknown:      { name: 'غير مثبت',       tone: 'none' }
+    },
+    role: {
+      discharge: { name: 'خط طرد',    tone: 'calm' },
+      suction:   { name: 'خط سحب',    tone: 'calm' },
+      transfer:  { name: 'خط نقل',    tone: 'calm' },
+      filling:   { name: 'خط تعبئة',  tone: 'calm' },
+      bypass:    { name: 'خط تجاوز',  tone: 'calm' },
+      gravity:   { name: 'خط انسيابي', tone: 'calm' }
+    },
+    directionBasis: {
+      design_reference: { name: 'من مرجع تصميمي', tone: 'calm' },
+      field_verified:   { name: 'محقَّق ميدانياً',  tone: 'ok'   },
+      unknown:          { name: 'غير مثبت',       tone: 'none' }
+    },
+    routeVerification: {
+      not_provided:  { name: 'المسار غير مزوَّد', tone: 'none' },
+      surveyed:      { name: 'ممسوح',            tone: 'ok'   },
+      approximate:   { name: 'تقريبي',           tone: 'warn' }
+    },
+    referenceType: {
+      station_or_site: { name: 'محطة أو موقع',  tone: 'calm' },
+      network_site:    { name: 'موقع شبكة',     tone: 'calm' },
+      support:         { name: 'موقع مساندة',   tone: 'calm' },
+      unassigned:      { name: 'غير محدد',      tone: 'none' }
+    }
   };
 
-  const lineStates = {
-    clear:     { name: 'سالك',            tone: 'ok'   },
-    watch:     { name: 'تحت المراقبة',    tone: 'warn' },
-    partial:   { name: 'انسداد جزئي',     tone: 'warn' },
-    blocked:   { name: 'مسدود',           tone: 'high' },
-    lined:     { name: 'مُبطَّن',          tone: 'ok'   },
-    damaged:   { name: 'متضرر',           tone: 'high' }
-  };
+  /** يسمّي القيمة إن عرفها، ويعرضها خاماً إن لم يعرفها — ولا يحذفها أبداً. */
+  function label(group, value) {
+    if (value == null || value === '') return { name: 'لم يُزوَّد', tone: 'none', known: true, empty: true };
+    const found = VOCAB[group] && VOCAB[group][value];
+    if (found) return { ...found, known: true, empty: false };
+    return { name: String(value), tone: 'warn', known: false, empty: false };
+  }
 
-  /**
-   * سجل المضخات والخطوط. يبدأ فارغاً بالكامل.
-   *
-   * حين تصل بياناتك ضع هنا صفوفاً بهذا الشكل بالضبط:
-   *   pumps: [{ stationId:'PS-01', tag:'P-1', make:null, model:null, kw:null,
-   *             state:'running', lastService:null, notes:null }]
-   *   lines: [{ stationId:'PS-01', tag:'L-1', diameterMm:null,
-   *             lengthM:null, material:null, state:'clear', lastSurvey:null, notes:null }]
-   *
-   * الحقل المجهول يبقى null. القارئ يعرض «لم تُزوَّد» ولا يحسبها صفراً.
-   */
-  const pumps = [];
-  const lines = [];
-
-  root.STATIONS_HEALTH_REF = {
-    department, fleet, mainStations, componentKinds, vacuumSystem,
-    pumpStates, lineStates, pumps, lines
-  };
+  root.STATIONS_HEALTH_REF = { department, fleet, mainStations, componentKinds, vacuumSystem, VOCAB, label };
 })(window);

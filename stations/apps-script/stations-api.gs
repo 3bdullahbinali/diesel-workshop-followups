@@ -17,6 +17,11 @@
 
 var CONFIG = {
   spreadsheetId: '1nUVhyx2UreJ3TftmMHdqx8ZLJN5oti4EFycWoF6u-Gc',
+  // ملف ثانٍ للأصول: سجل المتابعات حدثي (صفوف تُفتح وتُغلق)، وسجل الأصول جردي
+  // (صف واحد لكل مضخة يُحدَّث سنوات). فصلهما يمنع أن يفتح تعديل مضخةٍ ملفاً فيه
+  // 44 متابعة، ويُبقي صلاحية كل سجل على حدة. المشروع واحد لأن الحسابات والجلسات
+  // وسجل الوصول تبقى واحدة بدل أن تتضاعف.
+  assetsSpreadsheetId: '1otrWUk9kxS6mK09m2F8A4PXa7OKvwbObYDjp-uLAvFM',
   usersSheet: 'المستخدمون',
   sessionsSheet: 'الجلسات',
   auditSheet: 'سجل الوصول',
@@ -39,7 +44,11 @@ var TABS = {
   stations:    {name: 'Stations',         key: 'Reference_ID'},
   issues:      {name: 'DataReview',       key: 'Finding_ID'},
   sources:     {name: 'Sources',          key: 'Source_ID'},
-  items:       {name: 'PR_Items',         key: 'Item_ID'}
+  items:       {name: 'PR_Items',         key: 'Item_ID'},
+  // تبويبات ملف الأصول. book يحدد أي ملف يُفتح؛ غيابه يعني ملف المتابعات.
+  pumps:       {name: 'Pumps',    key: 'Pump_ID',    book: 'assets'},
+  lines:       {name: 'Lines',    key: 'Line_ID',    book: 'assets'},
+  assets:      {name: 'Stations', key: 'Station_ID', book: 'assets'}
 };
 
 var ROLES = {viewer: 'قراءة فقط', editor: 'قراءة وتحديث', admin: 'إدارة كاملة'};
@@ -94,8 +103,14 @@ function doGet() {
     report.ready = report.users > 0;
     report.tabs = {};
     for (var key in TABS) {
-      var sheet = sheetByName(TABS[key].name);
-      report.tabs[TABS[key].name] = sheet ? Math.max(sheet.getLastRow() - 1, 0) : 'الورقة غير موجودة';
+      var tab = TABS[key];
+      var label = (tab.book === 'assets' ? 'الأصول/' : '') + tab.name;
+      try {
+        var sheet = sheetByName(tab.name, tab.book);
+        report.tabs[label] = sheet ? Math.max(sheet.getLastRow() - 1, 0) : 'الورقة غير موجودة';
+      } catch (tabError) {
+        report.tabs[label] = message(tabError);
+      }
     }
     if (!report.users) report.next = 'شغّل setup ثم addUser من محرر Apps Script.';
   } catch (error) {
@@ -247,8 +262,8 @@ function readAll(user, wanted, isPublic) {
     var key = requested[i];
     var tab = TABS[key];
     if (!tab) continue;
-    var sheet = sheetByName(tab.name);
-    if (!sheet) { payload.missing.push(tab.name); continue; }
+    var sheet = sheetByName(tab.name, tab.book);
+    if (!sheet) { payload.missing.push((tab.book || 'main') + '/' + tab.name); continue; }
     var rows = tabRows(sheet, tab.key);
     payload.tabs[key] = rows;
     total += rows.length;
@@ -289,17 +304,24 @@ function cellValue(value) {
 
 /* ————— أدوات ————— */
 
-function sheetByName(name) { return book().getSheetByName(name); }
+function sheetByName(name, which) { return book(which).getSheetByName(name); }
 
-function book() {
-  if (CONFIG.spreadsheetId) return SpreadsheetApp.openById(CONFIG.spreadsheetId);
-  var active = SpreadsheetApp.getActiveSpreadsheet();
-  if (!active) throw new Error('ضع معرّف الملف في CONFIG.spreadsheetId.');
-  return active;
+/** الملفات تُفتح مرة واحدة لكل طلب: فتح متكرر لنفس المعرّف بطيء بلا فائدة. */
+var BOOKS = {};
+function book(which) {
+  var id = which === 'assets' ? CONFIG.assetsSpreadsheetId : CONFIG.spreadsheetId;
+  if (which === 'assets' && !id) throw new Error('ضع معرّف ملف الأصول في CONFIG.assetsSpreadsheetId.');
+  if (!id) {
+    var active = SpreadsheetApp.getActiveSpreadsheet();
+    if (!active) throw new Error('ضع معرّف الملف في CONFIG.spreadsheetId.');
+    return active;
+  }
+  if (!BOOKS[id]) BOOKS[id] = SpreadsheetApp.openById(id);
+  return BOOKS[id];
 }
 
 function ensureSheet(name, headers, hidden) {
-  var file = book();
+  var file = book();  // أوراق الحسابات والجلسات في ملف المتابعات وحده.
   var sheet = file.getSheetByName(name);
   if (!sheet) {
     sheet = file.insertSheet(name);

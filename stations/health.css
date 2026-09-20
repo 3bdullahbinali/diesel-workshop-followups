@@ -243,3 +243,32 @@
 /* زر التبويب: يحمل زرقة الشاشة التي يفتحها، فيُعرف قبل الضغط. */
 .tabs .tab-health[aria-selected=true]{color:#0b3f6e;border-bottom-color:#2d82c4;background:#eef5fb}
 .tabs .tab-health:hover{color:#12598f}
+
+/* ———————————————————————— بطاقة أصل: مضخة أو خط ————————————————————————
+   الجدول لا يصلح هنا: الصف الواحد فيه خمس حالات وثماني مواصفات وملاحظة
+   وإجراء ومصدر، وعلى الجوال يصير تمريراً أفقياً لا يُقرأ. */
+.hm-asset{border:1px solid var(--hb-line);border-radius:10px;padding:13px 15px;
+  background:#fff;margin-bottom:10px}
+.hm-asset:last-child{margin-bottom:0}
+.hm-asset-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.hm-asset-head b{color:var(--hb-ink);font-size:.9375rem}
+.hm-asset-id{font-family:Arial,sans-serif;font-size:.75rem;color:#8296a6;
+  background:var(--hb-pale);border-radius:5px;padding:1px 7px}
+.hm-asset-states{display:flex;flex-wrap:wrap;gap:5px;margin:9px 0}
+/* القيمة التي لا تعرفها المفردات تُعلَّم ولا تُخفى. */
+.hm-chip.unknown{border:1px dashed #c9a463}
+
+.hm-asset-spec{display:grid;grid-template-columns:repeat(auto-fit,minmax(138px,1fr));
+  gap:7px 14px;margin:0}
+.hm-asset-spec>div{min-width:0}
+.hm-asset-spec dt{font-size:.75rem;color:#7690a8;margin:0}
+.hm-asset-spec dd{margin:0;font-size:.875rem;color:var(--hb-ink);word-break:break-word}
+
+.hm-asset-note{margin:10px 0 0;font-size:.8125rem;color:#5b7183;line-height:1.75;
+  background:var(--hb-pale);border-radius:7px;padding:8px 11px}
+.hm-asset-next{margin:8px 0 0;font-size:.8125rem;color:#6b4f1d;
+  background:#fdf7ec;border-radius:7px;padding:8px 11px}
+.hm-asset-next b{color:#5a4217}
+.hm-asset .hm-src{margin:8px 0 0;display:block}
+.hm-asset .hm-src a{color:var(--hb-2)}
+.hm-badge.site{background:#f2f4f6;color:#5b7183;border:1px solid #d7dee4}
