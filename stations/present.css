@@ -137,7 +137,7 @@
 
 /* ————————————————————————————— مشهد المحطات ————————————————————————————— */
 .pv-globe-wrap{position:relative;display:grid;place-items:center;width:100%;height:100%}
-.pv-globe{width:min(74vmin,660px);height:min(74vmin,660px);display:block}
+.pv-globe{width:100%;height:100%;display:block}
 /* حلقة تدور حول الكرة: إحساس المدار بلا حساب ثلاثي الأبعاد إضافي. */
 .pv-orbit{position:absolute;width:min(88vmin,780px);height:min(88vmin,780px);
   border:1px solid var(--pv-line);border-radius:50%;pointer-events:none;
@@ -216,7 +216,6 @@
   .pv-panel{position:static;width:92vw;transform:none;margin-top:16px;animation-name:pv-reveal;
     padding:16px 18px}
   .pv-panel-grid{grid-template-columns:1fr 1fr;gap:9px 14px}
-  .pv-globe{width:72vmin;height:72vmin}
   .pv-orbit{width:84vmin;height:84vmin}
   .pv-schematic{font-size:.6875rem;padding:3px 10px;max-width:92vw;text-align:center}
 
@@ -249,3 +248,9 @@
    الثانية تقول «لا موضع»، والأولى تعرض موضعاً ليس حقيقياً — وهذا أخطر. */
 .pv-schematic.demo{color:#ffb8ac;border-color:rgba(242,112,95,.6);
   background:rgba(242,112,95,.12);font-weight:600}
+
+/* لافتة تعذّر تحميل الصور: تحت لافتة المصدر لا مكانها. */
+.pv-tiles-note{position:absolute;inset-block-start:52px;inset-inline-start:50%;
+  transform:translateX(50%);font-size:.75rem;color:var(--pv-dim);
+  border:1px solid var(--pv-line);border-radius:30px;padding:3px 13px;
+  background:rgba(4,16,30,.6)}

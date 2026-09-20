@@ -61,6 +61,7 @@
             <button type="button" id="pv-next" aria-label="المشهد التالي">▶</button>
             <select id="pv-speed" aria-label="مدة المشهد">${
               SPEEDS.map(([v, label]) => `<option value="${v}">${label}</option>`).join('')}</select>
+            <button type="button" id="pv-extra" hidden></button>
             <button type="button" id="pv-full" aria-label="ملء الشاشة">⛶</button>
             <button type="button" id="pv-close">إغلاق</button>
           </span>
@@ -107,6 +108,13 @@
       scenes = [{ hold: 12000, html: `<div class="pv-scene">
         <div><span class="pv-line pv-head">لا بيانات لعرضها بعد</span>
         <span class="pv-line pv-sub" style="--i:1">تعذّرت القراءة، أو السجل فارغ.</span></div></div>` }];
+    }
+    const extra = dialog.querySelector('#pv-extra');
+    extra.hidden = !program.extra;
+    if (program.extra) {
+      const paint = () => { extra.textContent = program.extra.label(); };
+      extra.onclick = () => { program.extra.toggle(); paint(); go(index); };
+      paint();
     }
     dialog.querySelector('#pv-title').textContent = program.title;
     dialog.querySelector('#pv-scope').textContent = program.scope;

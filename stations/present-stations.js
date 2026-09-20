@@ -26,6 +26,26 @@
 
   let canvas = null, ctx = null, loop = 0;
   let nodes = [], geographic = false, demoCoords = false, fitZoom = 1;
+
+  /* ————————————————————————————— طبقة صور الأقمار —————————————————————————————
+     مصدر مفتوح بلا مفتاح، وإسناده مرسوم على الخريطة كما يشترط مزوّده.
+     البلاطات تُطلب من خادم خارجي، فهذه أول اعتمادية شبكية في الموقع: من يفتح
+     العرض يُعلِم المزوّد بالمنطقة التي ينظر إليها، والعرض دون اتصال يسقط إلى
+     الشبكة وحدها. لذلك الطبقة تُطفأ بزر، وسقوطها لا يوقف شيئاً. */
+  const TILES = {
+    url: (z, x, y) => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`,
+    credit: 'صور: Esri · Maxar · Earthstar Geographics'
+  };
+  let satellite = true, tileFails = 0, tilesDown = false, tilesNote = null, sourceNote = null;
+  const tileCache = new Map();
+  try { satellite = localStorage.getItem('stations-present-satellite') !== 'off'; } catch (ignore) {}
+
+  /** إسقاط مركاتور: صور الأقمار كلها مرسومة عليه، فالخريطة تتبعه لتنطبق. */
+  const mercY = (lat) => Math.log(Math.tan(Math.PI / 4 + Math.max(-85, Math.min(85, lat)) * RAD / 2));
+  const nx = (lon) => (lon + 180) / 360;
+  const ny = (lat) => (1 - mercY(lat) / Math.PI) / 2;
+  /** عرض العالم بالبكسل على الشاشة عند التقريب الحالي. */
+  const worldPx = (R0) => 2.7 * cam.zoom * R0;
   // الكاميرا: lon/lat مركزها، والتقريب، وt معامل التسطيح.
   const cam = { lon: 0, lat: 0, zoom: 1, t: 0 };
   const center = { lon: 0, lat: 0 };
@@ -76,17 +96,19 @@
       };
     });
 
-    // تقريب يملأ الشاشة بالمواقع: نطاق درجة واحدة ونطاق مئة درجة لا يُعرضان بمقياس واحد.
+    // تقريب يملأ الشاشة بالمواقع: نطاق درجة ونطاق مئة درجة لا يُعرضان بمقياس واحد.
     const lons = nodes.map(n => n.lon), lats = nodes.map(n => n.lat);
-    const spreadLon = Math.max(0.05, Math.max(...lons) - Math.min(...lons));
-    const spreadLat = Math.max(0.05, Math.max(...lats) - Math.min(...lats));
-    fitZoom = Math.min(
-      (0.62 * 360) / (1.35 * spreadLon),
-      (0.62 * 180) / (1.35 * spreadLat)
-    );
-    // مركز الخريطة وسط المواقع لا وسط الكرة.
-    center.lon = (Math.max(...lons) + Math.min(...lons)) / 2;
-    center.lat = (Math.max(...lats) + Math.min(...lats)) / 2;
+    const lonMin = Math.min(...lons), lonMax = Math.max(...lons);
+    const latMin = Math.min(...lats), latMax = Math.max(...lats);
+    // النطاق بوحدة العالم المطبَّع لا بالدرجات، لأن مركاتور يمطّ خطوط العرض.
+    const spanX = Math.max(1e-4, nx(lonMax) - nx(lonMin));
+    const spanY = Math.max(1e-4, Math.abs(ny(latMin) - ny(latMax)));
+    const R0 = 1, fill = 1.2;                       // النسبة إلى نصف قطر الرسم
+    fitZoom = Math.min(fill / (2.7 * spanX), fill / (2.7 * spanY)) * R0;
+    center.lon = (lonMax + lonMin) / 2;
+    // مركز رأسي بوحدة مركاتور: متوسط الدرجات ينزلق عن الوسط البصري.
+    const midNy = (ny(latMin) + ny(latMax)) / 2;
+    center.lat = (2 * Math.atan(Math.exp((1 - 2 * midNy) * Math.PI)) - Math.PI / 2) / RAD;
     return built;
   }
 
@@ -101,17 +123,87 @@
     const cosC = Math.sin(φ0) * Math.sin(φ) + Math.cos(φ0) * Math.cos(φ) * Math.cos(λ);
     const gx = Math.cos(φ) * Math.sin(λ);
     const gy = Math.cos(φ0) * Math.sin(φ) - Math.sin(φ0) * Math.cos(φ) * Math.cos(λ);
-    const fx = (dLon(cam.lon, lon) / 180) * 1.35 * cam.zoom;
-    // موجب إلى الأعلى مثل الحد الكروي: الإشارة المعاكسة تقلب الشمال إلى الأسفل.
-    const fy = ((lat - cam.lat) / 90) * 1.35 * cam.zoom;
+    // الحد المستوي بمركاتور ووحدةُ قياسه عرض العالم، فتنطبق البلاطات على النقاط.
+    const W = worldPx(R0);
+    let dx = nx(lon) - nx(cam.lon);
+    if (dx > 0.5) dx -= 1; else if (dx < -0.5) dx += 1;   // التفاف خط التاريخ
+    const fx = dx * W;
+    const fy = (ny(lat) - ny(cam.lat)) * W;
     const t = cam.t;
     return {
-      x: w / 2 + (gx * (1 - t) + fx * t) * R0,
-      y: h / 2 - (gy * (1 - t) + fy * t) * R0,
+      x: w / 2 + gx * (1 - t) * R0 + fx * t,
+      y: h / 2 - gy * (1 - t) * R0 + fy * t,
       visible: cosC > -0.02 || t > 0.55,
       depth: lerp(Math.max(0, cosC), 1, t),
       R: R0
     };
+  }
+
+  /* ————————————————————————————— رسم البلاطات ————————————————————————————— */
+  function tileImage(z, x, y, allowLoad) {
+    const key = z + '/' + x + '/' + y;
+    const hit = tileCache.get(key);
+    if (hit) return hit.ok ? hit.img : null;
+    // أثناء الطيران يمرّ التقريب على مستويات كثيرة تُهجَر فوراً؛ تحميلها يعني
+    // عشرات الطلبات لبلاطات لا تُرى إطاراً واحداً. يُرسم المخزون ويُؤجَّل الطلب.
+    if (!allowLoad) return null;
+    const img = new Image();
+    // بلا crossOrigin تتلوّث اللوحة فيتعذّر قياسها أو تصويرها.
+    img.crossOrigin = 'anonymous';
+    const entry = { img, ok: false };
+    tileCache.set(key, entry);
+    img.onload = () => { entry.ok = true; };
+    img.onerror = () => {
+      entry.ok = false;
+      // ثلاث إخفاقات تكفي للحكم بأن المصدر غير متاح؛ لا يُعاد الطلب بلا نهاية.
+      if (++tileFails >= 3) tilesDown = true;
+    };
+    img.src = TILES.url(z, x, y);
+    return null;
+  }
+
+  function drawTiles(w, h) {
+    if (!satellite || tilesDown || cam.t < 0.55) return 0;
+    const R0 = Math.min(w, h) * 0.42;
+    const W = worldPx(R0);
+    const z = Math.max(0, Math.min(19, Math.round(Math.log2(W / 256))));
+    const n = 2 ** z, size = W / n;
+    const cx = nx(cam.lon), cy = ny(cam.lat);
+    const x0 = Math.floor((cx - (w / 2) / W) * n), x1 = Math.floor((cx + (w / 2) / W) * n);
+    const y0 = Math.floor((cy - (h / 2) / W) * n), y1 = Math.floor((cy + (h / 2) / W) * n);
+    // الطبقة تظهر مع التسطّح لا فجأة: الكرة تبقى خطوطاً حتى تستوي.
+    ctx.globalAlpha = Math.min(1, (cam.t - 0.55) / 0.35);
+    const settled = !to;                    // لا طلبات ما دامت الكاميرا تتحرك
+    let drawn = 0;
+    for (let tx = x0; tx <= x1; tx++) {
+      for (let ty = y0; ty <= y1; ty++) {
+        if (ty < 0 || ty >= n) continue;
+        const img = tileImage(z, ((tx % n) + n) % n, ty, settled);
+        if (!img) continue;
+        const px = w / 2 + (tx / n - cx) * W, py = h / 2 + (ty / n - cy) * W;
+        // نصف بكسل زيادة يمنع الخيوط البيضاء بين البلاطات عند التقريب الكسري.
+        ctx.drawImage(img, px, py, size + 0.5, size + 0.5);
+        drawn++;
+      }
+    }
+    ctx.globalAlpha = 1;
+    return drawn;
+  }
+
+  /** الإسناد شرط الاستعمال، فيُرسم ما دامت صورة واحدة ظاهرة. */
+  function credit(w, h, shown) {
+    if (!shown) return;
+    ctx.save();
+    ctx.direction = 'rtl';
+    ctx.textAlign = 'right';
+    ctx.font = '11px "IBM Plex Sans Arabic", Tahoma, sans-serif';
+    const text = TILES.credit;
+    const width = ctx.measureText(text).width + 14;
+    ctx.fillStyle = 'rgba(4,16,30,.62)';
+    ctx.fillRect(w - width - 6, h - 40, width, 18);
+    ctx.fillStyle = 'rgba(232,242,250,.86)';
+    ctx.fillText(text, w - 13, h - 27);
+    ctx.restore();
   }
 
   /* ————————————————————————————————— الرسم ————————————————————————————————— */
@@ -131,9 +223,13 @@
       if (k >= 1) { from = null; to = null; }
     }
 
-    graticule(w, h, Math.min(w, h) * 0.42);
+    const shown = drawTiles(w, h);
+    if (tilesNote) tilesNote.hidden = !(satellite && tilesDown && cam.t > 0.55);
+    paintSourceNote();
+    graticule(w, h, Math.min(w, h) * 0.42, shown);
     links(w, h);
     dots(w, h, now);
+    credit(w, h, shown);
 
     loop = requestAnimationFrame(frame);
   }
@@ -142,8 +238,10 @@
    * الشبكة تتبع المقياس: على الكرة كل ثلاثين درجة، وعلى خريطة إقليمية كل عُشر
    * درجة بأرقامها. شبكة ثابتة عند تقريب عالٍ تعني خطاً واحداً أو لا خط.
    */
-  function gridStep() {
-    const span = 180 / Math.max(1, cam.zoom);      // الدرجات المرئية عرضاً
+  /** يعكس مركاتور: من الإحداثي المطبَّع إلى خط العرض. */
+  const latOf = (nyValue) => (2 * Math.atan(Math.exp((1 - 2 * nyValue) * Math.PI)) - Math.PI / 2) / RAD;
+
+  function gridStep(span) {
     // المطلوب خمسة خطوط إلى اثني عشر: أكبر خطوة تعطي أربعة خطوط فأكثر.
     // الشرط المعكوس (span/step ≤ 12) يصدق على أكبر خطوة دائماً فيعيد ٣٠ أبداً.
     for (const step of [30, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05, 0.02]) {
@@ -152,16 +250,21 @@
     return 0.01;
   }
 
-  function graticule(w, h, R) {
-    const fade = 1 - cam.t * 0.5;
-    const step = cam.t > 0.5 ? gridStep() : 30;
+  function graticule(w, h, R, overImagery) {
+    // فوق الصور تكفي إشارة خفيفة: شبكة ثقيلة تحجب ما جئنا لنراه.
+    const fade = (1 - cam.t * 0.5) * (overImagery ? 0.45 : 1);
+    const R0 = Math.min(w, h) * 0.42;
+    const W = worldPx(R0);
+    // الحدود من الإسقاط نفسه لا من تقدير: عرض العالم هو المقياس الوحيد.
+    const halfLon = (w / 2) / W * 360, halfNy = (h / 2) / W;
+    const flat = cam.t > 0.5;
+    const step = flat ? gridStep(halfLon * 2) : 30;
     const showLabels = cam.t > 0.75 && step < 30;
-    const spanLon = 180 / Math.max(1, cam.zoom), spanLat = 90 / Math.max(1, cam.zoom);
-    const lat0 = cam.t > 0.5 ? cam.lat - spanLat : -60;
-    const lat1 = cam.t > 0.5 ? cam.lat + spanLat : 60;
-    const lon0 = cam.t > 0.5 ? cam.lon - spanLon : -180;
-    const lon1 = cam.t > 0.5 ? cam.lon + spanLon : 180;
-    const fine = cam.t > 0.5 ? step / 4 : 4;
+    const lon0 = flat ? cam.lon - halfLon : -180;
+    const lon1 = flat ? cam.lon + halfLon : 180;
+    const lat0 = flat ? latOf(Math.min(0.999, ny(cam.lat) + halfNy)) : -60;
+    const lat1 = flat ? latOf(Math.max(0.001, ny(cam.lat) - halfNy)) : 60;
+    const fine = flat ? step / 4 : 4;
 
     ctx.lineWidth = 1;
     ctx.font = '12px Arial, sans-serif';
@@ -276,6 +379,7 @@
 
   /** لوحة تُركَّب في المشهد فوق اللوحة الرسمية — canvas واحد يبقى حياً. */
   function mountCanvas(stage, banner) {
+    tilesNote = null; sourceNote = null;   // عنصرا المشهد السابق انفصلا معه
     const wrap = document.createElement('div');
     wrap.className = 'pv-globe-wrap';
     if (!canvas) {
@@ -284,20 +388,48 @@
       ctx = canvas.getContext('2d');
     }
     wrap.append(canvas);
-    const orbit = document.createElement('div');
-    orbit.className = 'pv-orbit';
-    wrap.append(orbit);
+    // حلقة المدار تخص الكرة وحدها: على خريطة مسطّحة تصير دائرة بلا معنى.
+    if (!banner) {
+      const orbit = document.createElement('div');
+      orbit.className = 'pv-orbit';
+      wrap.append(orbit);
+    }
     if (banner && !geographic) {
       const note = document.createElement('span');
-      note.className = 'pv-schematic' + (demoCoords ? ' demo' : '');
-      note.textContent = demoCoords
-        ? 'إحداثيات تجريبية مولَّدة — ليست مواقع فعلية ولا تصلح للملاحة'
-        : 'ترتيب تخطيطي بحسب حالة الدليل — الإحداثيات غير مزوَّدة';
+      note.className = 'pv-schematic';
       wrap.append(note);
+      sourceNote = note;
+      paintSourceNote();
+    }
+    if (banner && satellite) {
+      const down = document.createElement('span');
+      down.className = 'pv-tiles-note';
+      down.hidden = true;
+      down.textContent = 'تعذّر تحميل صور الأقمار — الشبكة وحدها معروضة';
+      wrap.append(down);
+      // مهلة ثابتة تسبق أول طلب أحياناً (التحميل يبدأ بعد استقرار الكاميرا)،
+      // فالحالة تُراجع في حلقة الرسم: تظهر متى فشل التحميل فعلاً لا قبله.
+      tilesNote = down;
     }
     stage.querySelector('.pv-scene')?.append(wrap);
     resize();
     if (!loop) loop = requestAnimationFrame(frame);
+  }
+
+  /**
+   * نص اللافتة يتبع الحالة لحظةً بلحظة: صياغته عند التركيب وحدها تُبقيه يقول
+   * «الصورة حقيقية» بعد أن يفشل تحميلها، وهذا أسوأ من غياب اللافتة.
+   */
+  function paintSourceNote() {
+    if (!sourceNote) return;
+    const imagery = satellite && !tilesDown && cam.t > 0.55;
+    sourceNote.classList.toggle('demo', demoCoords);
+    sourceNote.textContent = !demoCoords
+      ? 'ترتيب تخطيطي بحسب حالة الدليل — الإحداثيات غير مزوَّدة'
+      : imagery
+        // الصورة تحت النقطة حقيقية والنقطة ليست كذلك؛ يجب أن يُقال بأوضح عبارة.
+        ? 'تحذير: الصورة حقيقية والمواقع مولَّدة — النقاط لا تدل على مواضع المحطات'
+        : 'إحداثيات تجريبية مولَّدة — ليست مواقع فعلية ولا تصلح للملاحة';
   }
 
   function resize() {
@@ -315,6 +447,15 @@
     title: 'صحة وأصول المحطات الخارجية',
     scope: 'ما وُثِّق وما لم يوثَّق',
     bg: '#07172b',
+    extra: {
+      label: () => (satellite ? '🛰 صور الأقمار' : '🗺 شبكة فقط'),
+      toggle() {
+        satellite = !satellite;
+        if (satellite) { tilesDown = false; tileFails = 0; }
+        try { localStorage.setItem('stations-present-satellite', satellite ? 'on' : 'off'); }
+        catch (ignore) {}
+      }
+    },
     stop() { /* الحلقة تبقى: الكرة حاضرة في أكثر المشاهد، وإيقافها يومض الشاشة */ },
     scenes() {
       const h = P().helpers;
