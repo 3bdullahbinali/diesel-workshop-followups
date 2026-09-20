@@ -6,14 +6,18 @@
  * ليس قطعاً بين مشهدين بل تحريك لهذا المعامل، فالانتقال متصل لا مقطوع.
  *
  * ————— قاعدة الإحداثيات —————
- * عمودا Latitude و Longitude في ملف الأصول فارغان اليوم. ولن تُخترع إحداثيات
- * لبنية تحتية حقيقية: نقطةٌ على خريطة تُقرأ كموقع، ولو كُتب تحتها أنها تقريبية.
+ * مصدر واحد لا غير: عمودا Latitude و Longitude في تبويب Stations بملف الأصول.
+ * وهو محمي بما يحمي بقية السجل — يمرّ على الواجهة ويخضع لإعداد publicRead —
+ * بخلاف أي ملف في الموقع، فالملف العام يُقرأ بكتابة مساره في المتصفح.
  *
- * فما دامت فارغة، المواضع **تخطيطية بالمعنى لا بالجغرافيا**: الحلقة تحددها حالة
- * الدليل (المتوقفة في المركز)، والزاوية ترتيبها. وهذا رسم بياني صادق لا خريطة
- * كاذبة، ولافتة ثابتة تقول ذلك طوال العرض.
+ * حُذف مصدران كانا هنا: إحداثيات منقولة من تطبيق خارجي، وأخرى مولَّدة للعرض.
+ * الأولى كشفت مواقع بنية تحتية في ملف عام، والثانية بلا قيمة بعد رحيل الأولى.
  *
- * وحين تُملأ الإحداثيات تصير المواضع جغرافية وتختفي اللافتة — بلا تعديل سطر.
+ * فما دامت أعمدة الشيت فارغة، المواضع **تخطيطية بالمعنى لا بالجغرافيا**: الحلقة
+ * تحددها حالة الدليل (المتوقفة في المركز)، والزاوية ترتيبها. رسم بياني صادق لا
+ * خريطة كاذبة، ولافتة ثابتة تقول ذلك طوال العرض.
+ *
+ * وحين تُملأ الأعمدة تصير المواضع جغرافية وتختفي اللافتة — بلا تعديل سطر.
  */
 (function (root) {
 
@@ -25,8 +29,7 @@
   const RING = { stalled: 0.18, watch: 0.38, active: 0.58, closed: 0.74, none: 0.9 };
 
   let canvas = null, ctx = null, loop = 0;
-  let nodes = [], geographic = false, demoCoords = false, fitZoom = 1;
-  let fromKnown = 0, fromSheet = 0;
+  let nodes = [], geographic = false, fitZoom = 1, fromSheet = 0;
 
   /* ————————————————————————————— طبقة صور الأقمار —————————————————————————————
      مصدر مفتوح بلا مفتاح، وإسناده مرسوم على الخريطة كما يشترط مزوّده.
@@ -62,48 +65,32 @@
     const data = root.StationsStore.data;
     const built = root.StationsHealthModel.build(data);
     const cards = new Map((data.assetStations || []).map(a => [a.id, a]));
-    const demo = root.STATIONS_DEMO_COORDS;
-    const known = root.STATIONS_KNOWN_COORDS;
 
-    /**
-     * ترتيب المصادر صارم: الشيت أولاً لأنه المرجع الذي يبقى بعد تحديث الموقع،
-     * ثم الإحداثيات المنقولة من مصدر حقيقي، ثم المولَّدة. لا يُخلط مصدران في
-     * محطة واحدة، والمصدر يُحفظ مع النقطة ليُعلَن على الشاشة.
-     */
+    /** المصدر الوحيد: الشيت. ما ليس فيه لا موضع له، ولا يُختلق له موضع. */
     const coordOf = (id) => {
       const c = cards.get(id);
-      if (c && Number.isFinite(c.lat) && Number.isFinite(c.lon)) {
-        return { lat: c.lat, lon: c.lon, from: 'sheet' };
-      }
-      const k = known && known.coordFor(id);
-      if (k) return { lat: k.lat, lon: k.lon, from: 'known' };
-      return null;
+      return c && Number.isFinite(c.lat) && Number.isFinite(c.lon)
+        ? { lat: c.lat, lon: c.lon } : null;
     };
 
     const real = built.rows.map(r => coordOf(r.id)).filter(Boolean);
-    // الحقيقي يغلب المولَّد بلا إعداد: وجود موقعين يُهمل ملف التجربة كله.
     geographic = real.length >= 2;
-    fromSheet = real.filter(c => c.from === 'sheet').length;
-    fromKnown = real.filter(c => c.from === 'known').length;
-    demoCoords = !geographic && Boolean(demo);
+    fromSheet = real.length;
 
     const byRing = new Map();
     nodes = built.rows.map((r, i) => {
       const c = cards.get(r.id);
-      let lon, lat, placed = true, from = null;
+      let lon, lat, placed = true;
       const point = geographic ? coordOf(r.id) : null;
       if (point) {
-        lon = point.lon; lat = point.lat; from = point.from;
+        lon = point.lon; lat = point.lat;
       } else if (geographic) {
-        // حالة مختلطة: بعض المحطات لها إحداثي وبعضها لا. وضع الثانية في ترتيب
-        // تخطيطي يبعثرها عبر الكرة بينما تتجمع الأولى في مكانها، فتُقرأ كأنها
-        // محطات بعيدة. لا تُرسم أصلاً، ويُعلَن عددها.
+        // حالة مختلطة: بعض المحطات في الشيت لها إحداثي وبعضها لا. وضع الثانية
+        // في ترتيب تخطيطي يبعثرها عبر الكرة بينما تتجمع الأولى في مكانها، فتُقرأ
+        // كأنها محطات بعيدة. لا تُرسم أصلاً، ويُعلَن عددها.
         placed = false; lon = 0; lat = 0;
-      } else if (demoCoords) {
-        const d = demo.coordFor(r.id);
-        lon = d.lon; lat = d.lat; from = 'demo';
       } else {
-        // بلا إحداثيات ولا ملف تجربة: ترتيب بالمعنى — الحلقة من حالة الدليل.
+        // لا إحداثي في الشيت لأحد: ترتيب بالمعنى — الحلقة من حالة الدليل.
         const ring = RING[r.evidence.state.id] ?? 0.9;
         const n = (byRing.get(ring) || 0); byRing.set(ring, n + 1);
         const angle = (n * 137.508) * RAD;
@@ -111,7 +98,7 @@
         lat = Math.sin(angle) * ring * 62;
       }
       return {
-        id: r.id, name: r.name, lon, lat, placed, from, row: r,
+        id: r.id, name: r.name, lon, lat, placed, row: r,
         tone: r.evidence.state.tone,
         pumps: r.assets.pumps.length, lines: r.assets.lines.length,
         card: c || null, i
@@ -186,7 +173,9 @@
   }
 
   function drawTiles(w, h) {
-    if (!satellite || tilesDown || cam.t < 0.55) return 0;
+    // صور أقمار حقيقية تحت مواضع تخطيطية أسوأ من غيابها: النقطة تقع على أرض
+    // لا علاقة لها بها. الطبقة لا تعمل إلا حين تكون المواضع جغرافية فعلاً.
+    if (!geographic || !satellite || tilesDown || cam.t < 0.55) return 0;
     const R0 = Math.min(w, h) * 0.42;
     const W = worldPx(R0);
     const z = Math.max(0, Math.min(19, Math.round(Math.log2(W / 256))));
@@ -446,27 +435,15 @@
    */
   function paintSourceNote() {
     if (!sourceNote) return;
-    const imagery = satellite && !tilesDown && cam.t > 0.55;
-    sourceNote.classList.toggle('demo', demoCoords);
     const off = nodes.filter(n => !n.placed).length;
-    if (geographic) {
-      sourceNote.classList.remove('demo');
-      // المصدر يُسمّى لا يُخفى: من يرى نقطة على خريطة يحق له أن يعرف من أين جاءت.
-      const bits = [];
-      if (off) bits.push(off + ' محطة بلا إحداثيات لا تظهر');
-      if (fromKnown) bits.push(fromKnown + ' موقعاً من ' + (root.STATIONS_KNOWN_COORDS?.source || 'مصدر خارجي'));
-      if (fromSheet) bits.push(fromSheet + ' من الشيت');
-      sourceNote.hidden = !bits.length;
-      sourceNote.textContent = bits.join(' · ');
+    sourceNote.classList.remove('demo');
+    if (!geographic) {
+      sourceNote.hidden = false;
+      sourceNote.textContent = 'ترتيب تخطيطي بحسب حالة الدليل — لا إحداثيات في السجل';
       return;
     }
-    sourceNote.hidden = false;
-    sourceNote.textContent = !demoCoords
-      ? 'ترتيب تخطيطي بحسب حالة الدليل — الإحداثيات غير مزوَّدة'
-      : imagery
-        // الصورة تحت النقطة حقيقية والنقطة ليست كذلك؛ يجب أن يُقال بأوضح عبارة.
-        ? 'تحذير: الصورة حقيقية والمواقع مولَّدة — النقاط لا تدل على مواضع المحطات'
-        : 'إحداثيات تجريبية مولَّدة — ليست مواقع فعلية ولا تصلح للملاحة';
+    sourceNote.hidden = !off;
+    if (off) sourceNote.textContent = off + ' محطة بلا إحداثيات لا تظهر على الخريطة';
   }
 
   function resize() {
@@ -487,7 +464,7 @@
   root.StationsPresentMap = {
     get state() {
       return {
-        geographic, demoCoords, satellite, tilesDown,
+        geographic, satellite, tilesDown, fromSheet,
         fitZoom, center: { ...center }, cam: { ...cam },
         placed: nodes.filter(n => n.placed).length,
         unplaced: nodes.filter(n => !n.placed).length,
@@ -503,19 +480,23 @@
     }
   };
 
+  /** زر طبقة الصور. منفصل عن البرنامج ليُعرض أو يُحجب بحسب وجود خريطة. */
+  const EXTRA = {
+    label: () => (satellite ? '🛰 صور الأقمار' : '🗺 شبكة فقط'),
+    toggle() {
+      satellite = !satellite;
+      if (satellite) { tilesDown = false; tileFails = 0; }
+      try { localStorage.setItem('stations-present-satellite', satellite ? 'on' : 'off'); }
+      catch (ignore) {}
+    }
+  };
+
   P().register('health', {
     title: 'صحة وأصول المحطات الخارجية',
     scope: 'ما وُثِّق وما لم يوثَّق',
     bg: '#07172b',
-    extra: {
-      label: () => (satellite ? '🛰 صور الأقمار' : '🗺 شبكة فقط'),
-      toggle() {
-        satellite = !satellite;
-        if (satellite) { tilesDown = false; tileFails = 0; }
-        try { localStorage.setItem('stations-present-satellite', satellite ? 'on' : 'off'); }
-        catch (ignore) {}
-      }
-    },
+    // الزر يُقرأ بعد scenes() فتكون geographic محسومة: لا يُعرض بلا خريطة.
+    get extra() { return geographic ? EXTRA : null; },
     stop() { /* الحلقة تبقى: الكرة حاضرة في أكثر المشاهد، وإيقافها يومض الشاشة */ },
     scenes() {
       const h = P().helpers;

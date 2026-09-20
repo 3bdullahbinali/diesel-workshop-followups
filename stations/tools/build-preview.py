@@ -41,7 +41,7 @@ def build():
     html = inline(html, '<link rel="stylesheet" href="./present.css">',
                   "present.css", "<style>\n{body}\n</style>")
     for name in ("data.js", "sheets-config.js", "api-config.js", "model.js",
-                 "api.js", "store.js", "health-data.js", "health-known-coords.js", "health-demo-coords.js", "health-model.js", "health.js",
+                 "api.js", "store.js", "health-data.js", "health-model.js", "health.js",
                  "present.js", "present-stations.js",
                  "app.js", "editor.js", "sheets.js", "sync.js"):
         html = inline(html, f'<script src="./{name}"></script>', name,
