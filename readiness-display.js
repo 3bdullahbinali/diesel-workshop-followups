@@ -38,8 +38,8 @@
    */
   const PART = {
     case:'#28303a', caseIn:'#1b2028', caseEdge:'#5a6a78',
-    engine:'#3a424b', engineDark:'#141920', chassis:'#39414a', stack:'#414a54',
-    body:'#f0b400', bodyDark:'#b88a04', steel:'#aab6c0',
+    engine:'#2c3238', engineDark:'#15191e', chassis:'#cabd9f', rust:'#7e5f43',
+    body:'#d8ccb2', bodyDark:'#a2957a', bodyInk:'#3a3128', steel:'#aab6c0',
     hose:'#2f353c', hoseRib:'#596169', blue:'#2f6fb5', blueRib:'#4a8ad4',
     gear:'#c08f4e', gearDark:'#8d6636', shaft:'#d3b45f',
     spring:'#5cb87a', piston:'#3f6fd0', pistonDark:'#2a4e96',
@@ -143,11 +143,11 @@
 
   /** نداءات الأجزاء: اسم الجزء وعمله، واحداً بعد واحد، وخيط يصل الاسم بموضعه. */
   const CALLOUTS = [
-    {name:'المكبس والكرنك', note:'الاحتراق يدفع المكبس فيدير عمود المرفق', x:260, y:350},
+    {name:'المكبس والكرنك', note:'الاحتراق يدفع المكبس فيدير العمود', x:260, y:350},
     {name:'الصمّام ونابضه', note:'يفتح مع الشوط النازل ويعيده النابض', x:260, y:204},
-    {name:'قطار التروس',   note:'ينقل الدوران من المحرّك إلى عمود المضخة', x:320, y:480},
+    {name:'قطار التروس',   note:'ينقل الدوران إلى عمود المضخة', x:320, y:480},
     {name:'الدوّار والحلزون', note:'الريش تدفع الماء إلى مخرج الطرد', x:760, y:436},
-    {name:'خرطوما السحب والطرد', note:'أسود يسحب من الغمر، وأزرق يطرد إلى التصريف', x:880, y:230}
+    {name:'خط السحب والطرد', note:'أسود يسحب، ومحبس، وأزرق يطرد', x:864, y:228}
   ];
   const CALLOUT_MS = 1800;
 
@@ -169,16 +169,36 @@
     ctx.fillStyle = PART.caseIn;
     ctx.beginPath(); ctx.roundRect(64, 64, 952, 512, 18); ctx.fill();
 
-    // ── الهيكل: المجموعة كلها قائمة على قاعدة، كما تُنقل إلى الموقع ────────
-    ctx.fillStyle = PART.chassis;
-    ctx.beginPath(); ctx.roundRect(140, 556, 790, 16, 5); ctx.fill();
-
-    // ── عادم قائم على يسار كتلة المحرّك ────────────────────────────────────
-    ctx.strokeStyle = PART.stack; ctx.lineWidth = 26;
+    // ── المقطورة: عجلة وقاعدة صندوقية وذراع جرّ، كما تُجرّ إلى الموقع ──────
+    ctx.strokeStyle = PART.chassis; ctx.lineWidth = 13;                  // ذراع الجرّ
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    ctx.beginPath(); ctx.moveTo(190, 290); ctx.lineTo(112, 290); ctx.lineTo(112, 92); ctx.stroke();
-    ctx.fillStyle = PART.stack;
-    ctx.beginPath(); ctx.roundRect(90, 70, 44, 14, 6); ctx.fill();       // غطاء المطر
+    ctx.beginPath(); ctx.moveTo(150, 552); ctx.lineTo(78, 566); ctx.stroke();
+    ctx.lineWidth = 5; ctx.beginPath();
+    ctx.arc(72, 567, 9, 0, Math.PI*2); ctx.stroke();                     // حلقة القَطر
+    ctx.fillStyle = PART.chassis;
+    ctx.beginPath(); ctx.roundRect(140, 546, 790, 22, 4); ctx.fill();
+    ctx.fillStyle = PART.bodyDark;
+    ctx.fillRect(140, 562, 790, 4);                                      // حرف المقطع
+    ctx.fillStyle = '#1c2024';                                           // العجلة خارج القاعدة
+    ctx.beginPath(); ctx.arc(620, 540, 34, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = PART.chassis;
+    ctx.beginPath(); ctx.arc(620, 540, 16, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = PART.bodyDark;
+    ctx.beginPath(); ctx.arc(620, 540, 5, 0, Math.PI*2); ctx.fill();
+
+    // ── العادم: كاتم أفقي صدئ وكوع خارج، كما هو على المجموعة ───────────────
+    ctx.strokeStyle = PART.rust; ctx.lineWidth = 17;
+    ctx.beginPath(); ctx.moveTo(176, 222); ctx.lineTo(126, 222);
+    ctx.lineTo(126, 172); ctx.stroke();                                  // ماسورة الدخول
+    ctx.beginPath(); ctx.moveTo(86, 130); ctx.lineTo(86, 86); ctx.stroke();  // الكوع الخارج
+    ctx.fillStyle = PART.rust;
+    ctx.beginPath(); ctx.roundRect(72, 126, 122, 44, 21); ctx.fill();    // الكاتم
+    ctx.strokeStyle = '#5f462f'; ctx.lineWidth = 3;
+    for (const x of [104, 160]){
+      ctx.beginPath(); ctx.moveTo(x, 128); ctx.lineTo(x, 168); ctx.stroke();
+    }
+    ctx.fillStyle = '#5f462f';
+    ctx.beginPath(); ctx.roundRect(70, 74, 32, 12, 5); ctx.fill();       // غطاء المطر
 
     // ── كتلة المحرّك، وفيها نافذة مقطوعة يظهر منها ما يتحرك ────────────────
     ctx.fillStyle = PART.engine;
@@ -300,19 +320,42 @@
     ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI*2); ctx.fillStyle = PART.shaft; ctx.fill();
     ctx.restore();
 
-    // لوحة «DIESEL PUMP» على الجسم، كما تحملها المجموعة في الميدان
-    ctx.fillStyle = PART.engineDark;
-    ctx.beginPath(); ctx.roundRect(700, 486, 120, 26, 5); ctx.fill();
-    ctx.fillStyle = PART.body; ctx.textAlign = 'center'; ctx.direction = 'ltr';
+    // لوحة الاسم مدهونة على الجسم، وعليها رمز هذه المعدة من السجل نفسه
+    ctx.fillStyle = PART.bodyDark;
+    ctx.beginPath(); ctx.roundRect(692, 476, 136, 42, 5); ctx.fill();
+    ctx.fillStyle = PART.bodyInk; ctx.textAlign = 'center'; ctx.direction = 'ltr';
+    ctx.font = '700 14px Arial, sans-serif';
+    ctx.fillText('DIESEL PUMP', 760, 494);
     ctx.font = '700 15px Arial, sans-serif';
-    ctx.fillText('DIESEL PUMP', 760, 505);
+    ctx.fillText(unit && unit.asset ? unit.asset : '—', 760, 512);
+
+    // ── خط الطرد: كوع ثم ماسورة أفقية ثم محبس ثم وصلة الخرطوم ──────────────
+    ctx.strokeStyle = PART.body; ctx.lineWidth = 60; ctx.lineCap = 'butt';
+    ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(760, 300); ctx.lineTo(760, 228); ctx.lineTo(930, 228);
+    ctx.stroke();
+    ctx.fillStyle = PART.body;
+    ctx.beginPath(); ctx.roundRect(820, 192, 88, 72, 10); ctx.fill();      // جسم المحبس
+    ctx.beginPath(); ctx.roundRect(852, 160, 24, 34, 6); ctx.fill();       // عنق المحبس
+    ctx.fillStyle = PART.steel;
+    ctx.beginPath(); ctx.ellipse(864, 158, 27, 7, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = PART.bodyDark;
+    ctx.beginPath(); ctx.arc(864, 158, 6, 0, Math.PI*2); ctx.fill();
+    flange(ctx, 810, 196, 12, 64, 4);
+    flange(ctx, 906, 196, 12, 64, 4);
+    flange(ctx, 928, 198, 15, 60, 4);
+
+    // لوحة بيانات المضخة على العنق: تُقرأ في الميدان لا هنا
+    ctx.fillStyle = '#e8e2d2';
+    ctx.beginPath(); ctx.roundRect(734, 306, 54, 48, 4); ctx.fill();
+    ctx.fillStyle = '#8b8574';
+    for (let i = 0; i < 4; i++) ctx.fillRect(741, 314 + i*10, 40 - i*6, 4);
 
     // ── الخراطيم: أسود على السحب وأزرق على الطرد، كما تُركَّب في الميدان ────
-    const D0 = [760, 266], D1 = [792, 178], D2 = [1000, 166];
+    const D0 = [944, 228], D1 = [1002, 234], D2 = [1010, 330];
     hose(ctx, [950, 436], [981, 436], [1012, 436], 58, PART.hose, PART.hoseRib);
-    hose(ctx, D0, D1, D2, 46, PART.blue, PART.blueRib);
+    hose(ctx, D0, D1, D2, 52, PART.blue, PART.blueRib);
     flange(ctx, 934, 390, 18, 92, 5);
-    flange(ctx, 712, 264, 96, 18, 5);
 
     // ── الماء يجري: يدخل من خرطوم السحب ويخرج من خرطوم الطرد ───────────────
     if (live){
@@ -320,9 +363,11 @@
         const p = ((t*0.5) + i/6) % 1;
         arrow(ctx, 1002 - p*136, 436 + Math.sin(p*7)*5, 12, Math.PI, PART.water, .9);
       }
-      for (let i = 0; i < 5; i++){
-        const p = ((t*0.5) + i/5) % 1;
-        const q = bez(D0, D1, D2, p);
+      // الماء يصعد في العنق ثم ينعطف في الماسورة ثم يجري في الخرطوم
+      const A0 = [760, 366], A1 = [760, 228], A2 = [846, 228];
+      for (let i = 0; i < 7; i++){
+        const p = ((t*0.5) + i/7) % 1;
+        const q = p < 0.42 ? bez(A0, A1, A2, p/0.42) : bez(A2, D1, D2, (p - 0.42)/0.58);
         arrow(ctx, q[0], q[1], 12, q[2], PART.water, .9);
       }
       arrow(ctx, cx, cy + 84, 15, 0, PART.arrow, .85);          // اتجاه دوران العمود
@@ -330,11 +375,11 @@
     }
 
     // ── لوحة الحالة: لون المعدة نفسه المستعمل في بقية الشاشة ───────────────
-    ctx.fillStyle = PART.engine;
+    ctx.fillStyle = PART.chassis;
     ctx.beginPath(); ctx.roundRect(66, 452, 88, 96, 10); ctx.fill();
     ctx.fillStyle = TONE[toneOf(unit || {})];
     ctx.beginPath(); ctx.roundRect(78, 464, 64, 13, 6); ctx.fill();
-    ctx.globalAlpha = .55; ctx.fillStyle = PART.caseIn;
+    ctx.globalAlpha = .55; ctx.fillStyle = PART.bodyInk;
     for (let i = 0; i < 3; i++){
       ctx.beginPath(); ctx.roundRect(78, 492 + i*16, 64 - i*18, 8, 4); ctx.fill();
     }
@@ -417,6 +462,7 @@
                  ? '' : '، وسكونه لأنها ليست في التشغيل الآن'),
           metric: {value: s.total, caption: 'معدة في السجل'},
           outside: 'الأسطول',
+          outsideAt: {x: 0.5, y: 0.50},     // بين المحرّك والمضخة، بعيداً عن القاعدة
           drawBehind(g){ drawSection(g.ctx, g.w, g.h, g.now, star, g.reduced, g.since, TONE, toneOf); },
           layout(){ return {spots: [], labels: []}; } },
 

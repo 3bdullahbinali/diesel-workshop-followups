@@ -113,7 +113,11 @@
         const band = {x: w*0.08, y: h*0.885, w: w*0.84, h: h*0.06};
         const spare = gridPositions(left, band, h*0.020);
         left.forEach((unit, i) => target.set(unit.__id, {unit, ...spare[i], r: Math.min(spare[i].r, 3.2)}));
-        labels.push({text: scene.outside || 'خارج هذا العرض', count: left.length, x: w/2, y: h*0.805});
+        // المشهد قد يزيح عنوان الشريط عن موضعه إن كان رسمه يشغل وسط الشاشة،
+        // والشريط نفسه لا يتزحزح: هو ضمانة ألا تختفي وحدة.
+        const at = scene.outsideAt || {x: 0.5, y: 0.805};
+        labels.push({text: scene.outside || 'خارج هذا العرض', count: left.length,
+                     x: w*at.x, y: h*at.y});
       }
       const now = performance.now();
       dots.forEach((dot, i) => {
