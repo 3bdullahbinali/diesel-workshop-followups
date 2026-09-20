@@ -26,107 +26,246 @@
     unit.technical === 'needs_inspection' ? 'inspection' : 'maintenance';
 
   /**
-   * مضخة شبه مجسّمة. لا WebGL ولا مجسّم ثلاثي الأبعاد — لا يوجد ملف مجسّم
-   * للمضخات أصلاً. وإنما انعراج أفقي (yaw) يضغط العرض بجيب الزاوية، فتبدو
-   * الكتلة دائرة حول محورها، مع وجه يميني يظهر ويختفي. الأثر مقنع والتكلفة
-   * صفر: لا تحميل ولا اعتمادية.
+   * مقطع عرضي متحرك لمجموعة الديزل: محرّك يدور فيُدير مضخة.
+   *
+   * على نسق الرسوم الفنية المقطوعة: أشكال مسطّحة بألوان دالّة، لا رِندر
+   * واقعي. وكل جزء يتحرك بحركته الحقيقية — الكرنك يدور فيرفع المكبس،
+   * والتروس تتعشّق في اتجاهين متضادين، والنابض ينضغط مع المكبس، والدوّار
+   * يدفع الماء من السحب إلى الطرد.
+   *
+   * ولا يتحرك شيء إلا لمعدة حالتها «جاهزة» وتشغيلها «تعمل». المعدة المتوقفة
+   * تُرسم ساكنة: الرسم يخبر بحالها لا يزيّنها.
    */
-  function drawPump(ctx, w, h, now, unit, reduced, TONE, toneOf){
-    const cx = w/2, cy = h*0.50, k = Math.min(w, h)/430;
-    const yaw = (now/2600) % (Math.PI*2);
-    const face = Math.cos(yaw), depth = Math.sin(yaw);
-    const push = (x, y) => [cx + x*face*k - y*0, cy + y*k];
-    const shade = (base, amount) => `rgba(${base},${amount})`;
+  const PART = {
+    case:'#2b3f52', caseIn:'#1d2c3c', caseEdge:'#4b6a86',
+    gear:'#c08f4e', gearDark:'#8d6636', shaft:'#d3b45f',
+    spring:'#5cb87a', piston:'#3f6fd0', pistonDark:'#2a4e96',
+    arrow:'#55d0e0', water:'#4fa8d8', vane:'#86a2b6'
+  };
 
-    // ظل أرضي يثبّت الكتلة على المسرح
-    ctx.save();
-    ctx.globalAlpha = .45;
-    ctx.beginPath();
-    ctx.ellipse(cx, cy + 126*k, 200*k*Math.abs(face)*0.9 + 54*k, 20*k, 0, 0, Math.PI*2);
-    ctx.fillStyle = 'rgba(3,10,8,.75)'; ctx.filter = 'blur(10px)'; ctx.fill();
+  /**
+   * ترس بأسنان متماثلة ومقاس وحدة (module) صحيح، حتى يتعشّق ترسان
+   * رُسما بالمقاس نفسه تعشّقاً حقيقياً: قمة سنّ أحدهما تنزل في قاع الآخر
+   * ولا تتداخل معه.
+   */
+  function gear(ctx, x, y, r, teeth, angle, fill, dark){
+    const P = Math.PI*2/teeth, m = 2*r/teeth, R = r + m, rr = r - 1.25*m;
+    const at = (a, rad) => ctx.lineTo(Math.cos(a)*rad, Math.sin(a)*rad);
+    ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+    ctx.fillStyle = fill; ctx.beginPath();
+    for (let i = 0; i < teeth; i++){
+      const c = i*P;
+      at(c - 0.33*P, rr); at(c - 0.25*P, r);  at(c - 0.15*P, R);
+      at(c + 0.15*P, R);  at(c + 0.25*P, r);  at(c + 0.33*P, rr);
+      at(c + 0.67*P, rr);
+    }
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.arc(0, 0, r*0.60, 0, Math.PI*2);
+    ctx.fillStyle = dark; ctx.fill();
+    ctx.strokeStyle = dark; ctx.lineWidth = Math.max(1, r*0.05);
+    for (let i = 0; i < 4; i++){
+      const a = (i/4)*Math.PI*2;
+      ctx.beginPath(); ctx.moveTo(Math.cos(a)*r*0.26, Math.sin(a)*r*0.26);
+      ctx.lineTo(Math.cos(a)*r*0.52, Math.sin(a)*r*0.52); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.arc(0, 0, r*0.17, 0, Math.PI*2);
+    ctx.fillStyle = PART.shaft; ctx.fill();
     ctx.restore();
+  }
 
-    const bw = 190*k*Math.abs(face) + 24*k;   // عرض الهيكل يتنفّس مع الدوران
-    const bh = 118*k, top = cy - 92*k;
-    const ground = cy + 96*k;                 // خط الأرض: عليه ترتكز العجلات
+  function spring(ctx, x, top, len, width, coils, colour, lw){
+    ctx.save(); ctx.strokeStyle = colour; ctx.lineWidth = lw || 3.4;
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x, top);
+    for (let i = 0; i <= coils; i++)
+      ctx.lineTo(x + (i%2 ? width/2 : -width/2), top + len*((i + .5)/(coils + 1)));
+    ctx.lineTo(x, top + len); ctx.stroke(); ctx.restore();
+  }
 
-    // الجانب العميق: يظهر حين يميل الهيكل
-    ctx.fillStyle = shade('70,92,78', .55 + .25*Math.abs(depth));
-    ctx.beginPath();
-    ctx.moveTo(cx + bw/2, top + 10*k);
-    ctx.lineTo(cx + bw/2 + 44*k*depth, top + 26*k);
-    ctx.lineTo(cx + bw/2 + 44*k*depth, top + bh - 4*k);
-    ctx.lineTo(cx + bw/2, top + bh + 12*k);
+  function arrow(ctx, x, y, size, angle, colour, alpha){
+    ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+    ctx.globalAlpha = alpha == null ? 1 : alpha;
+    ctx.fillStyle = colour; ctx.beginPath();
+    ctx.moveTo(size, 0); ctx.lineTo(-size*0.55, size*0.62);
+    ctx.lineTo(-size*0.2, 0); ctx.lineTo(-size*0.55, -size*0.62);
+    ctx.closePath(); ctx.fill(); ctx.restore();
+  }
+
+  /** نداءات الأجزاء: اسم الجزء وعمله، واحداً بعد واحد، وخيط يصل الاسم بموضعه. */
+  const CALLOUTS = [
+    {name:'المكبس والكرنك', note:'الاحتراق يدفع المكبس فيدير عمود المرفق', x:260, y:330},
+    {name:'الصمّام ونابضه', note:'يفتح مع الشوط النازل ويعيده النابض', x:260, y:196},
+    {name:'قطار التروس',   note:'ينقل الدوران من المحرّك إلى عمود المضخة', x:308, y:540},
+    {name:'الدوّار والحلزون', note:'الريش تدفع الماء إلى مخرج الطرد', x:800, y:456},
+    {name:'السحب والطرد',  note:'يدخل الماء من الجانب ويخرج من الأعلى', x:800, y:320}
+  ];
+  const CALLOUT_MS = 1800;
+
+  function drawSection(ctx, w, h, now, unit, reduced, since, TONE, toneOf){
+    const k = Math.min(w/1180, h/700);
+    const running = !!unit && unit.technical === 'ready' && unit.operation === 'running';
+    const live = running && !reduced;
+    const t = live ? now/1000 : 0;             // ساكنة إن لم تكن تعمل فعلاً
+    const a = t*2.0;                           // زاوية عمود المرفق
+
+    ctx.save(); ctx.translate(w/2, h/2); ctx.scale(k, k); ctx.translate(-540, -320);
+    ctx.lineJoin = 'round';
+
+    // ── الغلاف المقطوع ──────────────────────────────────────────────────────
+    ctx.fillStyle = PART.case;
+    ctx.beginPath(); ctx.roundRect(40, 40, 1000, 560, 26); ctx.fill();
+    ctx.strokeStyle = PART.caseEdge; ctx.lineWidth = 3; ctx.stroke();
+    ctx.fillStyle = PART.caseIn;
+    ctx.beginPath(); ctx.roundRect(64, 64, 952, 512, 18); ctx.fill();
+
+    // ── الحركة: مرفق يرفع مكبساً، وذراع صلب لا يتمطّط ──────────────────────
+    const cx = 260, cy = 500, crankR = 40, rodLen = 174, pistonH = 58;
+    const pinX = cx + Math.sin(a)*crankR;
+    const pinY = cy - Math.cos(a)*crankR;
+    const pistonY = pinY - Math.sqrt(rodLen*rodLen - (pinX - cx)*(pinX - cx)) - pistonH/2;
+    const lift = Math.max(0, Math.sin(a))*18;  // الصمّام يفتح مع الشوط النازل
+
+    // ترس العمود ثم قرص المرفق ثم الذراع ثم المسمار: بهذا الترتيب يبقى
+    // الذراع ظاهراً واصلاً إلى مسماره لا مقطوعاً خلف القرص.
+    // قطار التروس: مقاس سنّ واحد لكليهما، فيتعشّقان كما تتعشّق التروس.
+    const g2x = 349.8, g2y = 456.2, ratio = 18/13;
+    gear(ctx, cx, cy, 58, 18, a - 0.45379, PART.gear, PART.gearDark);
+    gear(ctx, g2x, g2y, 41.89, 13, 0.0295 - a*ratio, PART.gear, PART.gearDark);
+    ctx.fillStyle = PART.caseEdge;
+    ctx.beginPath(); ctx.arc(cx, cy, 46, 0, Math.PI*2); ctx.fill();
+
+    // الأسطوانة ورأسها
+    ctx.fillStyle = PART.caseEdge;
+    ctx.beginPath(); ctx.roundRect(196, 186, 128, 44, 8); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(196, 228, 128, 194, 10); ctx.fill();
+    ctx.fillStyle = PART.caseIn;
+    ctx.beginPath(); ctx.roundRect(208, 240, 104, 182, 6); ctx.fill();
+    ctx.fillRect(244, 186, 32, 44);                                   // منفذ الصمّام
+
+    // المكبس وذراعه
+    ctx.strokeStyle = '#8fa6b8'; ctx.lineWidth = 16; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx, pistonY + pistonH/2); ctx.lineTo(pinX, pinY); ctx.stroke();
+    ctx.fillStyle = PART.piston;
+    ctx.beginPath(); ctx.roundRect(210, pistonY, 100, pistonH, 6); ctx.fill();
+    ctx.fillStyle = PART.pistonDark;
+    ctx.beginPath(); ctx.roundRect(210, pistonY + pistonH - 14, 100, 9, 3); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, pistonY + pistonH/2, 9, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = PART.shaft;
+    ctx.beginPath(); ctx.arc(pinX, pinY, 12, 0, Math.PI*2); ctx.fill();
+
+    // الصمّام: ساق تنزل فتفتح المنفذ، ونابض بين مقعد ثابت وصحن متحرك
+    ctx.strokeStyle = '#8fa6b8'; ctx.lineWidth = 9;
+    ctx.beginPath(); ctx.moveTo(260, 96); ctx.lineTo(260, 236 + lift); ctx.stroke();
+    spring(ctx, 260, 127 + lift, 49 - lift, 34, 6, PART.spring, 4);
+    ctx.fillStyle = PART.caseEdge;
+    ctx.beginPath(); ctx.roundRect(232, 176, 56, 10, 4); ctx.fill();        // المقعد الثابت
+    ctx.fillStyle = '#8fa6b8';
+    ctx.beginPath(); ctx.roundRect(238, 116 + lift, 44, 11, 4); ctx.fill(); // صحن النابض
+    ctx.fillStyle = PART.spring; ctx.beginPath();                           // قرص الصمّام
+    ctx.moveTo(237, 244 + lift); ctx.lineTo(283, 244 + lift);
+    ctx.lineTo(274, 230 + lift); ctx.lineTo(246, 230 + lift);
     ctx.closePath(); ctx.fill();
 
-    // الهيكل
-    const body = ctx.createLinearGradient(cx - bw/2, top, cx + bw/2, top + bh);
-    body.addColorStop(0, '#cfdac9'); body.addColorStop(.55, '#aebda8'); body.addColorStop(1, '#8b9c85');
-    ctx.fillStyle = body;
-    ctx.beginPath(); ctx.roundRect(cx - bw/2, top, bw, bh, 10*k); ctx.fill();
+    // ── عمود الإدارة: طوق حامل ثم وصلة مرنة ثم المضخة ──────────────────────
+    ctx.strokeStyle = PART.shaft; ctx.lineWidth = 17; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(g2x, g2y); ctx.lineTo(790, 456); ctx.stroke();
+    ctx.fillStyle = PART.caseEdge;
+    ctx.beginPath(); ctx.roundRect(464, 434, 22, 44, 5); ctx.fill();        // طوق حامل
+    ctx.beginPath(); ctx.roundRect(612, 424, 14, 64, 5); ctx.fill();        // شفّة الوصلة
+    ctx.beginPath(); ctx.roundRect(634, 424, 14, 64, 5); ctx.fill();
+    ctx.fillStyle = PART.gearDark;
+    ctx.fillRect(626, 442, 8, 28);
 
-    // فتحات التهوية تنزلق مع الدوران فتبيّن أن السطح يتحرك
-    ctx.save(); ctx.beginPath(); ctx.roundRect(cx - bw/2, top, bw, bh, 10*k); ctx.clip();
-    ctx.globalAlpha = .40; ctx.strokeStyle = '#55665c'; ctx.lineWidth = 2*k;
-    for (let i = -8; i < 9; i++){
-      const x = cx + (i*22*k + (yaw/(Math.PI*2))*22*k) * face;
-      ctx.beginPath(); ctx.moveTo(x, top + 22*k); ctx.lineTo(x, top + bh - 30*k); ctx.stroke();
+    // ── جهة المضخة: حلزون يتّسع ممرّه حتى الطرد، ودوّار يدور مع الترس ────
+    ctx.fillStyle = PART.caseEdge;
+    ctx.beginPath(); ctx.roundRect(766, 250, 68, 130, 8); ctx.fill();       // الطرد
+    ctx.beginPath(); ctx.roundRect(900, 420, 92, 72, 8); ctx.fill();        // السحب
+    ctx.beginPath(); ctx.arc(800, 456, 100, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = PART.caseIn;
+    ctx.beginPath(); ctx.arc(800, 456, 88, 0, Math.PI*2); ctx.fill();
+    ctx.save(); ctx.beginPath(); ctx.arc(800, 456, 88, 0, Math.PI*2); ctx.clip();
+    // ممر الماء: يبدأ ضيقاً عند اللسان ويتّسع مع الدوران حتى مخرج الطرد
+    ctx.globalAlpha = .62; ctx.fillStyle = PART.water; ctx.beginPath();
+    const TH0 = -1.745, SWEEP = 6.11, N = 96;   // اللسان قبل الطرد، والاتساع ينتهي عنده
+    for (let i = 0; i <= N; i++){
+      const f = i/N, th = TH0 - f*SWEEP, r = 72 + 16*f;
+      const px = 800 + Math.cos(th)*r, py = 456 + Math.sin(th)*r;
+      i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
     }
-    ctx.globalAlpha = 1; ctx.restore();
-
-    // عادم يعلو الهيكل فيكسر استطالته
-    ctx.fillStyle = '#5f6f66';
-    ctx.beginPath(); ctx.roundRect(cx - bw*0.26, top - 30*k, 11*k, 32*k, 5*k); ctx.fill();
-
-    // لوحة الحالة على الهيكل
-    ctx.fillStyle = TONE[toneOf(unit)];
-    ctx.globalAlpha = .9;
-    ctx.beginPath(); ctx.roundRect(cx - bw*0.30, top + 16*k, bw*0.60, 9*k, 4*k); ctx.fill();
-    ctx.globalAlpha = 1;
-
-    // شاسيه يربط الهيكل بالعجلات فلا تطفو
-    ctx.fillStyle = '#5f6f66';
-    ctx.beginPath(); ctx.roundRect(cx - bw/2 - 8*k, top + bh, bw + 16*k, 13*k, 4*k); ctx.fill();
-
-    // العجلات ترتكز على خط أرض واحد
-    for (const [ox, rr] of [[-0.30, 27], [0.30, 27]]){
-      const x = cx + bw*ox;
-      ctx.beginPath(); ctx.arc(x, ground - rr*k, rr*k, 0, Math.PI*2);
-      ctx.fillStyle = '#2c372f'; ctx.fill();
-      ctx.beginPath(); ctx.arc(x, ground - rr*k, rr*k*0.48, 0, Math.PI*2);
-      ctx.fillStyle = '#93a08e'; ctx.fill();
-      ctx.beginPath(); ctx.arc(x, ground - rr*k, rr*k*0.16, 0, Math.PI*2);
-      ctx.fillStyle = '#5f6f66'; ctx.fill();
+    for (let i = N; i >= 0; i--){
+      const th = TH0 - (i/N)*SWEEP;
+      ctx.lineTo(800 + Math.cos(th)*66, 456 + Math.sin(th)*66);
     }
-
-    // رأس الطرد ودوّار يدور حول محوره
-    const hx = cx - bw/2 - 30*k, hy = top + bh*0.62;
-    ctx.beginPath(); ctx.arc(hx, hy, 40*k, 0, Math.PI*2);
-    ctx.fillStyle = '#8b9c85'; ctx.fill();
-    ctx.beginPath(); ctx.arc(hx, hy, 29*k, 0, Math.PI*2);
-    ctx.fillStyle = '#cfdac9'; ctx.fill();
-    const running = unit && unit.technical === 'ready' && unit.operation === 'running';
-    const blade = running && !reduced.matches ? now/240 : 0;
-    ctx.save(); ctx.translate(hx, hy); ctx.rotate(blade);
-    ctx.strokeStyle = '#2f5d45'; ctx.lineWidth = 5*k; ctx.lineCap = 'round';
+    ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1;
+    // الدوّار على عمود الترس نفسه: يدور بدورانه واتجاهه
+    ctx.translate(800, 456); ctx.rotate(-a*ratio);
+    ctx.fillStyle = '#34506a';
+    ctx.beginPath(); ctx.arc(0, 0, 64, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = PART.vane;
     for (let i = 0; i < 6; i++){
-      const a = i*Math.PI/3;
-      ctx.beginPath(); ctx.moveTo(Math.cos(a)*6*k, Math.sin(a)*6*k);
-      ctx.lineTo(Math.cos(a)*22*k, Math.sin(a)*22*k); ctx.stroke();
+      ctx.save(); ctx.rotate((i/6)*Math.PI*2);
+      ctx.beginPath();
+      ctx.moveTo(19, 3); ctx.quadraticCurveTo(44, 20, 63, 16);
+      ctx.quadraticCurveTo(46, 8, 21, -5); ctx.closePath(); ctx.fill();
+      ctx.restore();
     }
+    ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI*2); ctx.fillStyle = PART.shaft; ctx.fill();
     ctx.restore();
 
-    // تدفّق الماء يخرج من الطرد حين تعمل المضخة فعلاً
-    if (running){
-      ctx.globalAlpha = .75;
+    // ── الماء يجري: من السحب إلى الحلزون إلى الطرد ─────────────────────────
+    if (live){
       for (let i = 0; i < 5; i++){
-        const t = ((now/900) + i/5) % 1;
-        ctx.beginPath();
-        ctx.ellipse(hx - (46 + t*110)*k, hy + Math.sin(t*6)*5*k, (11 - t*6)*k, 5*k, 0, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(122,196,199,${(1-t)*0.8})`; ctx.fill();
+        const p = ((t*0.5) + i/5) % 1;
+        arrow(ctx, 984 - p*128, 456 + Math.sin(p*7)*6, 12, Math.PI, PART.water, .9);
+      }
+      for (let i = 0; i < 4; i++){
+        const p = ((t*0.5) + i/4) % 1;
+        arrow(ctx, 800, 350 - p*100, 12, -Math.PI/2, PART.water, .9);
+      }
+      arrow(ctx, cx, cy + 84, 15, 0, PART.arrow, .85);          // اتجاه دوران العمود
+      arrow(ctx, g2x + 4, g2y - 62, 12, Math.PI, PART.arrow, .85);
+    }
+
+    // ── لوحة الحالة: لون المعدة نفسه المستعمل في بقية الشاشة ───────────────
+    ctx.fillStyle = PART.caseEdge;
+    ctx.beginPath(); ctx.roundRect(78, 452, 104, 96, 10); ctx.fill();
+    ctx.fillStyle = TONE[toneOf(unit || {})];
+    ctx.beginPath(); ctx.roundRect(90, 464, 80, 13, 6); ctx.fill();
+    ctx.globalAlpha = .55; ctx.fillStyle = PART.caseIn;
+    for (let i = 0; i < 3; i++){
+      ctx.beginPath(); ctx.roundRect(90, 492 + i*16, 80 - i*22, 8, 4); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // ── نداء الجزء: اسمه وعمله، وخيط يصل الاسم بموضعه في المقطع ────────────
+    // يُكبَّر الخط على الشاشات الصغيرة حتى يبقى مقروءاً، فإن ضاق المكان
+    // اكتُفي بالاسم: سطر لا يُقرأ زينة لا فائدة فيها.
+    ctx.textAlign = 'right'; ctx.direction = 'rtl';
+    const idx = reduced ? 0 : Math.floor(since/CALLOUT_MS) % CALLOUTS.length;
+    const local = reduced ? CALLOUT_MS/2 : since % CALLOUT_MS;
+    const fade = reduced ? 1 : Math.min(1, local/260, (CALLOUT_MS - local)/260);
+    if (fade > 0.01){
+      const c = CALLOUTS[idx], tight = k < 0.62;
+      const name = Math.max(31, 15/k), note = Math.max(19, 12/k);
+      ctx.globalAlpha = fade;
+      ctx.fillStyle = '#e8c88a';
+      ctx.font = `700 ${name}px "IBM Plex Sans Arabic", Tahoma, sans-serif`;
+      ctx.fillText(c.name, tight ? 1000 : 726, tight ? 116 : 124);
+      if (!tight){
+        ctx.fillStyle = '#9fb7c6';
+        ctx.font = `400 ${note}px "IBM Plex Sans Arabic", Tahoma, sans-serif`;
+        ctx.fillText(c.note, 726, 156);
+        ctx.strokeStyle = '#e8c88a'; ctx.globalAlpha = fade*0.45; ctx.lineWidth = 1.6;
+        ctx.setLineDash([7, 6]);
+        ctx.beginPath(); ctx.moveTo(726, 170); ctx.lineTo(c.x, c.y); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = fade*0.8;
+        ctx.beginPath(); ctx.arc(c.x, c.y, 9, 0, Math.PI*2); ctx.stroke();
       }
       ctx.globalAlpha = 1;
     }
+    ctx.textAlign = 'center'; ctx.direction = 'inherit';
+    ctx.restore();
   }
 
   D.create({
@@ -165,11 +304,17 @@
           layout({area}){ const spots = kit.gridPositions(all, area, area.h*0.08);
             return {spots: all.map((unit,i) => ({unit, ...spots[i]})), labels: []}; } },
 
-        { title: 'المضخة عن قرب',
-          lede: star ? `${star.asset} · ${starSize} · ${star.make || 'الشركة غير مسجّلة'}` : 'لا سجل',
+        { title: 'المجموعة من الداخل',
+          // الرسم تخطيطي عام، والسكون فيه خبرٌ عن المعدة لا عطلٌ في العرض:
+          // يُقال الأمران في السطر نفسه حتى يُقرآ في كل مقاس شاشة.
+          lede: !star ? 'لا سجل'
+            : `${star.asset} · ${starSize} · ${star.make || 'الشركة غير مسجّلة'}`
+              + ' — رسم تخطيطي عام لا يصوّر تركيب هذه المعدة'
+              + (star.technical === 'ready' && star.operation === 'running'
+                 ? '' : '، وسكونه لأنها ليست في التشغيل الآن'),
           metric: {value: s.total, caption: 'معدة في السجل'},
           outside: 'الأسطول',
-          drawBehind(g){ drawPump(g.ctx, g.w, g.h, g.now, star, g.reduced, TONE, toneOf); },
+          drawBehind(g){ drawSection(g.ctx, g.w, g.h, g.now, star, g.reduced, g.since, TONE, toneOf); },
           layout(){ return {spots: [], labels: []}; } },
 
         { title: 'أين توجد المعدات؟',
