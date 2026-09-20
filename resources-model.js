@@ -118,11 +118,29 @@
         state:optionalEnum(row[10],needStates,'حالة الطلب في '+where),
         dataKind:optionalEnum(row[13],dataKinds,'نوع البيانات في '+where),
         sourceCode:text(row[16])||null,
+        coords:coordsOf(row[17],where),
         reference:text(row[18])||null,
         season:text(row[19])||null,
         notes:text(row[14])||null
       };
     });
+  }
+
+  /**
+   * الإحداثيات تأتي نصاً واحداً «خط العرض, خط الطول». تُرفض قيمة خارج حدود
+   * الإمارات بدل أن تُرسم نقطة في البحر: خطأ في خانة إحداثي لا يُرى على
+   * الخريطة إلا بعد أن يضلّل.
+   */
+  function coordsOf(value,label){
+    const raw=text(value);
+    if(!raw)return null;
+    const parts=raw.split(',').map(x=>Number(x.trim()));
+    if(parts.length!==2||parts.some(n=>!Number.isFinite(n)))
+      return fail('إحداثيات غير صالحة في '+label+': '+raw);
+    const [lat,lng]=parts;
+    if(lat<22||lat>27||lng<51||lng>57)
+      return fail('إحداثيات خارج حدود الدولة في '+label+': '+raw);
+    return {lat,lng};
   }
 
   // المتبقي لا يُحسب قبل تسجيل تسليم: الفراغ «لم يُسلَّم شيء بعد» لا صفر باقياً.
@@ -182,6 +200,25 @@
       .sort((a,b)=>b.total-a.total);
   }
 
+  /** نقاط الخريطة: تُجمَّع البنود على الإحداثية الواحدة، فالموقع واحد وإن تعددت بنوده. */
+  function mapPoints(needs){
+    const map=new Map();
+    for(const need of needs){
+      if(!need.coords)continue;
+      const key=need.coords.lat+','+need.coords.lng;
+      const point=map.get(key)||{key,lat:need.coords.lat,lng:need.coords.lng,
+        place:need.place,sector:need.sector,count:0,kinds:new Map()};
+      point.count++;
+      if(need.wanted!=null){
+        const k=(needKinds[need.kind]||'غير محدد')+(need.unit?' · '+units[need.unit]:'');
+        point.kinds.set(k,(point.kinds.get(k)||0)+need.wanted);
+      }
+      map.set(key,point);
+    }
+    return [...map.values()].map(p=>({...p,kinds:[...p.kinds.entries()].map(([label,total])=>({label,total}))}))
+      .sort((a,b)=>b.count-a.count);
+  }
+
   const filters={
     all:()=>true,
     spare:item=>item.group==='spare',
@@ -198,6 +235,6 @@
     groups,units,tracking,stockStates,needKinds,needStates,
     catalogSheetName,catalogHeaders,stockSheetName,stockHeaders,needSheetName,needHeaders,
     catalogEntries,stockEntries,needEntries,sheetRows,
-    summary,needGroups,remaining,filters,filterLabels
+    summary,needGroups,remaining,filters,filterLabels,coordsOf,mapPoints
   };
 })(globalThis);
