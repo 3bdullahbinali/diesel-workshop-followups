@@ -26,6 +26,7 @@
 
   let canvas = null, ctx = null, loop = 0;
   let nodes = [], geographic = false, demoCoords = false, fitZoom = 1;
+  let fromKnown = 0, fromSheet = 0;
 
   /* ————————————————————————————— طبقة صور الأقمار —————————————————————————————
      مصدر مفتوح بلا مفتاح، وإسناده مرسوم على الخريطة كما يشترط مزوّده.
@@ -62,29 +63,45 @@
     const built = root.StationsHealthModel.build(data);
     const cards = new Map((data.assetStations || []).map(a => [a.id, a]));
     const demo = root.STATIONS_DEMO_COORDS;
+    const known = root.STATIONS_KNOWN_COORDS;
 
-    const real = built.rows.filter(r => {
-      const c = cards.get(r.id);
-      return c && Number.isFinite(c.lat) && Number.isFinite(c.lon);
-    });
-    // الحقيقي يغلب التجريبي بلا إعداد: وجود محطتين بإحداثيات يُهمل ملف التجربة.
+    /**
+     * ترتيب المصادر صارم: الشيت أولاً لأنه المرجع الذي يبقى بعد تحديث الموقع،
+     * ثم الإحداثيات المنقولة من مصدر حقيقي، ثم المولَّدة. لا يُخلط مصدران في
+     * محطة واحدة، والمصدر يُحفظ مع النقطة ليُعلَن على الشاشة.
+     */
+    const coordOf = (id) => {
+      const c = cards.get(id);
+      if (c && Number.isFinite(c.lat) && Number.isFinite(c.lon)) {
+        return { lat: c.lat, lon: c.lon, from: 'sheet' };
+      }
+      const k = known && known.coordFor(id);
+      if (k) return { lat: k.lat, lon: k.lon, from: 'known' };
+      return null;
+    };
+
+    const real = built.rows.map(r => coordOf(r.id)).filter(Boolean);
+    // الحقيقي يغلب المولَّد بلا إعداد: وجود موقعين يُهمل ملف التجربة كله.
     geographic = real.length >= 2;
+    fromSheet = real.filter(c => c.from === 'sheet').length;
+    fromKnown = real.filter(c => c.from === 'known').length;
     demoCoords = !geographic && Boolean(demo);
 
     const byRing = new Map();
     nodes = built.rows.map((r, i) => {
       const c = cards.get(r.id);
-      let lon, lat, placed = true;
-      if (geographic && c && Number.isFinite(c.lat)) {
-        lon = c.lon; lat = c.lat;
+      let lon, lat, placed = true, from = null;
+      const point = geographic ? coordOf(r.id) : null;
+      if (point) {
+        lon = point.lon; lat = point.lat; from = point.from;
       } else if (geographic) {
         // حالة مختلطة: بعض المحطات لها إحداثي وبعضها لا. وضع الثانية في ترتيب
         // تخطيطي يبعثرها عبر الكرة بينما تتجمع الأولى في مكانها، فتُقرأ كأنها
         // محطات بعيدة. لا تُرسم أصلاً، ويُعلَن عددها.
         placed = false; lon = 0; lat = 0;
       } else if (demoCoords) {
-        const point = demo.coordFor(r.id);
-        lon = point.lon; lat = point.lat;
+        const d = demo.coordFor(r.id);
+        lon = d.lon; lat = d.lat; from = 'demo';
       } else {
         // بلا إحداثيات ولا ملف تجربة: ترتيب بالمعنى — الحلقة من حالة الدليل.
         const ring = RING[r.evidence.state.id] ?? 0.9;
@@ -94,7 +111,7 @@
         lat = Math.sin(angle) * ring * 62;
       }
       return {
-        id: r.id, name: r.name, lon, lat, placed, row: r,
+        id: r.id, name: r.name, lon, lat, placed, from, row: r,
         tone: r.evidence.state.tone,
         pumps: r.assets.pumps.length, lines: r.assets.lines.length,
         card: c || null, i
@@ -434,8 +451,13 @@
     const off = nodes.filter(n => !n.placed).length;
     if (geographic) {
       sourceNote.classList.remove('demo');
-      sourceNote.hidden = !off;
-      if (off) sourceNote.textContent = off + ' محطة بلا إحداثيات لا تظهر على الخريطة';
+      // المصدر يُسمّى لا يُخفى: من يرى نقطة على خريطة يحق له أن يعرف من أين جاءت.
+      const bits = [];
+      if (off) bits.push(off + ' محطة بلا إحداثيات لا تظهر');
+      if (fromKnown) bits.push(fromKnown + ' موقعاً من ' + (root.STATIONS_KNOWN_COORDS?.source || 'مصدر خارجي'));
+      if (fromSheet) bits.push(fromSheet + ' من الشيت');
+      sourceNote.hidden = !bits.length;
+      sourceNote.textContent = bits.join(' · ');
       return;
     }
     sourceNote.hidden = false;
