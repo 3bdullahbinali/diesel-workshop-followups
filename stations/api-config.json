@@ -1,5 +1,5 @@
 {
   "apiUrl": "https://script.google.com/macros/s/AKfycbzyfwm-SKV_O9_F9DMO4Gp48F9NCgXvayVtRzDiNc3w_o9q6tAO_p-D1hqlbALdUZz1dQ/exec",
   "refreshSeconds": 120,
-  "note": "رابط /exec من نشر stations-api.gs كتطبيق ويب. القراءة عامة عبر read-public، والكتابة خلف تسجيل الدخول والصلاحية. أفرغه ليعود الموقع إلى النسخة المضمّنة."
+  "note": "رابط /exec من نشر stations-api.gs كتطبيق ويب. القراءة والكتابة كلتاهما خلف تسجيل الدخول — publicRead في الخادم مضبوطة على false. وإفراغ الرابط لا يعيد سجلاً: الموقع لا يحمل نسخة مضمّنة، فيبقى بلا مصدر."
 }

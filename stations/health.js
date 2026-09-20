@@ -71,7 +71,7 @@
   };
 
   function pumpTable(pumps) {
-    return pumps.map(p => `<div class="hm-asset">
+    return pumps.map(p => `<div class="hm-asset" data-kind="pump">
       <div class="hm-asset-head">
         <b>${esc(p.label || p.id)}</b>
         <span class="hm-asset-id">${esc(p.id)}</span>
@@ -97,7 +97,7 @@
   }
 
   function lineTable(lines) {
-    return lines.map(l => `<div class="hm-asset">
+    return lines.map(l => `<div class="hm-asset" data-kind="line">
       <div class="hm-asset-head">
         <b>${esc(l.label || l.id)}</b>
         <span class="hm-asset-id">${esc(l.id)}</span>

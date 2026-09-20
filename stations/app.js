@@ -770,8 +770,9 @@
     const local = source === 'local';
     const mode = el('banner-mode');
     if (mode) mode.textContent = BANNER[source] || BANNER.local;
-    // القراءة العامة تعرض كل شيء ولا تحرّر: الجلسة والصلاحية شرطا التحرير.
-    const canEdit = local || (source === 'api' && Boolean(window.StationsApi?.canWrite));
+    // شرطٌ واحد للتحرير: جلسة موثقة بصلاحية كتابة. كان «local» يُعفى منه أيام
+    // الوضع المحلي؛ وقد أُلغي، فبقاء الإعفاء يعرض زر حفظٍ لا يحفظ في شيء.
+    const canEdit = source === 'api' && Boolean(window.StationsApi?.canWrite);
     for (const el of document.querySelectorAll('[data-local-only]')) el.hidden = !local;
     for (const el of document.querySelectorAll('[data-edit-action]')) el.hidden = !canEdit;
   };

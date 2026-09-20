@@ -31,8 +31,10 @@
   const allowPublic = sheetConfig.allowPublicRead === true;
 
   if (!useApi && !allowPublic) {
-    show('offline', 'المصدر: النسخة المضمّنة',
-      'لم يُضبط رابط الواجهة الموثقة في api-config.json، والقراءة العامة معطّلة.');
+    // لا نسخة مضمّنة بعد الإقفال: data.js صار هيكلاً بلا صفوف. الرسالة القديمة
+    // كانت تَعِد الموظف بسجلٍ يراه، فيقف أمام شاشة فارغة بلا تفسير.
+    show('offline', 'لا مصدر مضبوط',
+      'لم يُضبط رابط الواجهة في api-config.js، ولا سجل في الموقع نفسه — لا شيء ليُعرض.');
     setSource('local');
     return;
   }
@@ -177,6 +179,7 @@
       const locked = /تسجيل الدخول|معطّلة/.test(error.message || '');
       setSource(locked ? 'locked' : 'offline');
       if (locked) {
+        window.StationsStore.replaceBase(window.STATIONS_DATA);
         show('locked', 'السجل خلف تسجيل الدخول',
           'لا تُعرض بيانات قبل التحقق من الهوية. سجّل الدخول بحسابك.');
         buttons([['تسجيل الدخول', promptLogin, 'mini primary']]);
@@ -188,20 +191,13 @@
     }
   }
 
-  /** الوضع المحلي اختيار معلَن: النسخة المضمّنة، والحفظ في هذا المتصفح وحده. */
-  function goLocal() {
-    stopTimer();
-    window.StationsStore.replaceBase(window.STATIONS_DATA);
-    setSource('local');
-    show('offline', 'المصدر: النسخة المضمّنة',
-      'وضع محلي باختيارك. الحفظ في هذا المتصفح فقط، ولا يصل إلى الشيت.');
-    buttons([['محاولة الاتصال', () => (api.session ? pull(api.session) : pullAnonymous()), 'mini primary']]);
-  }
-
   async function signOut() {
     stopTimer();
+    // يُمحى السجل قبل أي شيء آخر: الخروج على جهاز مشترك يجب ألا يترك خلفه
+    // ما كان الدخول شرطاً لرؤيته. ويسبق نداء الخادم لأن فشل النداء لا يعني
+    // بقاء الجلسة مرئية، ولا ينتظر شبكةً قد لا تردّ.
+    window.StationsStore.replaceBase(window.STATIONS_DATA);
     await api.logout();
-    // الخروج يُنهي التحرير لا القراءة: يعود الزائر إلى العرض العام.
     await pullAnonymous();
   }
 
