@@ -24,10 +24,11 @@
   // الحلقة بالمعنى: ما يحتاج نظراً أقرب إلى المركز.
   const RING = { stalled: 0.18, watch: 0.38, active: 0.58, closed: 0.74, none: 0.9 };
 
-  let canvas = null, ctx = null, loop = 0, started = 0;
-  let nodes = [], geographic = false;
+  let canvas = null, ctx = null, loop = 0;
+  let nodes = [], geographic = false, demoCoords = false, fitZoom = 1;
   // الكاميرا: lon/lat مركزها، والتقريب، وt معامل التسطيح.
   const cam = { lon: 0, lat: 0, zoom: 1, t: 0 };
+  const center = { lon: 0, lat: 0 };
   let from = null, to = null, moveStart = 0, moveMs = 0, focus = null, spin = true;
 
   const ease = (x) => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
@@ -40,12 +41,15 @@
     const data = root.StationsStore.data;
     const built = root.StationsHealthModel.build(data);
     const cards = new Map((data.assetStations || []).map(a => [a.id, a]));
+    const demo = root.STATIONS_DEMO_COORDS;
 
-    const withCoords = built.rows.filter(r => {
+    const real = built.rows.filter(r => {
       const c = cards.get(r.id);
       return c && Number.isFinite(c.lat) && Number.isFinite(c.lon);
     });
-    geographic = withCoords.length >= 2;
+    // الحقيقي يغلب التجريبي بلا إعداد: وجود محطتين بإحداثيات يُهمل ملف التجربة.
+    geographic = real.length >= 2;
+    demoCoords = !geographic && Boolean(demo);
 
     const byRing = new Map();
     nodes = built.rows.map((r, i) => {
@@ -53,13 +57,16 @@
       let lon, lat;
       if (geographic && c && Number.isFinite(c.lat)) {
         lon = c.lon; lat = c.lat;
+      } else if (demoCoords) {
+        const point = demo.coordFor(r.id);
+        lon = point.lon; lat = point.lat;
       } else {
-        // توزيع ثابت لا عشوائي: نفس السجل يعطي نفس الشكل في كل تشغيل.
+        // بلا إحداثيات ولا ملف تجربة: ترتيب بالمعنى — الحلقة من حالة الدليل.
         const ring = RING[r.evidence.state.id] ?? 0.9;
         const n = (byRing.get(ring) || 0); byRing.set(ring, n + 1);
-        const angle = (n * 137.508) * RAD;              // زاوية ذهبية تفرّق النقاط
-        lon = (Math.cos(angle) * ring * 150);
-        lat = (Math.sin(angle) * ring * 62);
+        const angle = (n * 137.508) * RAD;
+        lon = Math.cos(angle) * ring * 150;
+        lat = Math.sin(angle) * ring * 62;
       }
       return {
         id: r.id, name: r.name, lon, lat, row: r,
@@ -68,28 +75,42 @@
         card: c || null, i
       };
     });
+
+    // تقريب يملأ الشاشة بالمواقع: نطاق درجة واحدة ونطاق مئة درجة لا يُعرضان بمقياس واحد.
+    const lons = nodes.map(n => n.lon), lats = nodes.map(n => n.lat);
+    const spreadLon = Math.max(0.05, Math.max(...lons) - Math.min(...lons));
+    const spreadLat = Math.max(0.05, Math.max(...lats) - Math.min(...lats));
+    fitZoom = Math.min(
+      (0.62 * 360) / (1.35 * spreadLon),
+      (0.62 * 180) / (1.35 * spreadLat)
+    );
+    // مركز الخريطة وسط المواقع لا وسط الكرة.
+    center.lon = (Math.max(...lons) + Math.min(...lons)) / 2;
+    center.lat = (Math.max(...lats) + Math.min(...lats)) / 2;
     return built;
   }
 
   /* ————————————————————————————————— الإسقاط ————————————————————————————————— */
+  /**
+   * الكرة والسطح لهما مقياسان: لو ضُرب التقريب في الطرفين انفجرت الكرة قبل أن
+   * تتسطّح، فتطير النقاط خارج الشاشة في منتصف الانتقال. التقريب للسطح وحده.
+   */
   function project(lon, lat, w, h) {
-    const R = Math.min(w, h) * 0.42 * cam.zoom;
+    const R0 = Math.min(w, h) * 0.42;
     const λ = (lon - cam.lon) * RAD, φ = lat * RAD, φ0 = cam.lat * RAD;
-    // كروي
     const cosC = Math.sin(φ0) * Math.sin(φ) + Math.cos(φ0) * Math.cos(φ) * Math.cos(λ);
     const gx = Math.cos(φ) * Math.sin(λ);
     const gy = Math.cos(φ0) * Math.sin(φ) - Math.sin(φ0) * Math.cos(φ) * Math.cos(λ);
-    // مستوٍ
-    const fx = (dLon(cam.lon, lon) / 180) * 1.35;
-    const fy = -((lat - cam.lat) / 90) * 1.35;
+    const fx = (dLon(cam.lon, lon) / 180) * 1.35 * cam.zoom;
+    // موجب إلى الأعلى مثل الحد الكروي: الإشارة المعاكسة تقلب الشمال إلى الأسفل.
+    const fy = ((lat - cam.lat) / 90) * 1.35 * cam.zoom;
     const t = cam.t;
     return {
-      x: w / 2 + lerp(gx, fx, t) * R,
-      y: h / 2 - lerp(gy, fy, t) * R,
-      // الظهور يتلاشى مع التسطيح: على السطح المستوي كل شيء مرئي.
+      x: w / 2 + (gx * (1 - t) + fx * t) * R0,
+      y: h / 2 - (gy * (1 - t) + fy * t) * R0,
       visible: cosC > -0.02 || t > 0.55,
       depth: lerp(Math.max(0, cosC), 1, t),
-      R
+      R: R0
     };
   }
 
@@ -110,44 +131,85 @@
       if (k >= 1) { from = null; to = null; }
     }
 
-    const R = Math.min(w, h) * 0.42 * cam.zoom;
-    graticule(w, h, R);
+    graticule(w, h, Math.min(w, h) * 0.42);
     links(w, h);
     dots(w, h, now);
 
     loop = requestAnimationFrame(frame);
   }
 
-  /** شبكة خطوط الطول والعرض: تعطي الإحساس بالكرة بلا ادعاء رسم يابسة. */
+  /**
+   * الشبكة تتبع المقياس: على الكرة كل ثلاثين درجة، وعلى خريطة إقليمية كل عُشر
+   * درجة بأرقامها. شبكة ثابتة عند تقريب عالٍ تعني خطاً واحداً أو لا خط.
+   */
+  function gridStep() {
+    const span = 180 / Math.max(1, cam.zoom);      // الدرجات المرئية عرضاً
+    // المطلوب خمسة خطوط إلى اثني عشر: أكبر خطوة تعطي أربعة خطوط فأكثر.
+    // الشرط المعكوس (span/step ≤ 12) يصدق على أكبر خطوة دائماً فيعيد ٣٠ أبداً.
+    for (const step of [30, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05, 0.02]) {
+      if (span / step >= 4) return step;
+    }
+    return 0.01;
+  }
+
   function graticule(w, h, R) {
-    const fade = 1 - cam.t * 0.55;
+    const fade = 1 - cam.t * 0.5;
+    const step = cam.t > 0.5 ? gridStep() : 30;
+    const showLabels = cam.t > 0.75 && step < 30;
+    const spanLon = 180 / Math.max(1, cam.zoom), spanLat = 90 / Math.max(1, cam.zoom);
+    const lat0 = cam.t > 0.5 ? cam.lat - spanLat : -60;
+    const lat1 = cam.t > 0.5 ? cam.lat + spanLat : 60;
+    const lon0 = cam.t > 0.5 ? cam.lon - spanLon : -180;
+    const lon1 = cam.t > 0.5 ? cam.lon + spanLon : 180;
+    const fine = cam.t > 0.5 ? step / 4 : 4;
+
     ctx.lineWidth = 1;
-    for (let lat = -60; lat <= 60; lat += 30) {
-      ctx.beginPath(); ctx.strokeStyle = `rgba(125,178,224,${0.16 * fade})`;
+    ctx.font = '12px Arial, sans-serif';
+    // الصفحة عربية، و«البداية» في لوحة الرسم تتبع اتجاهها فتُرسم الأرقام خارج
+    // الحد. أرقام الدرجات لاتينية على أي حال، فاتجاهها يُثبَّت يساراً.
+    ctx.direction = 'ltr';
+    ctx.textAlign = 'left';
+
+    for (let lat = Math.ceil(lat0 / step) * step; lat <= lat1 + 1e-9; lat += step) {
+      ctx.beginPath(); ctx.strokeStyle = `rgba(125,178,224,${(cam.t > 0.5 ? 0.24 : 0.16) * fade})`;
       let drawn = false;
-      for (let lon = -180; lon <= 180; lon += 4) {
-        const p = project(lon, lat, w, h);
-        if (!p.visible) { drawn = false; continue; }
-        drawn ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y);
+      for (let lon = lon0; lon <= lon1 + 1e-9; lon += fine) {
+        const q = project(lon, lat, w, h);
+        if (!q.visible) { drawn = false; continue; }
+        drawn ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y);
         drawn = true;
       }
       ctx.stroke();
+      if (showLabels) {
+        const at = project(cam.lon, lat, w, h);
+        if (at.y > 16 && at.y < h - 34) {
+          ctx.fillStyle = 'rgba(157,189,216,.72)';
+          ctx.fillText(lat.toFixed(step < 0.1 ? 3 : 2) + '°', 10, at.y - 5);
+        }
+      }
     }
-    for (let lon = -180; lon < 180; lon += 30) {
-      ctx.beginPath(); ctx.strokeStyle = `rgba(125,178,224,${0.13 * fade})`;
+    for (let lon = Math.ceil(lon0 / step) * step; lon <= lon1 + 1e-9; lon += step) {
+      ctx.beginPath(); ctx.strokeStyle = `rgba(125,178,224,${(cam.t > 0.5 ? 0.2 : 0.13) * fade})`;
       let drawn = false;
-      for (let lat = -88; lat <= 88; lat += 4) {
-        const p = project(lon, lat, w, h);
-        if (!p.visible) { drawn = false; continue; }
-        drawn ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y);
+      for (let lat = lat0; lat <= lat1 + 1e-9; lat += fine) {
+        const q = project(lon, lat, w, h);
+        if (!q.visible) { drawn = false; continue; }
+        drawn ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y);
         drawn = true;
       }
       ctx.stroke();
+      if (showLabels) {
+        const at = project(lon, cam.lat, w, h);
+        if (at.x > 46 && at.x < w - 46) {
+          ctx.fillStyle = 'rgba(157,189,216,.72)';
+          ctx.fillText(lon.toFixed(step < 0.1 ? 3 : 2) + '°', at.x + 5, h - 8);
+        }
+      }
     }
-    // هالة الحافة تختفي مع التسطيح.
+
     if (cam.t < 0.9) {
       const glow = ctx.createRadialGradient(w / 2, h / 2, R * 0.72, w / 2, h / 2, R * 1.1);
-      glow.addColorStop(0, `rgba(45,130,196,0)`);
+      glow.addColorStop(0, 'rgba(45,130,196,0)');
       glow.addColorStop(0.72, `rgba(45,130,196,${0.3 * (1 - cam.t)})`);
       glow.addColorStop(1, 'rgba(45,130,196,0)');
       ctx.fillStyle = glow;
@@ -196,6 +258,7 @@
       if (isFocus) {
         ctx.beginPath(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.6;
         ctx.arc(p.x, p.y, size + 7 + pulse * 3, 0, TAU); ctx.stroke();
+        ctx.direction = 'rtl';
         ctx.font = '600 15px "IBM Plex Sans Arabic", Tahoma, sans-serif';
         ctx.fillStyle = 'rgba(255,255,255,.92)';
         ctx.textAlign = 'center';
@@ -226,8 +289,10 @@
     wrap.append(orbit);
     if (banner && !geographic) {
       const note = document.createElement('span');
-      note.className = 'pv-schematic';
-      note.textContent = 'ترتيب تخطيطي بحسب حالة الدليل — الإحداثيات غير مزوَّدة';
+      note.className = 'pv-schematic' + (demoCoords ? ' demo' : '');
+      note.textContent = demoCoords
+        ? 'إحداثيات تجريبية مولَّدة — ليست مواقع فعلية ولا تصلح للملاحة'
+        : 'ترتيب تخطيطي بحسب حالة الدليل — الإحداثيات غير مزوَّدة';
       wrap.append(note);
     }
     stage.querySelector('.pv-scene')?.append(wrap);
@@ -296,7 +361,7 @@
           spin = false; focus = null;
           mountCanvas(stage, true);
           cam.t = 0; cam.zoom = 1;
-          fly({ lat: 0, lon: cam.lon, zoom: 1.35, t: 1 }, 3200);
+          fly({ lat: center.lat, lon: center.lon, zoom: fitZoom, t: 1 }, 3400);
         } });
 
       // ٥ — الانتقال بين المواقع التي لها أصول
@@ -315,7 +380,7 @@
             const prev = focus ? focus.index : null;
             focus = { index: node.i, prev };
             mountCanvas(stage, true);
-            fly({ lon: node.lon, lat: node.lat, zoom: 2.1, t: 1 }, 1700);
+            fly({ lon: node.lon, lat: node.lat, zoom: fitZoom * 2.4, t: 1 }, 1700);
 
             const panel = document.createElement('aside');
             panel.className = 'pv-panel';

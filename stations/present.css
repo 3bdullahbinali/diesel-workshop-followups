@@ -244,3 +244,8 @@
 
 /* العنوان الجانبي أضيق من عنوان المنتصف: 22ch تكسر الكلمات حين يجاور الكرة. */
 .pv-head-side{font-size:clamp(1.5rem,3.2vw,2.75rem);max-width:none;text-wrap:pretty}
+
+/* لافتة الإحداثيات التجريبية أشدّ من لافتة الترتيب التخطيطي:
+   الثانية تقول «لا موضع»، والأولى تعرض موضعاً ليس حقيقياً — وهذا أخطر. */
+.pv-schematic.demo{color:#ffb8ac;border-color:rgba(242,112,95,.6);
+  background:rgba(242,112,95,.12);font-weight:600}
