@@ -144,16 +144,26 @@
       if (reduced.matches){ $('rdx-metric').textContent = countTarget; $('rdx-metric').dataset.value = countTarget; }
     }
 
+    let glow = null;
+
     function frame(now){
       raf = requestAnimationFrame(frame);
       ctx.clearRect(0, 0, w, h);
+      // الشفق يُرسم على لوحة صغيرة ثم يُمدّ: تدرّجات ناعمة لا يظهر فيها
+      // فرق بين مقاس ومقاس، وكلفتها على شاشة الجدار تصير ثابتة.
+      const bw = 240, bh = Math.max(1, Math.round(240*h/w));
+      if (!glow) glow = document.createElement('canvas');
+      if (glow.width !== bw || glow.height !== bh){ glow.width = bw; glow.height = bh; }
+      const gx = glow.getContext('2d');
+      gx.clearRect(0, 0, bw, bh);
       for (const a of aurora){
         const drift = reduced.matches ? 0 : now;
-        const x = (a.x + Math.sin(drift*a.sx)*0.10) * w, y = (a.y + Math.cos(drift*a.sy)*0.08) * h;
-        const g = ctx.createRadialGradient(x, y, 0, x, y, a.r * Math.max(w, h));
+        const x = (a.x + Math.sin(drift*a.sx)*0.10) * bw, y = (a.y + Math.cos(drift*a.sy)*0.08) * bh;
+        const g = gx.createRadialGradient(x, y, 0, x, y, a.r * Math.max(bw, bh));
         g.addColorStop(0, `rgba(${a.hue},0.22)`); g.addColorStop(1, `rgba(${a.hue},0)`);
-        ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+        gx.fillStyle = g; gx.fillRect(0, 0, bw, bh);
       }
+      ctx.drawImage(glow, 0, 0, w, h);
 
       const scene = scenes[index];
       const geom = {w, h, ctx, now, reduced: reduced.matches, since: now - sceneAt};
