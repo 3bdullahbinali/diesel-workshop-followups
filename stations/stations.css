@@ -306,3 +306,12 @@ body[data-source="sheet"] .review-banner.local{display:none}
 .station-list-main b{display:block;color:var(--ink);font-size:.9375rem;font-weight:600}
 .station-list-main span{display:block;font-size:.8125rem;color:var(--muted)}
 .station-empty{margin:14px 0 0;color:var(--muted);font-size:.9375rem}
+
+/* رابط صحة المحطات في شريط المصدر: بجانب تسجيل الدخول في كل حالة اتصال. */
+.sync-health{color:#0b3f6e;font-weight:700;text-decoration:none;
+  border:1px solid #bcd9ef;background:#eef5fb;border-radius:9px;
+  padding:7px 14px;min-height:40px;display:inline-flex;align-items:center}
+.sync-health:hover{background:#dceaf6;border-color:#8fbfe2}
+
+/* حالة القفل: ليست عطلاً، فلا تُلوَّن كالعطل ولا تدعو لإعادة المحاولة. */
+.sync-dot.locked{background:#315d84}

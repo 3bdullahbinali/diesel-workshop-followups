@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#0b3f6e">
+<meta name="description" content="صحة وأصول المحطات الخارجية: الأسطول والمضخات والخطوط.">
+<title>صحة المحطات — فريق صيانة المحطات الخارجية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="./stations.css">
+<link rel="stylesheet" href="./health.css">
+<link rel="stylesheet" href="./present.css">
+</head>
+<body class="health-standalone">
+<header class="masthead health-masthead">
+  <div class="masthead-inner">
+    <div class="identity">
+      <span class="identity-mark" aria-hidden="true">ص</span>
+      <div>
+        <div class="institution">بلدية مدينة الشارقة · إدارة الصرف الصحي</div>
+        <h1>صحة وأصول المحطات الخارجية</h1>
+      </div>
+    </div>
+    <div class="header-end">
+      <a class="back-link" href="./index.html">→ العودة إلى المتابعات</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="sync-band" id="sync-band" hidden>
+    <span class="sync-dot pending" id="sync-dot" aria-hidden="true"></span>
+    <strong id="sync-label"></strong>
+    <span id="sync-detail"></span>
+    <span class="sync-actions" id="sync-actions"></span>
+  </div>
+
+
+  <div id="view-health" role="region" aria-label="صحة المحطات"></div>
+</main>
+
+<footer class="page-foot">
+  <p>صحة السجل لا صحة المعدة: غياب السجل ليس دليل سلامة، ووجوده ليس إثبات حالة.</p>
+</footer>
+
+<dialog id="login">
+  <form method="dialog">
+    <div class="editor-head"><h3>تسجيل الدخول</h3>
+      <button type="button" id="login-cancel" class="mini" aria-label="إغلاق">إلغاء</button></div>
+    <div id="editor-body">
+      <p class="form-note">حساب فريق المحطات الخارجية. القراءة لا تتم قبل التحقق،
+        ولا يُشارَك ملف الشيت نفسه بالرابط.</p>
+      <label class="form-row"><span class="form-label">اسم المستخدم</span>
+        <input id="login-username" name="username" autocomplete="username" required></label>
+      <label class="form-row"><span class="form-label">كلمة المرور</span>
+        <input id="login-password" name="password" type="password" autocomplete="current-password" required></label>
+      <p id="login-error" class="form-note danger" hidden></p>
+    </div>
+    <div class="editor-foot">
+      <p class="form-hint">تنتهي الجلسة بإغلاق التبويب أو بعد ١٢ ساعة.</p>
+      <button type="submit" id="login-submit" class="action primary">دخول</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="./data.js"></script>
+<script src="./sheets-config.js"></script>
+<script src="./api-config.js"></script>
+<script src="./model.js"></script>
+<script src="./api.js"></script>
+<script src="./store.js"></script>
+<script src="./health-data.js"></script>
+<script src="./health-model.js"></script>
+<script src="./health.js"></script>
+<script src="./present.js"></script>
+<script src="./present-stations.js"></script>
+<script src="./health-page.js"></script>
+<script src="./sheets.js"></script>
+<script src="./sync.js"></script>
+</body>
+</html>

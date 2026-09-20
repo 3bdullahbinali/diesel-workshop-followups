@@ -6,7 +6,8 @@
    * القراءة مفتوحة: الزائر يرى السجل الحيّ بلا حساب. التحرير وحده خلف تسجيل
    * الدخول، والرفض من الخادم لا من إخفاء الأزرار.
    *
-   * ترتيب الإقلاع: جلسة محفوظة ← قراءة عامة عبر الواجهة ← النسخة المضمّنة.
+   * ترتيب الإقلاع: جلسة محفوظة ← محاولة قراءة ← قفل أو انقطاع.
+   * لا نسخة مضمّنة: الموقع يحمل هيكلاً فارغاً، والسجل لا يُحمَّل إلا بحساب.
    * قراءة gviz المباشرة مسار قديم لا يُفعَّل إلا بإذن صريح، وتتطلب مشاركة
    * الشيت بالرابط؛ الواجهة تغني عنها وتُبقي الملف غير مشارَك.
    *
@@ -58,6 +59,15 @@
       button.textContent = text;
       button.onclick = handler;
       actions.append(button);
+    }
+    // صحة المحطات صفحة مستقلة لا تبويب: سجل أصول لا سجل متابعات، وجمهوره
+    // يفتحه قاصداً. ورابطه هنا ليكون بجانب الدخول في كل حالة اتصال.
+    if (!document.body.classList.contains('health-standalone')) {
+      const health = document.createElement('a');
+      health.href = './health.html';
+      health.className = 'sync-health';
+      health.textContent = 'صحة المحطات';
+      actions.append(health);
     }
     if (sheetConfig.spreadsheetUrl) {
       const link = document.createElement('a');
@@ -127,7 +137,7 @@
         'آخر سجل قُرئ معروض للقراءة فقط. ' + error.message);
       buttons([
         ['إعادة المحاولة', () => pull(user), 'mini primary'],
-        ['العمل محلياً', goLocal]
+        ['تسجيل الدخول', promptLogin]
       ]);
     }
   }
@@ -162,12 +172,19 @@
       startTimer(pullAnonymous);
     } catch (error) {
       stopTimer();
-      setSource('offline');
-      show('offline', 'الاتصال بالشيت منقطع', 'تعذّرت القراءة — ' + error.message);
-      buttons([
-        ['إعادة المحاولة', pullAnonymous, 'mini primary'],
-        ['العمل محلياً', goLocal]
-      ]);
+      // فرقٌ يجب ألا يختلط: «مقفل» قرارُ إعداد، و«منقطع» عطلُ اتصال.
+      // رسالة واحدة لهما تجعل الموظف يعيد المحاولة حيث لا تنفع إعادة.
+      const locked = /تسجيل الدخول|معطّلة/.test(error.message || '');
+      setSource(locked ? 'locked' : 'offline');
+      if (locked) {
+        show('locked', 'السجل خلف تسجيل الدخول',
+          'لا تُعرض بيانات قبل التحقق من الهوية. سجّل الدخول بحسابك.');
+        buttons([['تسجيل الدخول', promptLogin, 'mini primary']]);
+      } else {
+        show('offline', 'الاتصال بالشيت منقطع', 'تعذّرت القراءة — ' + error.message);
+        buttons([['إعادة المحاولة', pullAnonymous, 'mini primary'],
+                 ['تسجيل الدخول', promptLogin]]);
+      }
     }
   }
 

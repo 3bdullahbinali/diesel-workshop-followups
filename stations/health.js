@@ -203,9 +203,9 @@
       <div class="hm-hero-text">
         <span class="hm-eyebrow">${esc(d.parent)}</span>
         <h2>${esc(d.name)}</h2>
-        <p>${esc(d.divisions[0].duty)}</p>
+        <p>${esc(d.duty)}</p>
         <div class="hm-hero-stats">
-          ${stat(cov.total, 'محطة رفع', 'إجمالي مسؤولية الشعبة')}
+          ${stat(cov.total, 'محطة رفع', 'في الإمارة')}
           ${stat(cov.sewage, 'صرف صحي')}
           ${stat(cov.storm, 'مياه أمطار')}
           ${stat(cov.main, 'محطة رئيسية')}
@@ -291,19 +291,6 @@
     </section>`;
   }
 
-  function divisionsPanel(ref) {
-    return `<section class="panel hm-panel">
-      <div class="panel-head"><div><h3>الشعب الثلاث</h3>
-        <p class="hm-src">${esc(ref.department.staff)} موظفاً — رئاسة ${esc(ref.department.head)}.</p></div></div>
-      <div class="hm-div-grid">${ref.department.divisions.map((d, i) => `
-        <div class="hm-div" style="--i:${i}">
-          <b>${esc(d.name)}</b>
-          <p>${esc(d.duty)}</p>
-          <ul>${d.tasks.map(t => `<li>${esc(t)}</li>`).join('')}</ul>
-        </div>`).join('')}</div>
-    </section>`;
-  }
-
   /* -------------------------------------------------------------- الرسم */
 
   function toolbar(counts) {
@@ -385,7 +372,6 @@
       ${mainPanel(ref)}
       ${vacuumPanel(ref)}
       ${componentsPanel(ref)}
-      ${divisionsPanel(ref)}
     `;
 
     container.querySelectorAll('[data-evidence]').forEach(button =>

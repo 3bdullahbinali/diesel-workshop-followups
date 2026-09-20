@@ -712,9 +712,7 @@
   const views = {
     dashboard: renderDashboard, followups: renderFollowups, procurement: renderProcurement,
     orders: renderOrders, unlinked: renderUnlinked, daily: renderDaily,
-    stations: renderStations, letters: renderLetters, review: renderReview,
-    // شاشة الأصول: ملفاتها مستقلة، وتُرسم من بياناتها الخاصة لا من سجل المتابعات.
-    health: () => window.StationsHealth.render(el('view-health'))
+    stations: renderStations, letters: renderLetters, review: renderReview
   };
   let current = 'dashboard';
 
@@ -736,8 +734,7 @@
       daily: data.daily.length,
       stations: data.stations.length,
       letters: data.letters.length,
-      review: data.issues.length,
-      health: data.stations.length + data.locations.length
+      review: data.issues.length
     };
     for (const [key, value] of Object.entries(counts)) {
       const badge = document.querySelector(`[data-view="${key}"] .tab-count`);
@@ -764,7 +761,8 @@
     api: 'السجل يُقرأ من الشيت مباشرة، والتعديل يُحفظ فيه.',
     'api-public': 'السجل يُقرأ من الشيت. التعديل يحتاج تسجيل دخول.',
     offline: 'الاتصال منقطع — المعروض آخر سجل قُرئ، والحفظ متوقف مؤقتاً.',
-    local: 'نسخة مضمّنة للمراجعة، والحفظ في هذا المتصفح وحده.'
+    locked: 'السجل خلف تسجيل الدخول. لا تُعرض بيانات قبل التحقق من الهوية.',
+    local: 'لا سجل محمَّل. سجّل الدخول لقراءة الشيت.'
   };
 
   const applyCapabilities = () => {
@@ -783,11 +781,9 @@
   document.querySelectorAll('[data-view]').forEach(button =>
     button.addEventListener('click', () => show(button.dataset.view)));
 
-  // العرضان يُفتحان من شاشتيهما: كل برنامج من حيث يعنيه جمهوره.
+  // عرض المتابعات يُفتح من لوحة المتابعة. وعرض المحطات في صفحته المستقلة.
   document.addEventListener('click', (event) => {
-    const start = event.target.closest('#present-followups, #present-health');
-    if (!start) return;
-    window.StationsPresent?.open(start.id === 'present-health' ? 'health' : 'followups');
+    if (event.target.closest('#present-followups')) window.StationsPresent?.open('followups');
   });
 
   const bannerToggle = el('banner-toggle');

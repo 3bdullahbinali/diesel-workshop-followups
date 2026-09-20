@@ -272,3 +272,18 @@
 .hm-asset .hm-src{margin:8px 0 0;display:block}
 .hm-asset .hm-src a{color:var(--hb-2)}
 .hm-badge.site{background:#f2f4f6;color:#5b7183;border:1px solid #d7dee4}
+
+/* ———————————————————————— الصفحة المستقلة ———————————————————————— */
+.health-masthead{background:#0b3f6e;border-bottom-color:#2d82c4}
+.health-masthead .identity-mark{border-color:#4a8cc0;color:#a9cfea}
+.health-masthead .institution{color:#bcd9ef}
+.back-link{color:#d7e9f7;text-decoration:none;font-weight:600;font-size:.9375rem;
+  border:1px solid #4a8cc0;border-radius:9px;padding:7px 14px}
+.back-link:hover{background:rgba(255,255,255,.1);color:#fff}
+.health-standalone main{padding-top:22px}
+.page-foot{max-width:1600px;margin:auto;padding:22px 40px 40px;
+  color:var(--muted);font-size:.875rem;border-top:1px solid var(--line)}
+@media (max-width:760px){
+  .page-foot{padding:18px}
+  .back-link{padding:6px 11px;font-size:.8125rem}
+}

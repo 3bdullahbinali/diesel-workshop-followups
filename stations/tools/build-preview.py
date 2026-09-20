@@ -36,14 +36,10 @@ def build():
     html = (ROOT / "index.html").read_text(encoding="utf-8")
     html = inline(html, '<link rel="stylesheet" href="./stations.css">',
                   "stations.css", "<style>\n{body}\n</style>")
-    html = inline(html, '<link rel="stylesheet" href="./health.css">',
-                  "health.css", "<style>\n{body}\n</style>")
     html = inline(html, '<link rel="stylesheet" href="./present.css">',
                   "present.css", "<style>\n{body}\n</style>")
     for name in ("data.js", "sheets-config.js", "api-config.js", "model.js",
-                 "api.js", "store.js", "health-data.js", "health-model.js", "health.js",
-                 "present.js", "present-stations.js",
-                 "app.js", "editor.js", "sheets.js", "sync.js"):
+                 "api.js", "store.js", "present.js", "app.js", "editor.js", "sheets.js", "sync.js"):
         html = inline(html, f'<script src="./{name}"></script>', name,
                       "<script>\n{body}\n</script>")
 
