@@ -737,7 +737,7 @@
       stations: data.stations.length,
       letters: data.letters.length,
       review: data.issues.length,
-      health: data.stations.length
+      health: data.stations.length + data.locations.length
     };
     for (const [key, value] of Object.entries(counts)) {
       const badge = document.querySelector(`[data-view="${key}"] .tab-count`);
