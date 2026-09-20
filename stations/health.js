@@ -213,6 +213,9 @@
       </div>
       <div class="hm-hero-arc">
         ${arc(cov.trackedPercent)}
+        <p style="margin-top:14px"><button type="button" class="present-open" id="present-health">
+          ▶ عرض تلقائي — كرة وخريطة
+        </button></p>
         <p><b>${num(cov.tracked)}</b> محطة لها سجل في الموقع<br>
         من <b>${num(cov.total)}</b> في عهدة الشعبة</p>
       </div>

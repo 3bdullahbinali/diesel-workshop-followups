@@ -141,6 +141,12 @@
           <span class="kpi-note">${d.withDueDate ? 'مواعيد مُدخلة يدوياً.' : 'لا موعد في السجل؛ التأخير لا يُولَّد من تواريخ تاريخية.'}</span></div>
       </div>
 
+      <p style="margin:0 0 18px">
+        <button type="button" class="present-open green" id="present-followups">
+          ▶ عرض تلقائي — ما يحتاج تحركاً
+        </button>
+      </p>
+
       <div class="aging">
         <div class="aging-head"><h3>عمر آخر إفادة</h3>
           <p>وسيط العمر ${num(d.medianAge)} أيام · محسوب حتى اليوم ${num(AS_OF())}</p></div>
@@ -776,6 +782,13 @@
 
   document.querySelectorAll('[data-view]').forEach(button =>
     button.addEventListener('click', () => show(button.dataset.view)));
+
+  // العرضان يُفتحان من شاشتيهما: كل برنامج من حيث يعنيه جمهوره.
+  document.addEventListener('click', (event) => {
+    const start = event.target.closest('#present-followups, #present-health');
+    if (!start) return;
+    window.StationsPresent?.open(start.id === 'present-health' ? 'health' : 'followups');
+  });
 
   const bannerToggle = el('banner-toggle');
   if (bannerToggle) bannerToggle.onclick = () => {

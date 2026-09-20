@@ -1,0 +1,246 @@
+/**
+ * وضع العرض — شاشة كاملة، بلا بطاقات.
+ *
+ * البطاقة تُقرأ بالعين القريبة؛ وشاشة الجدار تُقرأ من خمسة أمتار. لذلك الكلام
+ * هنا كبير ومتحرك، والمعلومة الواحدة تملأ المشهد بدل أن تتزاحم ست بطاقات.
+ *
+ * التأثيرات مكتوبة هنا خاماً لا منقولة: مكتبات React المشار إليها تحتاج بناءً
+ * واعتماديات، والموقع بلا خطوة بناء. الفكرة تُستلهم، والكود يُكتب.
+ *
+ * كل حركة لها مقابل في المعنى: الظهور يعني «هذا جديد»، والعدّاد يعني «هذا رقم
+ * يُقرأ لا يُلمح»، والنبض يعني «هذا متأخر». ولا حركة بلا سبب.
+ */
+
+.pv{
+  --pv-bg:#07172b; --pv-bg-2:#0b3f6e; --pv-ink:#f2f8fd; --pv-dim:#9dbdd8;
+  --pv-line:rgba(255,255,255,.14);
+  --pv-ok:#39c2a8; --pv-warn:#e8b45c; --pv-high:#f2705f; --pv-calm:#7fb2e0;
+  position:fixed;inset:0;z-index:90;border:0;padding:0;margin:0;max-width:none;max-height:none;
+  width:100vw;height:100dvh;background:var(--pv-bg);color:var(--pv-ink);overflow:hidden;
+  font-family:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",Arial,sans-serif;
+}
+.pv::backdrop{background:#04101e}
+.pv[hidden]{display:none!important}
+
+/* الشفق: طبقتان تتحركان ببطء مختلف فلا يتكرر الشكل بوضوح. */
+.pv-aurora{position:absolute;inset:-25%;pointer-events:none;opacity:.55;
+  background:
+    radial-gradient(38% 46% at 22% 28%,rgba(45,130,196,.5),transparent 62%),
+    radial-gradient(34% 42% at 78% 68%,rgba(57,194,168,.35),transparent 64%),
+    radial-gradient(46% 50% at 58% 14%,rgba(11,63,110,.7),transparent 66%);
+  animation:pv-drift 34s ease-in-out infinite alternate}
+.pv-aurora.slow{opacity:.35;animation-duration:52s;animation-direction:alternate-reverse}
+@keyframes pv-drift{
+  0%{transform:translate3d(-3%,-2%,0) scale(1)}
+  50%{transform:translate3d(2%,3%,0) scale(1.08)}
+  100%{transform:translate3d(4%,-3%,0) scale(1.03)}
+}
+/* شبكة خافتة تعطي الشاشة عمقاً بلا أن تُقرأ كمحتوى. */
+.pv-grid{position:absolute;inset:0;pointer-events:none;opacity:.3;
+  background-image:linear-gradient(var(--pv-line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--pv-line) 1px,transparent 1px);
+  background-size:76px 76px;
+  -webkit-mask-image:radial-gradient(70% 60% at 50% 45%,#000,transparent 78%);
+  mask-image:radial-gradient(70% 60% at 50% 45%,#000,transparent 78%)}
+
+/* ————————————————————————————————— الهيكل ————————————————————————————————— */
+.pv-stage{position:relative;height:100%;display:grid;grid-template-rows:auto 1fr auto;
+  padding:26px 46px 18px;gap:12px}
+.pv-top{display:flex;align-items:center;justify-content:space-between;gap:18px;
+  color:var(--pv-dim);font-size:.9375rem}
+.pv-top b{color:var(--pv-ink);font-weight:600}
+.pv-scope{border:1px solid var(--pv-line);border-radius:30px;padding:3px 14px;font-size:.8125rem}
+.pv-body{position:relative;min-height:0;display:grid;place-items:center}
+.pv-scene{position:absolute;inset:0;display:grid;place-items:center;
+  padding:0 10px;text-align:center;pointer-events:none}
+.pv-scene[hidden]{display:none}
+
+/* ———————————————————————————— الكلام المتحرك ————————————————————————————
+   بدل البطاقات: السطر يظهر ضبابياً ثم يصفو، مؤخَّراً بحسب ترتيبه. */
+.pv-line{display:block;opacity:0;filter:blur(14px);transform:translateY(22px);
+  animation:pv-reveal .85s cubic-bezier(.2,.75,.25,1) forwards;
+  animation-delay:calc(var(--i,0) * 110ms + var(--d,0ms))}
+@keyframes pv-reveal{to{opacity:1;filter:blur(0);transform:none}}
+
+.pv-eyebrow{font-size:clamp(.875rem,1.5vw,1.125rem);color:var(--pv-calm);letter-spacing:.06em}
+.pv-head{font-size:clamp(1.75rem,4.6vw,4rem);font-weight:700;line-height:1.25;margin:0;
+  text-wrap:balance;max-width:22ch}
+.pv-sub{font-size:clamp(1rem,1.9vw,1.6rem);color:var(--pv-dim);line-height:1.7;
+  max-width:42ch;margin-inline:auto}
+
+/* الرقم الضخم: هو المشهد، والكلمة تحته تفسّره. */
+.pv-figure{font-family:Arial,sans-serif;font-variant-numeric:tabular-nums;
+  font-size:clamp(4.5rem,17vw,15rem);font-weight:700;line-height:.92;
+  background:linear-gradient(180deg,#fff 12%,#8dc6f0 96%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 12px 40px rgba(45,130,196,.35))}
+.pv-figure.warn{background:linear-gradient(180deg,#ffe6bd 12%,#e8b45c 96%);
+  -webkit-background-clip:text;background-clip:text}
+.pv-figure.high{background:linear-gradient(180deg,#ffd9d2 12%,#f2705f 96%);
+  -webkit-background-clip:text;background-clip:text}
+.pv-unit{font-size:clamp(1.05rem,2.3vw,2rem);color:var(--pv-dim);margin-top:-.2em}
+
+/* لمعة تمر على النص مرة كل دورة — تجذب العين للرقم الحاسم. */
+.pv-shine{position:relative;overflow:hidden}
+.pv-shine::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.55) 50%,transparent 62%);
+  transform:translateX(-120%);animation:pv-shine 3.6s ease-in-out 1.1s infinite}
+@keyframes pv-shine{0%{transform:translateX(-120%)}55%,100%{transform:translateX(120%)}}
+
+/* ————————————————————————————— قوائم متحركة ————————————————————————————— */
+.pv-rows{display:grid;gap:10px;width:min(1000px,88vw);text-align:start}
+.pv-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px;
+  padding:14px 20px;border:1px solid var(--pv-line);border-radius:14px;
+  background:rgba(255,255,255,.045);backdrop-filter:blur(6px);
+  opacity:0;transform:translateY(16px) scale(.985);
+  animation:pv-row-in .6s cubic-bezier(.2,.8,.25,1) forwards;
+  animation-delay:calc(var(--i,0) * 130ms + 150ms)}
+@keyframes pv-row-in{to{opacity:1;transform:none}}
+.pv-row-rank{font-family:Arial,sans-serif;color:var(--pv-dim);font-size:1.0625rem;min-width:2ch}
+.pv-row-main{min-width:0}
+.pv-row-main b{display:block;font-size:clamp(1rem,1.5vw,1.375rem);font-weight:600;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pv-row-main span{display:block;color:var(--pv-dim);font-size:.9375rem;margin-top:2px}
+.pv-row-age{font-family:Arial,sans-serif;font-size:clamp(1.3rem,2.6vw,2.2rem);font-weight:700;
+  white-space:nowrap}
+.pv-row-age small{font-size:.5em;color:var(--pv-dim);margin-inline-start:5px}
+.pv-row.high .pv-row-age{color:var(--pv-high)}
+.pv-row.warn .pv-row-age{color:var(--pv-warn)}
+.pv-row.ok .pv-row-age{color:var(--pv-ok)}
+
+/* أعمدة النسبة: الطول هو الرقم، لا اللون وحده. */
+.pv-bars{display:grid;gap:16px;width:min(880px,86vw)}
+.pv-bar{opacity:0;animation:pv-row-in .6s ease forwards;
+  animation-delay:calc(var(--i,0) * 150ms + 200ms)}
+.pv-bar-top{display:flex;justify-content:space-between;align-items:baseline;
+  font-size:clamp(.95rem,1.5vw,1.25rem);margin-bottom:7px}
+.pv-bar-top b{font-family:Arial,sans-serif;font-size:1.3em}
+.pv-bar-track{height:15px;border-radius:30px;background:rgba(255,255,255,.1);overflow:hidden}
+.pv-bar-fill{display:block;height:100%;border-radius:30px;width:0;
+  background:linear-gradient(90deg,#2d82c4,#7fd0e8);
+  animation:pv-fill 1.15s cubic-bezier(.22,.9,.3,1) forwards;
+  animation-delay:calc(var(--i,0) * 150ms + 380ms)}
+.pv-bar.high .pv-bar-fill{background:linear-gradient(90deg,#c8503f,#f2705f)}
+.pv-bar.warn .pv-bar-fill{background:linear-gradient(90deg,#c08a34,#e8b45c)}
+.pv-bar.ok .pv-bar-fill{background:linear-gradient(90deg,#1d7f6d,#39c2a8)}
+@keyframes pv-fill{to{width:var(--w,0%)}}
+
+/* سحابة كلمات: حجم الكلمة من وزنها في السجل. */
+.pv-cloud{display:flex;flex-wrap:wrap;gap:10px 26px;justify-content:center;align-items:baseline;
+  width:min(1050px,90vw)}
+.pv-word{opacity:0;animation:pv-reveal .7s ease forwards;
+  animation-delay:calc(var(--i,0) * 95ms + 150ms);
+  font-size:calc(1rem + var(--w,1) * 2.1vw);font-weight:600;color:var(--pv-ink)}
+.pv-word small{font-family:Arial,sans-serif;color:var(--pv-dim);font-size:.55em;
+  margin-inline-start:7px}
+.pv-word.dim{color:var(--pv-dim)}
+
+/* ————————————————————————————— مشهد المحطات ————————————————————————————— */
+.pv-globe-wrap{position:relative;display:grid;place-items:center;width:100%;height:100%}
+.pv-globe{width:min(74vmin,660px);height:min(74vmin,660px);display:block}
+/* حلقة تدور حول الكرة: إحساس المدار بلا حساب ثلاثي الأبعاد إضافي. */
+.pv-orbit{position:absolute;width:min(88vmin,780px);height:min(88vmin,780px);
+  border:1px solid var(--pv-line);border-radius:50%;pointer-events:none;
+  animation:pv-spin 26s linear infinite}
+.pv-orbit::before{content:'';position:absolute;top:-4px;left:50%;width:8px;height:8px;
+  border-radius:50%;background:var(--pv-ok);box-shadow:0 0 16px 4px rgba(57,194,168,.6)}
+@keyframes pv-spin{to{transform:rotate(360deg)}}
+
+/* لوحة بيانات المحطة: ميل خفيف يوحي بالعمق، بلا مكتبة ثلاثية الأبعاد. */
+.pv-panel{position:absolute;inset-inline-end:5%;top:50%;width:min(430px,40vw);
+  transform:translateY(-50%) perspective(1100px) rotateY(9deg) rotateX(2deg);
+  transform-origin:center right;text-align:start;
+  border:1px solid var(--pv-line);border-radius:18px;padding:22px 26px;
+  background:linear-gradient(150deg,rgba(13,44,71,.92),rgba(7,23,43,.86));
+  box-shadow:0 30px 70px -40px #000, inset 0 1px 0 rgba(255,255,255,.08);
+  backdrop-filter:blur(10px);
+  animation:pv-panel-in .7s cubic-bezier(.2,.8,.25,1) both}
+@keyframes pv-panel-in{
+  from{opacity:0;transform:translateY(-50%) perspective(1100px) rotateY(24deg) translateX(40px)}
+  to{opacity:1;transform:translateY(-50%) perspective(1100px) rotateY(9deg) rotateX(2deg)}
+}
+.pv-panel h3{margin:0 0 4px;font-size:clamp(1.1rem,1.9vw,1.6rem);line-height:1.4}
+.pv-panel .pv-panel-id{font-family:Arial,sans-serif;font-size:.8125rem;color:var(--pv-dim)}
+.pv-panel-states{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}
+.pv-tag{font-size:.8125rem;border-radius:30px;padding:3px 11px;
+  background:rgba(255,255,255,.1);color:var(--pv-dim)}
+.pv-tag.ok{background:rgba(57,194,168,.18);color:#8ee2d2}
+.pv-tag.warn{background:rgba(232,180,92,.18);color:#f3d8a6}
+.pv-tag.high{background:rgba(242,112,95,.2);color:#ffb8ac}
+.pv-panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;margin-top:6px}
+.pv-panel-grid dt{font-size:.75rem;color:var(--pv-dim);margin:0}
+.pv-panel-grid dd{margin:0;font-size:1.0625rem;font-weight:600}
+.pv-panel-note{margin:14px 0 0;font-size:.875rem;color:var(--pv-dim);line-height:1.7;
+  border-top:1px solid var(--pv-line);padding-top:12px}
+
+.pv-schematic{position:absolute;inset-block-start:16px;inset-inline-start:50%;
+  transform:translateX(50%);font-size:.8125rem;color:var(--pv-warn);
+  border:1px dashed rgba(232,180,92,.5);border-radius:30px;padding:4px 16px;
+  background:rgba(232,180,92,.08)}
+
+/* ————————————————————————————— الشريط السفلي ————————————————————————————— */
+.pv-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;
+  color:var(--pv-dim);font-size:.875rem}
+.pv-progress{position:absolute;inset-inline:0;bottom:0;height:3px;background:rgba(255,255,255,.1)}
+.pv-progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#2d82c4,#39c2a8)}
+.pv-dots{display:flex;gap:7px}
+.pv-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.22);
+  transition:background .3s,transform .3s}
+.pv-dot.on{background:var(--pv-ok);transform:scale(1.5)}
+
+.pv-controls{display:flex;gap:8px;align-items:center}
+.pv-controls button,.pv-controls select{background:rgba(255,255,255,.08);color:var(--pv-ink);
+  border:1px solid var(--pv-line);border-radius:9px;padding:7px 14px;font-size:.875rem;
+  min-height:40px;cursor:pointer}
+.pv-controls button:hover{background:rgba(255,255,255,.16)}
+.pv-controls button:focus-visible,.pv-controls select:focus-visible{
+  outline:3px solid var(--pv-ok);outline-offset:2px}
+
+/* زر فتح العرض في الشاشة نفسها */
+.present-open{display:inline-flex;align-items:center;gap:8px;background:#0b3f6e;color:#fff;
+  border-radius:10px;padding:9px 16px;font-weight:700;font-size:.9375rem;min-height:42px}
+.present-open:hover{background:#12598f}
+.present-open.green{background:#124e3e}
+.present-open.green:hover{background:#176350}
+
+/* ————————————————————————————————— الجوال ————————————————————————————————— */
+@media (max-width:760px){
+  .pv-stage{padding:12px 14px 10px;gap:8px}
+  /* الترويسة تُقصّ على 390 بكسل إن بقيت سطراً واحداً: تُلفّ وتصغر. */
+  .pv-top{font-size:.75rem;flex-wrap:wrap;gap:4px 10px;line-height:1.5}
+  .pv-scope{padding:2px 9px;font-size:.6875rem}
+  .pv-rows{width:94vw}
+  .pv-row{grid-template-columns:1fr auto;padding:11px 14px;gap:10px}
+  .pv-row-rank{display:none}
+  .pv-bars,.pv-cloud{width:92vw}
+  .pv-panel{position:static;width:92vw;transform:none;margin-top:16px;animation-name:pv-reveal;
+    padding:16px 18px}
+  .pv-panel-grid{grid-template-columns:1fr 1fr;gap:9px 14px}
+  .pv-globe{width:72vmin;height:72vmin}
+  .pv-orbit{width:84vmin;height:84vmin}
+  .pv-schematic{font-size:.6875rem;padding:3px 10px;max-width:92vw;text-align:center}
+
+  /* الأزرار كانت تُقصّ: تُلفّ في سطرين، والتعليق يأخذ سطره. */
+  .pv-foot{flex-wrap:wrap;gap:8px;justify-content:center}
+  .pv-foot #pv-caption{order:-1;flex:1 1 100%;text-align:center;font-size:.8125rem}
+  .pv-dots{order:2}
+  .pv-controls{order:1;flex:1 1 100%;justify-content:center;flex-wrap:wrap}
+  .pv-controls button,.pv-controls select{padding:6px 11px;font-size:.8125rem;min-height:38px}
+}
+
+/* شاشة ضيقة جداً: ما لا يُحتاج بالإصبع يختفي، والتنقل يبقى. */
+@media (max-width:420px){
+  .pv-controls #pv-full{display:none}
+  .pv-controls select{max-width:104px}
+}
+
+/* لا حركة لمن طلب ألا تكون: كل شيء يظهر في مكانه النهائي فوراً. */
+@media (prefers-reduced-motion:reduce){
+  .pv *,.pv *::before,.pv *::after{animation:none!important;transition:none!important}
+  .pv-line,.pv-row,.pv-bar,.pv-word,.pv-panel{opacity:1!important;filter:none!important;transform:none!important}
+  .pv-bar-fill{width:var(--w,0%)!important}
+  .pv-panel{transform:translateY(-50%)!important}
+}
+
+/* العنوان الجانبي أضيق من عنوان المنتصف: 22ch تكسر الكلمات حين يجاور الكرة. */
+.pv-head-side{font-size:clamp(1.5rem,3.2vw,2.75rem);max-width:none;text-wrap:pretty}
