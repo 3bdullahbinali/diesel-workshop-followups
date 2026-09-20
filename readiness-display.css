@@ -81,3 +81,8 @@ body.rdx-open{overflow:hidden}
 #rdx{overflow:hidden}
 .rdx-head,.rdx-stage,.rdx-foot{min-width:0}
 .rdx-controls{flex-wrap:wrap;min-width:0}
+/* كشف العنوان كلمةً كلمة — أثر «Text Generate» بلا مكتبة ولا اعتمادية. */
+.rdx-word{display:inline-block;opacity:0;transform:translateY(.42em);
+  animation:rdx-word .62s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes rdx-word{to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.rdx-word{animation:none;opacity:1;transform:none}}

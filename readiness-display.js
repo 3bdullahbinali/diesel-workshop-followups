@@ -18,7 +18,13 @@
 
   let dots = [], scenes = [], index = 0, playing = false;
   let raf = 0, sceneAt = 0, wakeLock = null, canvas, ctx, w = 0, h = 0, dpr = 1;
-  let sweep = -1;
+  let sweep = -1, spin = 0;
+  // الشفق: ثلاث هالات تسبح ببطء فتعطي الشاشة عمقاً دون أن تزاحم الأرقام
+  const aurora = [
+    {hue:'62,124,96',  x:.24, y:.30, r:.60, sx:.000031, sy:.000019},
+    {hue:'96,150,112', x:.74, y:.66, r:.54, sx:-.000023, sy:.000027},
+    {hue:'160,132,74', x:.52, y:.88, r:.44, sx:.000017, sy:-.000021}
+  ];
 
   // ── ألوان المشهد: خلفية الورشة ليلاً، والذهب للمعنى لا للزينة ─────────────
   const TONE = {
@@ -120,6 +126,21 @@
         layout(){ const spots = gridPositions(all, area(), h*0.055);
           return {spots: all.map((unit,i) => ({unit, ...spots[i]})), labels: []}; } },
 
+      (() => {
+        // تُختار معدة تعمل فعلاً؛ فإن لم توجد فأول جاهزة، وإلا فأول السجل.
+        const unit = all.find(u => u.technical === 'ready' && u.operation === 'running')
+          || all.find(u => u.technical === 'ready') || all[0];
+        const size = unit && unit.kind === 'generator' ? (unit.kva ? unit.kva + ' kVA' : 'مولد')
+          : unit && unit.kind === 'dam' ? 'وحدة سد'
+          : unit && unit.size != null ? unit.size + ' بوصة' : 'مقاس غير مدخل';
+        return {
+          title: 'المضخة عن قرب',
+          lede: unit ? `${unit.asset} · ${size} · ${unit.make || 'الشركة غير مسجّلة'}` : 'لا سجل',
+          metric: {value: s.total, caption: 'معدة في السجل'},
+          mode: 'pump', unit, outside: 'الأسطول',
+          layout(){ return {spots: [], labels: []}; } };
+      })(),
+
       { title: 'أين توجد المعدات؟',
         lede: 'المكان الفعلي الآن — لا العهدة ولا الحالة الفنية',
         metric: {value: s.workshop, caption: 'داخل الورشة'},
@@ -166,6 +187,110 @@
     ];
   }
 
+  /**
+   * مضخة شبه مجسّمة. لا WebGL ولا مجسّم ثلاثي الأبعاد — لا يوجد ملف مجسّم
+   * للمضخات أصلاً. وإنما انعراج أفقي (yaw) يضغط العرض بجيب الزاوية، فتبدو
+   * الكتلة دائرة حول محورها، مع وجه يميني يظهر ويختفي. الأثر مقنع والتكلفة
+   * صفر: لا تحميل ولا اعتمادية.
+   */
+  function drawPump(now, unit){
+    const cx = w/2, cy = h*0.50, k = Math.min(w, h)/430;
+    const yaw = (now/2600) % (Math.PI*2);
+    const face = Math.cos(yaw), depth = Math.sin(yaw);
+    const push = (x, y) => [cx + x*face*k - y*0, cy + y*k];
+    const shade = (base, amount) => `rgba(${base},${amount})`;
+
+    // ظل أرضي يثبّت الكتلة على المسرح
+    ctx.save();
+    ctx.globalAlpha = .45;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + 126*k, 200*k*Math.abs(face)*0.9 + 54*k, 20*k, 0, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(3,10,8,.75)'; ctx.filter = 'blur(10px)'; ctx.fill();
+    ctx.restore();
+
+    const bw = 190*k*Math.abs(face) + 24*k;   // عرض الهيكل يتنفّس مع الدوران
+    const bh = 118*k, top = cy - 92*k;
+    const ground = cy + 96*k;                 // خط الأرض: عليه ترتكز العجلات
+
+    // الجانب العميق: يظهر حين يميل الهيكل
+    ctx.fillStyle = shade('70,92,78', .55 + .25*Math.abs(depth));
+    ctx.beginPath();
+    ctx.moveTo(cx + bw/2, top + 10*k);
+    ctx.lineTo(cx + bw/2 + 44*k*depth, top + 26*k);
+    ctx.lineTo(cx + bw/2 + 44*k*depth, top + bh - 4*k);
+    ctx.lineTo(cx + bw/2, top + bh + 12*k);
+    ctx.closePath(); ctx.fill();
+
+    // الهيكل
+    const body = ctx.createLinearGradient(cx - bw/2, top, cx + bw/2, top + bh);
+    body.addColorStop(0, '#cfdac9'); body.addColorStop(.55, '#aebda8'); body.addColorStop(1, '#8b9c85');
+    ctx.fillStyle = body;
+    ctx.beginPath(); ctx.roundRect(cx - bw/2, top, bw, bh, 10*k); ctx.fill();
+
+    // فتحات التهوية تنزلق مع الدوران فتبيّن أن السطح يتحرك
+    ctx.save(); ctx.beginPath(); ctx.roundRect(cx - bw/2, top, bw, bh, 10*k); ctx.clip();
+    ctx.globalAlpha = .40; ctx.strokeStyle = '#55665c'; ctx.lineWidth = 2*k;
+    for (let i = -8; i < 9; i++){
+      const x = cx + (i*22*k + (yaw/(Math.PI*2))*22*k) * face;
+      ctx.beginPath(); ctx.moveTo(x, top + 22*k); ctx.lineTo(x, top + bh - 30*k); ctx.stroke();
+    }
+    ctx.globalAlpha = 1; ctx.restore();
+
+    // عادم يعلو الهيكل فيكسر استطالته
+    ctx.fillStyle = '#5f6f66';
+    ctx.beginPath(); ctx.roundRect(cx - bw*0.26, top - 30*k, 11*k, 32*k, 5*k); ctx.fill();
+
+    // لوحة الحالة على الهيكل
+    ctx.fillStyle = TONE[toneOf(unit)];
+    ctx.globalAlpha = .9;
+    ctx.beginPath(); ctx.roundRect(cx - bw*0.30, top + 16*k, bw*0.60, 9*k, 4*k); ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // شاسيه يربط الهيكل بالعجلات فلا تطفو
+    ctx.fillStyle = '#5f6f66';
+    ctx.beginPath(); ctx.roundRect(cx - bw/2 - 8*k, top + bh, bw + 16*k, 13*k, 4*k); ctx.fill();
+
+    // العجلات ترتكز على خط أرض واحد
+    for (const [ox, rr] of [[-0.30, 27], [0.30, 27]]){
+      const x = cx + bw*ox;
+      ctx.beginPath(); ctx.arc(x, ground - rr*k, rr*k, 0, Math.PI*2);
+      ctx.fillStyle = '#2c372f'; ctx.fill();
+      ctx.beginPath(); ctx.arc(x, ground - rr*k, rr*k*0.48, 0, Math.PI*2);
+      ctx.fillStyle = '#93a08e'; ctx.fill();
+      ctx.beginPath(); ctx.arc(x, ground - rr*k, rr*k*0.16, 0, Math.PI*2);
+      ctx.fillStyle = '#5f6f66'; ctx.fill();
+    }
+
+    // رأس الطرد ودوّار يدور حول محوره
+    const hx = cx - bw/2 - 30*k, hy = top + bh*0.62;
+    ctx.beginPath(); ctx.arc(hx, hy, 40*k, 0, Math.PI*2);
+    ctx.fillStyle = '#8b9c85'; ctx.fill();
+    ctx.beginPath(); ctx.arc(hx, hy, 29*k, 0, Math.PI*2);
+    ctx.fillStyle = '#cfdac9'; ctx.fill();
+    const running = unit && unit.technical === 'ready' && unit.operation === 'running';
+    const blade = running && !reduced.matches ? now/240 : 0;
+    ctx.save(); ctx.translate(hx, hy); ctx.rotate(blade);
+    ctx.strokeStyle = '#2f5d45'; ctx.lineWidth = 5*k; ctx.lineCap = 'round';
+    for (let i = 0; i < 6; i++){
+      const a = i*Math.PI/3;
+      ctx.beginPath(); ctx.moveTo(Math.cos(a)*6*k, Math.sin(a)*6*k);
+      ctx.lineTo(Math.cos(a)*22*k, Math.sin(a)*22*k); ctx.stroke();
+    }
+    ctx.restore();
+
+    // تدفّق الماء يخرج من الطرد حين تعمل المضخة فعلاً
+    if (running){
+      ctx.globalAlpha = .75;
+      for (let i = 0; i < 5; i++){
+        const t = ((now/900) + i/5) % 1;
+        ctx.beginPath();
+        ctx.ellipse(hx - (46 + t*110)*k, hy + Math.sin(t*6)*5*k, (11 - t*6)*k, 5*k, 0, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(122,196,199,${(1-t)*0.8})`; ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+
   // ── الرسم ─────────────────────────────────────────────────────────────────
   function resize(){
     dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -201,8 +326,20 @@
     paint(scene);
   }
 
+  function revealWords(node, text){
+    if (reduced.matches) { node.textContent = text; return; }
+    node.textContent = '';
+    text.split(' ').forEach((word, i) => {
+      const span = document.createElement('span');
+      span.className = 'rdx-word';
+      span.textContent = word;
+      span.style.animationDelay = (i * 70) + 'ms';
+      node.append(span, document.createTextNode(' '));
+    });
+  }
+
   function paint(scene){
-    $('rdx-title').textContent = scene.title;
+    revealWords($('rdx-title'), scene.title);
     $('rdx-lede').textContent = scene.lede;
     $('rdx-caption').textContent = scene.metric.caption;
     $('rdx-step').textContent = `${index+1} / ${scenes.length}`;
@@ -222,11 +359,19 @@
     raf = requestAnimationFrame(frame);
     ctx.clearRect(0, 0, w, h);
 
-    // ضوء سفلي خافت: عمق بلا زخرفة تشوّش القراءة
-    const glow = ctx.createRadialGradient(w/2, h*0.62, 0, w/2, h*0.62, Math.max(w,h)*0.62);
-    glow.addColorStop(0, 'rgba(46,92,74,0.30)');
-    glow.addColorStop(1, 'rgba(6,18,14,0)');
-    ctx.fillStyle = glow; ctx.fillRect(0, 0, w, h);
+    // شفق يسبح ببطء: عمق متغيّر بلا زخرفة تزاحم الأرقام. يثبت مع تخفيض الحركة.
+    for (const a of aurora){
+      const drift = reduced.matches ? 0 : now;
+      const x = (a.x + Math.sin(drift*a.sx)*0.10) * w;
+      const y = (a.y + Math.cos(drift*a.sy)*0.08) * h;
+      const r = a.r * Math.max(w, h);
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, `rgba(${a.hue},0.22)`);
+      g.addColorStop(1, `rgba(${a.hue},0)`);
+      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    }
+
+    if (scenes[index]?.mode === 'pump') drawPump(now, scenes[index].unit);
 
     for (const dot of dots){
       const t = dot.dur ? Math.min(1, Math.max(0, (now - dot.start) / dot.dur)) : 1;
