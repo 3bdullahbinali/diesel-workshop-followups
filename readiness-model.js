@@ -15,10 +15,10 @@
   const technicalStates={ready:'جاهزة',needs_maintenance:'تحتاج صيانة',under_maintenance:'تحت الصيانة',needs_inspection:'تحتاج فحصًا',write_off:'مرشحة للشطب'};
   const operationStates={running:'تعمل',standby:'احتياط',stopped:'متوقفة',unused:'غير مستخدمة'};
   const handoverStates={delivered:'مسلّمة',not_delivered:'غير مسلّمة'};
-  const equipmentKinds={pump:'مضخة',dam:'وحدة السد'};
+  const equipmentKinds={pump:'مضخة',dam:'وحدة السد',generator:'مولد'};
   // التسمية بلا «ال» مقروءة أيضاً، فلا يسقط صف كُتب بالصيغة الأخرى.
   const equipmentKindAliases={'وحدة سد':'dam'};
-  const dataKinds={demo:'تجريبية',verified:'فعلية'};
+  const dataKinds={demo:'تجريبية',reference:'مرجعية غير متحققة',verified:'فعلية'};
   const hoseKinds={discharge:'خرطوم طرد',suction:'خرطوم سحب'};
   // «نوع رقم المعدة» عمود وصفي لا يحرّك عدّاداً، فيُعرض كما كُتب بدل رفض الصف.
   const temporaryAssetNumber=value=>/مؤقت/.test(text(value));
@@ -31,7 +31,7 @@
   // الرؤوس منقولة حرفياً من الشيت القائم. أعمدة الربط والمعادلات في آخر كل
   // ورقة تُقرأ ولا تُستعمل، لأن مطابقة العناوين تشترط العدد نفسه.
   const equipmentSheetName='المعدات';
-  const equipmentHeaders=['معرف السجل','رقم المعدة','نوع المعدة','المقاس (بوصة)','الشركة','الطراز','الرقم التسلسلي','الحالة الفنية','حالة التشغيل','الجهة الحالية','رمز القطاع','الموقع الدقيق','حالة التسليم','اسم المستلم','تاريخ التسليم','ساعات التشغيل','آخر صيانة','الصيانة القادمة','الأعطال والملاحظات الفنية','آخر تحديث فعلي','حُدّث بواسطة','نوع البيانات','نوع رقم المعدة','معرف المتابعة','رقم طلب الشراء','رابط الصورة','ملاحظات السجل','تاريخ إنشاء السجل','مراجعة البيانات'];
+  const equipmentHeaders=['معرف السجل','رقم المعدة','نوع المعدة','المقاس (بوصة)','الشركة','الطراز','الرقم التسلسلي','الحالة الفنية','حالة التشغيل','الجهة الحالية','رمز القطاع','الموقع الدقيق','حالة التسليم','اسم المستلم','تاريخ التسليم','ساعات التشغيل','آخر صيانة','الصيانة القادمة','الأعطال والملاحظات الفنية','آخر تحديث فعلي','حُدّث بواسطة','نوع البيانات','نوع رقم المعدة','معرف المتابعة','رقم طلب الشراء','رابط الصورة','ملاحظات السجل','تاريخ إنشاء السجل','مراجعة البيانات','كود الصنف المصدر','قدرة المولد المرجعية (kVA)','الحالة في مرجع 2025','الموقع في مرجع 2025','آخر بيان وارد بالمصدر','مرجع البيان أو اللوحة','حالة الرقم التسلسلي بالمصدر','حالة الجرد بالمصدر','صف جرد المعدات المصدر'];
   const hoseSheetName='الخراطيم';
   const hoseHeaders=['معرف مجموعة الخراطيم','رمز الصنف','النوع','المقاس (بوصة)','الوحدة','الكمية','طول الوحدة (م)','إجمالي الطول (م)','كمية سليمة','كمية تحتاج إصلاحًا','الجهة الحالية','رمز القطاع','الموقع الدقيق','اسم المستلم','تاريخ التسليم','الحالة','آخر تحديث فعلي','نوع البيانات','معرف المتابعة','ملاحظات'];
   const catalogSheetName='دليل الخراطيم';
@@ -146,7 +146,10 @@
         taskId:text(row[23])||null,
         prNumber:text(row[24])||null,
         photo:text(row[25])||null,
-        recordNotes:text(row[26])||null
+        recordNotes:text(row[26])||null,
+        sourceItemCode:text(row[29])||null,
+        kva:optionalNumber(row[30],'قدرة المولد في '+where),
+        sourceNote:text(row[33])||null
       };
     });
   }
@@ -247,7 +250,10 @@
       placeless:equipment.length-placed.length,
       // الشيت يميّز التجريبي عن المتحقق منه؛ هذا هو مقياس الثقة الحقيقي.
       verified:equipment.filter(unit=>unit.dataKind==='verified').length,
+      reference:equipment.filter(unit=>unit.dataKind==='reference').length,
       demo:equipment.filter(unit=>unit.dataKind==='demo').length,
+      // ما لم يتحقق منه أحد ميدانياً، مخترعاً كان أو منقولاً عن مصدر
+      unverified:equipment.filter(unit=>unit.dataKind!=='verified').length,
       sectors:sectorPlaces.map((key,index)=>({code:'SEC-'+(index+1),place:key,label:places[key],count:at(key)}))
     };
   }
@@ -256,12 +262,12 @@
   function sizeGroups(equipment){
     const groups=new Map();
     for(const unit of equipment){
-      const key=unit.kind==='dam'?'dam':unit.size==null?'unknown':String(unit.size);
-      const label=unit.kind==='dam'?'وحدات السد':unit.size==null?'مقاس غير مدخل':unit.size+' بوصة';
-      const group=groups.get(key)||{key,label,count:0,size:unit.kind==='dam'?null:unit.size};
+      const key=unit.kind==='dam'?'dam':unit.kind==='generator'?'generator':unit.size==null?'unknown':String(unit.size);
+      const label=unit.kind==='dam'?'وحدات السد':unit.kind==='generator'?'مولدات':unit.size==null?'مقاس غير مدخل':unit.size+' بوصة';
+      const group=groups.get(key)||{key,label,count:0,size:key==='dam'||key==='generator'?null:unit.size};
       group.count++;groups.set(key,group);
     }
-    const rank=group=>group.key==='dam'?1e6:group.key==='unknown'?1e7:group.size;
+    const rank=group=>group.key==='dam'?1e6:group.key==='generator'?2e6:group.key==='unknown'?1e7:group.size;
     return [...groups.values()].sort((a,b)=>rank(a)-rank(b));
   }
 
@@ -273,9 +279,10 @@
     maintenance:unit=>['needs_maintenance','under_maintenance'].includes(unit.technical),
     store:unit=>unit.place==='store',
     pending:unit=>!unit.technical,
-    demo:unit=>unit.dataKind==='demo'
+    demo:unit=>unit.dataKind!=='verified',
+    generator:unit=>unit.kind==='generator'
   };
-  const filterLabels={all:'الكل',ready:'جاهزة للتسليم',delivered:'مسلّمة',workshop:'في الورشة',maintenance:'صيانة وإصلاح',store:'المستودع',pending:'بلا حالة فنية',demo:'بيانات تجريبية'};
+  const filterLabels={all:'الكل',ready:'جاهزة للتسليم',delivered:'مسلّمة',workshop:'في الورشة',maintenance:'صيانة وإصلاح',store:'المستودع',pending:'بلا حالة فنية',demo:'لم يُتحقق ميدانياً',generator:'مولدات'};
 
   root.WorkshopReadinessModel={
     technicalStates,operationStates,handoverStates,equipmentKinds,dataKinds,

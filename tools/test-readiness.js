@@ -19,7 +19,7 @@ const throws = (label, fn, fragment) => {
 };
 
 // صف معدة: هوية فقط، وهو ما سيبدو عليه الشيت يوم إنشائه.
-const bare = over => Object.assign(new Array(29).fill(''), {0:'EQ-0001', 1:'SY/6-33', 2:'مضخة', 3:'6', 4:'Sykes', 21:'تجريبية', 22:'من السجل', 27:'2026/09/19'}, over);
+const bare = over => Object.assign(new Array(38).fill(''), {0:'EQ-0001', 1:'SY/6-33', 2:'مضخة', 3:'6', 4:'Sykes', 21:'تجريبية', 22:'من السجل', 27:'2026/09/19'}, over);
 const one = over => M.equipmentEntries([bare(over)])[0];
 
 // ١) الشيت الفارغ لا يسقط ولا يُخمَّن
@@ -32,6 +32,12 @@ check('وحدة السد بلا مقاس مقبولة', M.equipmentEntries([bare
 // الشيت يكتبها «وحدة السد»؛ والصيغة بلا «ال» تبقى مقروءة
 check('«وحدة السد» كما في الشيت', M.equipmentEntries([bare({2:'وحدة السد'})])[0].kind === 'dam');
 check('«وحدة سد» بلا تعريف مقروءة', M.equipmentEntries([bare({2:'وحدة سد'})])[0].kind === 'dam');
+// المولدات دخلت السجل بقدرتها لا بمقاسها
+check('المولد نوع معدة مقبول', M.equipmentEntries([bare({2:'مولد', 3:''})])[0].kind === 'generator');
+check('قدرة المولد تُقرأ', M.equipmentEntries([bare({2:'مولد', 3:'', 30:'2000'})])[0].kva === 2000);
+check('المولد مجموعة مستقلة عن المقاسات',
+  M.sizeGroups(M.equipmentEntries([bare({0:'g', 1:'g', 2:'مولد', 3:''}), bare({0:'p', 1:'p', 3:'6'})]))
+    .map(g => g.key).join(',') === '6,generator');
 
 // ٢) القيم المكتوبة تُقرأ بصرامة
 check('الحالة الفنية بالعربية تُقرأ مفتاحاً', one({7:'تحتاج صيانة'}).technical === 'needs_maintenance');
@@ -46,6 +52,7 @@ check('التاريخ سنة/شهر/يوم يُقرأ', one({14:'2026/01/05'}).h
 check('التاريخ سنة-شهر-يوم يُقرأ', one({14:'2026-01-05'}).handoverDate === '2026-01-05');
 check('نوع البيانات التجريبي يُقرأ', one().dataKind === 'demo');
 check('نوع البيانات الفعلي يُقرأ', one({21:'فعلية'}).dataKind === 'verified');
+check('«مرجعية غير متحققة» درجة ثالثة', one({21:'مرجعية غير متحققة'}).dataKind === 'reference');
 throws('نوع بيانات غير معروف يُرفض', () => one({21:'مبدئية'}), 'قيمة غير معروفة');
 // «نوع رقم المعدة» وصفي لا يحرّك عدّاداً، فلا يُسقط الصف مهما كُتب فيه
 check('رقم المعدة الدائم ليس مؤقتاً', one().temporaryAsset === false);
@@ -85,6 +92,11 @@ check('الصيانة تجمع «تحتاج» و«تحت»', s.maintenance === 2
 check('بلا جهة مُحصاة صراحة', s.placeless === 1);
 check('القطاعات خمسة دائماً', s.sectors.length === 5 && s.sectors[0].count === 1);
 check('كلها تجريبية ما لم تُحقَّق', s.demo === 7 && s.verified === 0);
+// «لم يتحقق» تجمع المخترَع والمنقول عن مصدر، فكلاهما ليس جاهزية معتمدة
+check('غير المتحقق يجمع التجريبي والمرجعي',
+  (x => x.unverified === 2 && x.demo === 1 && x.reference === 1 && x.verified === 1)
+    (M.summary(M.equipmentEntries([bare({0:'a',1:'a'}), bare({0:'b',1:'b',21:'مرجعية غير متحققة'}),
+                                   bare({0:'c',1:'c',21:'فعلية'})]))));
 check('المتحقق منه يُحصى وحده',
   M.summary(M.equipmentEntries([bare({0:'v', 1:'v', 21:'فعلية'}), bare({0:'d', 1:'d'})])).verified === 1);
 
@@ -94,7 +106,7 @@ check('مسلّمة داخل الورشة لا تُعد جاهزة للتسلي�
 
 // ٦) المرشّحات
 check('مرشّح «بلا حالة فنية» يلتقط الفارغ', fleet.filter(M.filters.pending).length === 1);
-check('مرشّح التجريبي يطابق العدّاد', fleet.filter(M.filters.demo).length === s.demo);
+check('مرشّح «لم يُتحقق» يطابق العدّاد', fleet.filter(M.filters.demo).length === s.unverified);
 check('مرشّح الجاهزة يطابق العدّاد', fleet.filter(M.filters.ready).length === s.readyToHandOver);
 check('مرشّح المسلّمة يطابق العدّاد', fleet.filter(M.filters.delivered).length === s.delivered);
 
@@ -154,9 +166,9 @@ check('نطاق كل ورقة داخل حدود الأحرف',
 
 // ٩) رؤوس الأعمدة تطابق القالب المسلَّم للفريق
 // الرؤوس منقولة من الشيت القائم؛ أي انحراف هنا يعني رفض الورقة كلها
-check('رؤوس المعدات ٢٩ عموداً', M.equipmentHeaders.length === 29);
-check('أول رأس معرف السجل وآخره مراجعة البيانات',
-  M.equipmentHeaders[0] === 'معرف السجل' && M.equipmentHeaders[28] === 'مراجعة البيانات');
+check('رؤوس المعدات ٣٨ عموداً', M.equipmentHeaders.length === 38);
+check('أول رأس معرف السجل وآخره صف جرد المعدات المصدر',
+  M.equipmentHeaders[0] === 'معرف السجل' && M.equipmentHeaders[37] === 'صف جرد المعدات المصدر');
 check('رؤوس الخراطيم ٢٠ والدليل ٧ والقطاعات ١٧',
   M.hoseHeaders.length === 20 && M.catalogHeaders.length === 7 && M.sectorHeaders.length === 17);
 check('رأس الخراطيم الأول معرف مجموعة الخراطيم', M.hoseHeaders[0] === 'معرف مجموعة الخراطيم');

@@ -21,7 +21,7 @@
   const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 
   const label=(map,key)=>key==null?null:map[key];
-  const sizeLabel=unit=>unit.kind==='dam'?'وحدة سد':unit.size==null?'مقاس غير مدخل':unit.size+' بوصة';
+  const sizeLabel=unit=>unit.kind==='dam'?'وحدة سد':unit.kind==='generator'?(unit.kva?unit.kva+' kVA':'مولد'):unit.size==null?'مقاس غير مدخل':unit.size+' بوصة';
   // الحالة المعروضة تجمع الحكم الفني والتشغيل في سطر واحد دون أن تخلطهما.
   function stateLabel(unit){
     if(!unit.technical)return 'الحالة لم تُدخل';
@@ -48,7 +48,8 @@
       card('ready',s.readyToHandOver,s.total,'جاهزة للتسليم','سليمة فنياً · في الورشة · غير مسلّمة'),
       card('delivered',s.delivered,s.total,'مسلّمة للجهات','عهدة، لا مكان'),
       card('workshop',s.workshop,s.total,'داخل الورشة',s.maintenance?s.maintenance+' منها للصيانة والإصلاح':'لا صيانة مسجّلة'),
-      card('demo',s.demo,s.total,'بيانات تجريبية',s.verified?s.verified+' سجلاً تحقّق ميدانياً':'لم يتحقق أي سجل ميدانياً بعد')
+      card('demo',s.unverified,s.total,'لم يُتحقق ميدانياً',
+        [s.demo?s.demo+' تجريبية':'',s.reference?s.reference+' مرجعية':'',s.verified?s.verified+' فعلية':''].filter(Boolean).join(' · '))
     ].join('');
   }
 
@@ -99,8 +100,9 @@
       fact('الصيانة القادمة',unit.nextMaintenance?`<bdi>${escape(date(unit.nextMaintenance))}</bdi>`:missing),
       unit.notes?fact('الأعطال والملاحظات',escape(unit.notes)):'',
       unit.temporaryAsset?fact('تنبيه','<span class="rd-warn">رقم مؤقت يُستبدل بعد الجرد الفعلي</span>'):'',
-      unit.dataKind==='demo'?fact('نوع البيانات','<span class="rd-warn">تجريبية — لم تُتحقق ميدانياً</span>'):
-        unit.dataKind==='verified'?fact('نوع البيانات','فعلية · تحقّق ميداني'):''
+      unit.kind==='generator'&&unit.kva!=null?fact('القدرة المرجعية',escape(unit.kva+' kVA')):'',
+      unit.dataKind==='verified'?fact('نوع البيانات','فعلية · تحقّق ميداني')
+        :unit.dataKind?fact('نوع البيانات','<span class="rd-warn">'+escape(M.dataKinds[unit.dataKind])+' — لم تُتحقق ميدانياً</span>'):''
     ].join('');
   }
 
@@ -160,9 +162,9 @@
     if(!data)return;
     renderSummary();renderPlaces();renderFilters();renderDetail();renderList();renderHoses();
     const s=data.summary;
-    $('rd-note').classList.toggle('rd-provisional',s.demo>0);
-    $('rd-note').textContent=s.demo
-      ?`${s.demo} من ${s.total} سجلاً حالته وموقعه ما زالا تجريبيين حتى التحقق الميداني — الأرقام أدناه ليست جاهزية تشغيلية معتمدة.`
+    $('rd-note').classList.toggle('rd-provisional',s.unverified>0);
+    $('rd-note').textContent=s.unverified
+      ?`${s.unverified} من ${s.total} سجلاً لم يتحقق منه أحد ميدانياً (${[s.demo&&s.demo+' تجريبية',s.reference&&s.reference+' منقولة عن مصدر'].filter(Boolean).join(' و')}) — الأرقام أدناه ليست جاهزية تشغيلية معتمدة.`
       :'سجل مستقل عن سجل المتابعات. الخانة الفارغة تعني «لم تُدخل بعد» ولا تعني صفراً.';
     $('rd-source').innerHTML=`المصدر: <a href="${escape(config.readinessSpreadsheetUrl||'#')}" rel="noopener" target="_blank">سجل جاهزية المضخات والخراطيم</a>`+(data.readAt?` · آخر قراءة <bdi>${escape(new Intl.DateTimeFormat('ar-AE',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Dubai'}).format(data.readAt))}</bdi>`:'');
     document.title=`جاهزية المضخات والخراطيم (${s.total}) — شعبة ورشة الديزل`;
@@ -213,7 +215,9 @@
       render();
       window.WorkshopMotion?.reveal($('readiness-panel'));
       const s=data.summary;
-      $('rd-lede').textContent=`${s.total} معدة · ${s.verified?s.verified+' منها ببيانات فعلية':'لا سجل فعلي بعد'} · سجل مستقل يُقرأ لحظة فتح الصفحة.`;
+      const kinds=[['pump','مضخة'],['dam','وحدة سد'],['generator','مولد']]
+        .map(([k,n])=>{const c=data.equipment.filter(u=>u.kind===k).length;return c?c+' '+n:'';}).filter(Boolean).join(' · ');
+      $('rd-lede').textContent=`${s.total} معدة (${kinds}) · ${s.verified?s.verified+' ببيانات فعلية':'لا سجل فعلي بعد'} · سجل مستقل يُقرأ لحظة فتح الصفحة.`;
     }catch(error){
       failure('تعذّرت قراءة سجل الجاهزية. '+error.message);
     }finally{loading=false;}

@@ -2,7 +2,7 @@
 /**
  * «مدار» — العرض التلقائي لجاهزية المضخات على شاشة الجدار.
  *
- * الفكرة الحاكمة: نقطة واحدة لكل معدة حقيقية، ٢٥٩ نقطة لا تختفي ولا تُستحدث،
+ * الفكرة الحاكمة: نقطة واحدة لكل معدة حقيقية، لا تختفي ولا تُستحدث،
  * إنما تُعيد ترتيب نفسها بين المشاهد. فما تراه العين متحركاً هو الأسطول نفسه
  * ينتقل من سؤال إلى سؤال، لا رسوم تُزيّن أرقاماً. ولهذا يصحّ العدّ بالنظر:
  * من عدّ النقاط في أي عنقود وجد رقمه المكتوب تحته.
@@ -114,8 +114,9 @@
 
     return [
       { title: 'أسطول الديزل',
-        lede: 'نقطة واحدة لكل معدة — ٢٥٩ معدة، تُعاد ترتيبها ولا تُستبدل',
-        metric: {value: s.total, caption: 'مضخة ووحدة سد'},
+        lede: 'نقطة واحدة لكل معدة — تُعاد ترتيبها بين المشاهد ولا تُستبدل',
+        metric: {value: s.total, caption: [['pump','مضخة'],['dam','وحدة سد'],['generator','مولد']]
+          .map(([k,n])=>{const c=all.filter(u=>u.kind===k).length;return c?c+' '+n:'';}).filter(Boolean).join(' · ')},
         layout(){ const spots = gridPositions(all, area(), h*0.055);
           return {spots: all.map((unit,i) => ({unit, ...spots[i]})), labels: []}; } },
 
@@ -127,14 +128,16 @@
           {label: label('operations'), units: place('operations')},
           {label: label('store'), units: place('store')},
           {label: label('kalba'), units: place('kalba')},
-          ...M.sectorPlaces.map(k => ({label: label(k), units: place(k)}))
+          ...M.sectorPlaces.map(k => ({label: label(k), units: place(k)})),
+          {label: 'لم تُسجَّل جهتها', units: all.filter(u => !u.place)}
         ].filter(g => g.units.length), area()); } },
 
       { title: 'الحالة الفنية',
         lede: 'حكم الورشة على المعدة، مستقلاً عن مكانها وعهدتها',
         metric: {value: s.maintenance, caption: 'تحتاج صيانة أو تحت الإصلاح'},
-        layout(){ return columnLayout(Object.entries(M.technicalStates)
-          .map(([key, name]) => ({label: name, units: all.filter(u => u.technical === key)}))
+        layout(){ return columnLayout([...Object.entries(M.technicalStates)
+          .map(([key, name]) => ({label: name, units: all.filter(u => u.technical === key)})),
+          {label: 'لم تُدخل', units: all.filter(u => !u.technical)}]
           .filter(g => g.units.length), area()); } },
 
       { title: 'جاهزة للتسليم',
@@ -149,12 +152,13 @@
           return {spots: [...ready.map((unit,i) => ({unit, ...inner[i]})), ...ring],
             labels: [{text: 'الباقي في مدار الانتظار', count: rest.length, x: w/2, y: h*0.945}]}; } },
 
-      { title: 'المقاسات',
+      { title: 'المقاسات والأنواع',
         lede: 'ارتفاع العمود هو عدد وحداته',
-        metric: {value: 6, caption: 'مقاسات + وحدات السد'},
+        metric: {value: M.sizeGroups(all).length, caption: 'مجموعة في الأسطول'},
         layout(){ return columnLayout(sized(), area()); } },
 
       { title: 'القطاعات الخمسة',
+        outside: 'خارج عهدة القطاعات',
         lede: 'ما سُلّم إلى القطاعات من الأسطول',
         metric: {value: s.sectors.reduce((n,x) => n+x.count, 0), caption: 'معدة في عهدة القطاعات'},
         layout(){ return clusterLayout(s.sectors.map(sec => ({label: sec.label,
@@ -176,6 +180,13 @@
     const scene = scenes[index];
     const {spots, labels} = scene.layout();
     const target = new Map(spots.map(s => [s.unit.id, s]));
+    const left = dots.filter(dot => !target.has(dot.unit.id)).map(dot => dot.unit);
+    if (left.length){
+      const band = {x: w*0.08, y: h*0.885, w: w*0.84, h: h*0.06};
+      const spare = gridPositions(left, band, h*0.020);
+      left.forEach((unit, i) => target.set(unit.id, {unit, ...spare[i], r: Math.min(spare[i].r, 3.2)}));
+      labels.push({text: scene.outside || 'خارج هذا العرض', count: left.length, x: w/2, y: h*0.805});
+    }
     const now = performance.now();
     dots.forEach((dot, i) => {
       const to = target.get(dot.unit.id);
@@ -299,8 +310,8 @@
         fromX: 0, fromY: 0, fromR: 0, toX: 0, toY: 0, toR: 0, start: 0, dur: 0}; });
     scenes = buildScenes(data);
     const s = data.summary;
-    $('rdx-honesty').textContent = s.demo
-      ? `${s.demo} من ${s.total} سجلاً بيانات تجريبية لم يُتحقق منها ميدانياً — ليست جاهزية تشغيلية معتمدة.`
+    $('rdx-honesty').textContent = s.unverified
+      ? `${s.unverified} من ${s.total} سجلاً لم يتحقق منه أحد ميدانياً — ليست جاهزية تشغيلية معتمدة.`
       : `كل السجلات بيانات فعلية متحقق منها.`;
     $('rdx-honesty').hidden = false;
     $('rdx-legend').innerHTML = Object.entries({
