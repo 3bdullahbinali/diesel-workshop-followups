@@ -185,3 +185,72 @@ html[data-motion=off] #presentation-progress-fill{visibility:hidden}
   .presentation-blocker{font-size:clamp(17px,1vw,22px)}
   .presentation-next{font-size:16px}
 }
+
+/* ٢) «سرد» — النص نفسه هو المشهد: لا بطاقة بيضاء، بل كلمات تدخل كلمةً كلمة
+   وجملاً تصعد جملةً جملة، وشريط «بعدها» يمشي، وحلقة تقدّم حول الترقيم.
+   كل هذا مقصور على عرض المتابعات (#presentation)؛ عرض الإحصائيات يتشارك
+   القواعد العامة أعلاه ولا يتأثر. */
+#presentation .presentation-stage{position:relative;align-items:center}
+#presentation .k-stage{width:100%;max-height:100%;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#abbeb4 transparent;padding:clamp(8px,1.6vw,26px) 4px;color:#eef3ee}
+#presentation .k-ghost{position:absolute;inset-inline:0;top:50%;transform:translateY(-50%);pointer-events:none;overflow:hidden}
+#presentation .k-top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:clamp(10px,1.4vw,20px)}
+#presentation .k-ref{font-size:clamp(14px,1.05vw,19px);color:#e7d5ad;letter-spacing:.6px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#presentation .k-badges>span{background:#ffffff10;color:#e9f0ea;border:1px solid #ffffff24}
+#presentation #presentation-priority[data-priority=high]{background:#5a2a2340;color:#f6c9b8;border-color:#e39a8655}
+#presentation #presentation-priority[data-priority=medium]{background:#5a481f40;color:#f1e2bd;border-color:#dfbf7e55}
+#presentation[data-playing=true] #presentation-priority[data-priority=high]{animation:k-pulse 2.6s ease-in-out infinite}
+#presentation .k-title{font-size:clamp(28px,3.3vw,56px);font-weight:700;line-height:1.45;letter-spacing:-.3px;color:#fff;margin:0 0 clamp(16px,2vw,30px);max-width:1360px;overflow-wrap:anywhere}
+#presentation .k-word,#presentation .k-line{display:inline-block;max-width:100%;will-change:transform,opacity}
+#presentation .k-blocker{margin:-4px 0 22px;padding:10px 18px;border-inline-start:3px solid #e39a86;border-radius:6px;background:#5a2a232e;color:#f6d2c8;font-size:clamp(14px,1.05vw,18px);line-height:1.8;overflow-wrap:anywhere}
+#presentation .k-grid{display:grid;grid-template-columns:1fr 1.12fr;gap:clamp(24px,3vw,60px)}
+#presentation .k-label{font-size:clamp(12px,.85vw,15px);letter-spacing:.3px;color:#a9c0b5;font-weight:700;margin:0 0 10px}
+#presentation .k-text{font-size:clamp(17px,1.35vw,26px);line-height:1.9;margin:0;color:#e6ede8;overflow-wrap:anywhere;white-space:normal}
+#presentation .k-action{position:relative;padding-inline-start:clamp(18px,1.6vw,28px)}
+#presentation .k-action .k-label{color:#e0c58d}
+#presentation .k-action .k-text{color:#f3e6c4}
+#presentation .k-rule{position:absolute;inset-inline-start:0;top:2px;bottom:2px;width:3px;border-radius:3px;background:linear-gradient(#f0d79f,#c9a765);box-shadow:0 0 14px #dfbf7e55;transform-origin:top}
+#presentation .k-meta{display:grid;grid-template-columns:1.2fr 1fr 1.1fr;gap:20px;border-top:1px solid #ffffff1a;padding-top:18px;margin:clamp(20px,2.4vw,34px) 0 0}
+#presentation .k-meta dt{font-size:clamp(12px,.8vw,14px);color:#a9c0b5;margin:0 0 5px}
+#presentation .k-meta dd{font-size:clamp(14px,1vw,18px);font-weight:600;margin:0;overflow-wrap:anywhere;color:#eef3ee}
+#presentation .k-meta small{display:block;font-size:clamp(11px,.75vw,13px);font-weight:400;color:#b8cbc0;margin-top:3px}
+#presentation .k-part{display:block}
+#presentation .k-badges .k-part{display:inline-block}
+/* شريط «بعدها» */
+#presentation .k-queue{display:flex;align-items:center;gap:14px;min-height:32px;padding:0 4px;font-size:clamp(13px,1vw,18px)}
+#presentation .k-queue>span{color:#d9be8a;flex-shrink:0}
+#presentation .k-ticker{flex:1;min-width:0;overflow:hidden;white-space:nowrap;mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+#presentation .k-track{display:inline-flex;gap:clamp(36px,3vw,64px);will-change:transform}
+#presentation .k-track>span{display:inline-flex;align-items:baseline;gap:8px;color:#b9c9bf;white-space:nowrap}
+#presentation .k-track>span b{font-size:.8em;color:#d9be8a;font-variant-numeric:tabular-nums}
+#presentation .k-track>span.k-near{color:#f4f5e9;font-weight:600}
+#presentation .k-track>span.k-near b{color:#f0d79f}
+/* حلقة التقدّم حول الترقيم */
+#presentation .k-ringwrap{display:inline-flex;align-items:center;gap:9px}
+#presentation .k-ring{width:26px;height:26px;transform:rotate(-90deg);flex-shrink:0}
+html[dir=rtl] #presentation .k-ring{transform:rotate(-90deg) scaleY(-1)}
+#presentation .k-ring-track{fill:none;stroke:#ffffff1f;stroke-width:3.5}
+#presentation .k-ring-fill{fill:none;stroke:#e7d5ad;stroke-width:3.5;stroke-linecap:round;transition:stroke-dashoffset .25s linear}
+#presentation[data-playing=false] .k-ring-fill{stroke:#b9a778}
+@keyframes k-pulse{0%,100%{box-shadow:0 0 0 0 #e39a8600}50%{box-shadow:0 0 0 6px #e39a8622}}
+html[data-motion=off] #presentation #presentation-priority,html[data-motion=off] #presentation .k-ring-fill{animation:none;transition:none}
+@media(prefers-reduced-motion:reduce){#presentation #presentation-priority{animation:none}#presentation .k-ring-fill{transition:none}}
+@media(min-width:1600px){
+  #presentation .k-title{font-size:clamp(44px,2.6vw,64px);max-width:none}
+  #presentation .k-text{font-size:clamp(22px,1.2vw,30px)}
+  #presentation .k-grid{gap:64px}
+  #presentation .k-meta dd{font-size:20px}
+  #presentation .k-queue{font-size:20px}
+}
+@media(max-width:700px){
+  #presentation .k-stage{padding:6px 0}
+  #presentation .k-top{display:block;margin-bottom:12px}
+  #presentation .k-badges{margin-top:10px}
+  #presentation .k-title{font-size:24px;line-height:1.5;margin-bottom:16px}
+  #presentation .k-grid{grid-template-columns:1fr;gap:18px}
+  #presentation .k-text{font-size:16px;line-height:1.85}
+  #presentation .k-action{padding-inline-start:14px}
+  #presentation .k-meta{grid-template-columns:1fr 1fr;gap:14px;margin-top:20px;padding-top:16px}
+  #presentation .k-meta>div:last-child{grid-column:1 / -1}
+  #presentation .k-track>span:not(.k-near){display:none}
+  #presentation .k-ring{width:22px;height:22px}
+}
