@@ -83,7 +83,11 @@
     dialog.dataset.playing = String(playing);
     dialog.dataset.cycle = String(cycle);
     // Keep automatic changes quiet for screen readers; manual navigation announces its result.
-    text('presentation-counter', `${items.length ? index + 1 : 0} / ${items.length}`);
+    const counter = `${items.length ? index + 1 : 0} / ${items.length}`;
+    if ($('presentation-counter').dataset.value !== counter){
+      $('presentation-counter').dataset.value = counter;
+      K.flap($('presentation-counter'), counter, {animate: motionOn() && dialog.open, steps:5});
+    }
     const wrapping = cycle && index + 1 >= items.length;
     const next = !wrapping && items.length > 1 ? items[(index + 1) % items.length] : null;
     text('presentation-next-title', next?.title || (cycle ? 'التبويب التالي' : ''));
@@ -152,7 +156,7 @@
       card.dataset.itemId = item.id;
       // ترتيب الدخول: المرجع يعدّ، فالعنوان كلمةً كلمة، فالشارات، فالحالة
       // جملةً جملة، فالإجراء وخطّه الذهبي، فالمسؤول والتواريخ.
-      K.count($('presentation-reference'), item.reference || (item.procurement?.prNumber ? `PR ${item.procurement.prNumber}` : ''), {...on, delay:hold + 120});
+      K.flap($('presentation-reference'), item.reference || (item.procurement?.prNumber ? `PR ${item.procurement.prNumber}` : ''), {...on, delay:hold + 120});
       const titleEnd = K.words($('presentation-item-title'), I.t(item.title), {...on, delay:hold + 180, step:70, from:18});
       text('presentation-priority', priorities[item.priority] || '');
       $('presentation-priority').dataset.priority = item.priority;
@@ -163,6 +167,7 @@
       const actionAt = Math.min(statusEnd - 260, 1700);
       K.rule(card.querySelector('.k-rule'), {...on, delay: actionAt});
       K.reveal([card.querySelector('.k-action .k-label')], {...on, delay: actionAt + 80, from:8});
+      K.shine(card.querySelector('.k-action .k-label'), {...on, delay: actionAt + 500});
       const actionEnd = K.lines($('presentation-action'), I.t(item.action || 'غير مسجل'), {...on, delay: actionAt + 160, step:90});
       text('presentation-owner', item.owner || 'غير مسجل');
       text('presentation-action-at', item.actionAt ? window.WorkshopSheets.actions[item.actionAt] : '');

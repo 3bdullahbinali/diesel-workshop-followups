@@ -102,6 +102,52 @@
     return delay + duration;
   };
 
+  /**
+   * لوحة قلّابة (split-flap) كلوحات المطارات: كل خانة تقلب بين حروف حتى
+   * تستقر على حرفها. للأرقام والرموز اللاتينية فقط — الحروف العربية
+   * تتصل، وتقطيعها خانات يكسر رسمها، فتُكتب كما هي.
+   */
+  K.flap = (node, text, {animate, delay = 0, steps = 7, tick = 45} = {}) => {
+    const value = String(text || '');
+    if (!animate || arabic.test(value) || !value.trim()){ node.textContent = value; return 0; }
+    node.textContent = '';
+    const digits = '0123456789', letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const cells = [...value].map(ch => {
+      const cell = document.createElement('span');
+      cell.className = 'k-flap' + (ch === ' ' ? ' k-flap-gap' : '');
+      cell.textContent = ch;
+      node.appendChild(cell);
+      return {cell, ch};
+    });
+    const start = performance.now() + delay;
+    const roll = now => {
+      let busy = false;
+      cells.forEach(({cell, ch}, i) => {
+        if (!/[0-9A-Za-z]/.test(ch)) return;
+        const n = Math.floor((now - start - i*tick*0.6)/tick);
+        if (n < 0){ busy = true; cell.textContent = /\d/.test(ch) ? '0' : letters[i % 26]; return; }
+        if (n >= steps){ cell.textContent = ch; return; }
+        busy = true;
+        const pool = /\d/.test(ch) ? digits : letters;
+        cell.textContent = pool[(n*7 + i*3) % pool.length];
+        cell.classList.toggle('k-flap-turn', n % 2 === 0);
+      });
+      if (busy) requestAnimationFrame(roll);
+      else cells.forEach(({cell, ch}) => { cell.textContent = ch; cell.classList.remove('k-flap-turn'); });
+    };
+    requestAnimationFrame(roll);
+    return delay + steps*tick + cells.length*tick*0.6;
+  };
+
+  /** لمعة تمرّ على النص مرة واحدة: للعناوين الذهبية، لا للفقرات. */
+  K.shine = (node, {animate, delay = 0, duration = 1100} = {}) => {
+    node.classList.add('k-shine');
+    if (!animate){ node.style.backgroundPosition = ''; return 0; }
+    node.animate([{backgroundPosition: '200% 0'}, {backgroundPosition: '-100% 0'}],
+                 {duration, delay, easing: 'ease-in-out', fill: 'both'});
+    return delay + duration;
+  };
+
   /** خط يرسم نفسه: للفاصل الذهبي بجانب الإجراء. */
   K.rule = (node, {animate, delay = 0, duration = 700} = {}) => {
     if (!animate){ node.style.transform = ''; return 0; }

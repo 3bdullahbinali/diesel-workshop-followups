@@ -254,3 +254,10 @@ html[data-motion=off] #presentation #presentation-priority,html[data-motion=off]
   #presentation .k-track>span:not(.k-near){display:none}
   #presentation .k-ring{width:22px;height:22px}
 }
+/* لوحة قلّابة ولمعة */
+#presentation .k-flap{display:inline-block;min-width:.62em;text-align:center;font-variant-numeric:tabular-nums;transition:transform .08s}
+#presentation .k-flap-gap{min-width:.3em}
+#presentation .k-flap-turn{transform:scaleY(.72);opacity:.75}
+#presentation .presentation-counter{letter-spacing:1px}
+#presentation .k-shine{background:linear-gradient(90deg,#e0c58d 0%,#e0c58d 38%,#fff5d6 50%,#e0c58d 62%,#e0c58d 100%);background-size:200% 100%;background-position:200% 0;-webkit-background-clip:text;background-clip:text;color:transparent}
+html[data-motion=off] #presentation .k-flap{transition:none}
