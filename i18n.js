@@ -72,8 +72,12 @@
         }
         originalAttributes.set(element, saved);
       }
-      document.documentElement.lang = language;
-      document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+      // Avoid notifying language observers when the values have not changed.
+      // Keeps cached navigation modules from feeding changes back into apply().
+      const root = document.documentElement;
+      const direction = language === 'ar' ? 'rtl' : 'ltr';
+      if (root.lang !== language) root.lang = language;
+      if (root.dir !== direction) root.dir = direction;
       for(const button of document.querySelectorAll('[data-language]')) button.setAttribute('aria-pressed', String(button.dataset.language === language));
     } finally { applying = false; }
   }
