@@ -45,3 +45,14 @@
   window.WorkshopMotion={reveal};
   sync();
 })();
+
+// Optional workload navigation: additive page chrome, isolated from the motion engine.
+// Kept in a dedicated module; existing index structure and tab handlers are unchanged.
+(() => {
+  if (!document.querySelector('.page-actions .readiness-link')) return;
+  if (document.querySelector('script[data-workload-navigation]')) return;
+  const script = document.createElement('script');
+  script.src = './workload-navigation.js?v=1.1.0';
+  script.dataset.workloadNavigation = 'true';
+  document.head.appendChild(script);
+})();
