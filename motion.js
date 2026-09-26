@@ -52,7 +52,7 @@
   if (!document.querySelector('.page-actions .readiness-link')) return;
   if (document.querySelector('script[data-workload-navigation]')) return;
   const script = document.createElement('script');
-  script.src = './workload-navigation.js?v=1.1.0';
+  script.src = './workload-navigation.js?v=1.1.1';
   script.dataset.workloadNavigation = 'true';
   document.head.appendChild(script);
 })();
