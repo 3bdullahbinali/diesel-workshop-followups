@@ -18,7 +18,7 @@
       <div class="related-heading"><strong>${escape(letter.title)}</strong>
         <button type="button" class="link-button" data-related-kind="letter" data-related-id="${escape(letter.id)}">فتح الكتاب</button></div>
       <p class="related-meta">${escape(S.directions[letter.direction])} · <bdi>${escape(letter.reference||'بلا رقم مسجل')}</bdi> · ${escape(letter.party||'الجهة غير مسجلة')}</p>
-      <p class="related-meta">حالة العمل المسجلة في الكتاب: ${escape(S.workStates[letter.work])} · حالة الرد: ${escape(S.replyStates[letter.reply])} · حالة الكتاب: ${escape(S.closureStates[letter.closure])}</p>
+      <p class="related-meta">حالة العمل المسجلة في الكتاب: ${escape(S.workStates[letter.work])} · حالة الرد: ${escape(S.replyStates[letter.reply] || 'غير مسجل')} · حالة الكتاب: ${escape(S.closureStates[letter.closure])}</p>
       ${letter.action?`<p><strong>الإجراء التالي:</strong> ${escape(letter.action)}</p>`:''}
       ${letter.location?`<p class="related-meta">آخر موقع مسجل: ${escape(letter.location)}</p>`:''}
     </li>`).join('');

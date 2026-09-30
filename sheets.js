@@ -167,10 +167,11 @@
       query(config.spreadsheetId,config.translationSheetId,'A1:B5001',6000)
         .then(response=>translationEntries(tableRows(response,['النص العربي','English'])))
         .catch(()=>null); // A translation outage must not suppress current operational records.
-    // غياب ورقة المراسلات لا يمنع عرض السجل؛ يختفي تبويبها فقط.
-    const readLetters=query(config.spreadsheetId,letterSheetName,'A1:P2001',8000)
+    // Keep the last successful letters visible when a later read fails.
+    let lettersError=null;
+    const readLetters=query(config.spreadsheetId,letterSheetName,'A1:P2001')
       .then(response=>letterEntries(tableRows(response,letterHeaders)))
-      .catch(()=>null);
+      .catch(error=>{lettersError=error.message;return null;});
     const readJobs=query(config.spreadsheetId,jobSheetName,'A1:L2001',8000)
       .then(response=>jobEntries(tableRows(response,jobHeaders)))
       .catch(()=>null);
@@ -184,6 +185,7 @@
     const result=root.WorkshopOrders.attach(merge(snapshot,tableRows(main,headers,optionalHeaders),tableRows(refs,sourceHeaders)),orders,lines);
     result.translations=english;
     result.letters=letters;
+    result.lettersError=lettersError;
     result.jobs=jobs;
     // تُربط المعدة ببندها، ويبقى البند ظاهراً حتى لو لم تُسجَّل له معدة.
     result.equipmentEnabled=Array.isArray(equipment);
@@ -258,7 +260,7 @@
         location:text(row[6]),
         verifiedDate:dateValue(row[7]),
         work:enumValue(row[8],workStates,null,'حالة العمل'),
-        reply:enumValue(row[9],replyStates,null,'حالة الرد'),
+        reply:text(row[9]) ? enumValue(row[9],replyStates,null,'حالة الرد') : null,
         closure:enumValue(row[10],closureStates,null,'حالة الكتاب'),
         action:text(row[11]),
         dueDate:dateValue(row[12]),
