@@ -36,7 +36,7 @@
       <p class="letter-party">${escape(letter.party || 'الجهة غير مسجلة')}</p>
       <div class="letter-states">
         <span class="letter-state" data-kind="work"><span>حالة العمل المسجلة في الكتاب</span>: ${escape(S.workStates[letter.work])}</span>
-        <span class="letter-state" data-kind="reply"><span>حالة الرد</span>: ${escape(S.replyStates[letter.reply])}</span>
+        <span class="letter-state" data-kind="reply"><span>حالة الرد</span>: ${escape(S.replyStates[letter.reply] || 'غير مسجل')}</span>
         <span class="letter-state" data-kind="closure" data-closure="${escape(letter.closure)}"><span>حالة الكتاب</span>: ${escape(S.closureStates[letter.closure])}</span>
       </div>
       ${execution?`<div class="linked-execution"><div class="related-heading"><h5>آخر حالة للتنفيذ</h5><span class="source-tag">${escape(execution.home)}</span></div><strong>${escape(execution.label)}</strong><p>${escape(execution.action)}</p><p class="related-meta">${escape(execution.owner)}</p><button type="button" class="link-button" data-goto="${escape(task.id)}">فتح التنفيذ المرتبط</button></div>`:''}
@@ -68,10 +68,23 @@
   }
   function adopt(data) {
     feed=data;items = data.items || [];
-    // ورقة المراسلات غير منشأة: يختفي التبويب كأنه غير موجود.
+    // A missing/failed response must not remove navigation or existing letters.
     const enabled = Array.isArray(data.letters);
-    document.getElementById('letters-tab').hidden = !enabled;
-    if (!enabled) { letters = null; return; }
+    $('letters-tab').hidden = false;
+    let warning=$('letters-load-warning');
+    if(!warning){
+      warning=document.createElement('p');warning.id='letters-load-warning';
+      warning.className='notice error';warning.setAttribute('role','status');
+      $('letters-panel').prepend(warning);
+    }
+    warning.hidden=!data.lettersError;
+    warning.textContent=data.lettersError ? I.t('تعذر تحميل المراسلات؛ ستُعاد المحاولة تلقائياً.') : '';
+    if (!enabled) {
+      if(letters){render();return;}
+      $('letters-empty').hidden=true;
+      $('letters-grid').textContent=I.t('جارٍ تحميل المراسلات…');
+      return;
+    }
     letters = data.letters;
     render();
   }

@@ -723,6 +723,8 @@ window.WorkshopEnglish = {
   "قيمة تقديرية": "Estimated value",
   "قيمة مسجلة": "Recorded value",
   "غير مسجل": "Not recorded",
+  "تعذر تحميل المراسلات؛ ستُعاد المحاولة تلقائياً.": "Correspondence could not be loaded; retrying automatically.",
+  "جارٍ تحميل المراسلات…": "Loading correspondence…",
   "القيمة بالدرهم": "Value in AED",
   "رقم الطلب والموضوع": "Request number and subject",
   "القيمة — درهم": "Value — AED",

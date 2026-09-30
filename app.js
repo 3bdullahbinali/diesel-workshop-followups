@@ -207,7 +207,7 @@
       const was=oldLetters.get(letter.id);
       if(!was){emit('letter',letter,'created',letter.title,{kind:'add',title:'كتاب جديد',body:letter.title});continue;}
       if(was.closure!==letter.closure)emit('letter',letter,'closure',letter.closure,{kind:'change',title:letter.title,body:`حالة الكتاب: ${S.closureStates[was.closure]} ← ${S.closureStates[letter.closure]}`});
-      else if(was.reply!==letter.reply)emit('letter',letter,'reply',letter.reply,{kind:'change',title:letter.title,body:`حالة الرد: ${S.replyStates[was.reply]} ← ${S.replyStates[letter.reply]}`});
+      else if(was.reply!==letter.reply)emit('letter',letter,'reply',letter.reply,{kind:'change',title:letter.title,body:`حالة الرد: ${S.replyStates[was.reply] || 'غير مسجل'} ← ${S.replyStates[letter.reply] || 'غير مسجل'}`});
       else if(was.work!==letter.work)emit('letter',letter,'work',letter.work,{kind:'change',title:letter.title,body:`حالة العمل: ${S.workStates[was.work]} ← ${S.workStates[letter.work]}`});
       else if(was.location!==letter.location)emit('letter',letter,'location',letter.location,{kind:'change',title:letter.title,body:`موقع الكتاب: ${letter.location||'غير مسجل'}`});
     }
@@ -245,6 +245,7 @@
       }
       const value=await window.WorkshopSheets.load(sheetConfig,snapshot);
       if(!validPayload(value))throw new Error('invalid');
+      if(!Array.isArray(value.letters) && Array.isArray(data?.letters))value.letters=data.letters;
       const changed=!data || JSON.stringify(data)!==JSON.stringify(value);
       const news=changed&&data?describe(data,value):[];
       if(value.translations && JSON.stringify(value.translations)!==JSON.stringify(data?.translations)) I.setTranslations(value.translations);
