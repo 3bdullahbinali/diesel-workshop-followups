@@ -5,6 +5,8 @@ const path = require('path');
 const sandbox = {};
 new Function('globalThis', fs.readFileSync(path.join(__dirname, '..', 'sheets.js'), 'utf8'))(sandbox);
 const S = sandbox.WorkshopSheets;
+new Function('globalThis', fs.readFileSync(path.join(__dirname, '..', 'purchase-orders.js'), 'utf8'))(sandbox);
+const O = sandbox.WorkshopOrders;
 let failures = 0;
 const check = (label, ok, detail = '') => {
   console.log((ok ? '✓ ' : '✗ ') + label + (ok ? '' : ' — ' + detail));
@@ -54,6 +56,23 @@ try { S.jobEntries([jobRow(), jobRow()]); check('معرّف مكرر يُرفض'
 catch (error) { check('معرّف مكرر يُرفض', true); }
 try { S.jobEntries([jobRow({1:''})]); check('موضوع مفقود يُرفض', false, 'لم يُرفض'); }
 catch (error) { check('موضوع مفقود يُرفض', error.message.includes('job-1'), error.message); }
+
+// حالة متابعة أمر تاريخي لا تعني تأكيد استلامه ولا تمنع قراءة بقية السجل.
+const orderData = {...snap, items:[read({7:'PR1'}), read({0:'x2',7:'PR2',3:'تحت التقييم'})]};
+const orderRow = ['LPO-1','x1','مورد','','','','بانتظار المتابعة',false,'','','متابعة الفواتير'];
+for (const label of ['بانتظار المتابعة','coordination']) {
+  const result = O.attach(orderData, [Object.assign([...orderRow], {6:label})], []);
+  const order = result.items[0].procurement.orders[0];
+  check('أمر بانتظار المتابعة يبقى مفتوحاً: '+label,
+    order.state==='coordination' && order.receiptState==='coordination' && !order.linesComplete);
+  check('تستمر قراءة الطلبات الأخرى دون تغيير حالتها',
+    result.items.length===2 && result.items[1].stage==='evaluation' && result.items[1].procurement.stage==='evaluation');
+}
+check('حالة المتابعة لا تلغي كميات الاستلام الجزئي',
+  O.attach(orderData, [orderRow], [['LPO-1','1','','صنف','قطعة',5,2]])
+    .items[0].procurement.orders[0].receiptState==='partial_delivery');
+try { O.attach(orderData, [Object.assign([...orderRow], {6:'حالة خاطئة'})], []); check('حالة أمر مجهولة تُرفض', false); }
+catch (error) { check('حالة أمر مجهولة تُرفض مع السبب', error.message.includes('حالة أمر شراء غير معروفة: حالة خاطئة')); }
 
 console.log(failures ? `\nفشل ${failures} اختباراً.` : `\nنجحت جميع اختبارات القارئ.`);
 process.exit(failures ? 1 : 0);

@@ -2,7 +2,7 @@
 (function(root){
   const orderHeaders=['رقم LPO','معرّف البند','المورد','تاريخ الإصدار','قيمة الأمر بالدرهم','موعد التوريد','حالة الأمر','بنود الأمر مكتملة','تاريخ آخر استلام','آخر تعديل بتوقيت الإمارات','ملاحظات'];
   const lineHeaders=['رقم LPO','رقم البند','كود الصنف','الوصف','الوحدة','الكمية المطلوبة','الكمية المستلمة','الكمية المتبقية','تاريخ آخر استلام','ملاحظات'];
-  const states={delivery:'بانتظار التوريد',partial_delivery:'استلام جزئي',received:'مستلم بالكامل',closed_unreceived:'مغلق — المتبقي غير مستلم',cancelled:'ملغى',unknown:'بحاجة لتأكيد الاستلام'};
+  const states={delivery:'بانتظار التوريد',partial_delivery:'استلام جزئي',received:'مستلم بالكامل',closed_unreceived:'مغلق — المتبقي غير مستلم',cancelled:'ملغى',coordination:'بانتظار المتابعة',unknown:'بحاجة لتأكيد الاستلام'};
   const text=value=>String(value??'').trim();
   const present=value=>value!=null&&value!=='';
   function number(value,label){

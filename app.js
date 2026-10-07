@@ -161,10 +161,10 @@
   function setConnection(ok){
     connected=ok;
     $('connection-dot').className = 'connection-dot'+(ok?'':' offline');
-    $('connection-label').textContent = ok ? 'متصل بـ Google Sheets' : data?.connectionSource==='google-sheets' ? 'تعذر التحديث — آخر قراءة من Google Sheets' : 'نسخة محفوظة — Google Sheets غير متصل';
+    $('connection-label').textContent = ok ? 'متصل بـ Google Sheets' : data?.connectionSource==='google-sheets' ? 'تعذر التحديث — آخر قراءة من Google Sheets' : 'نسخة محفوظة — لم تنجح قراءة Google Sheets';
     window.WorkshopPresentation?.setConnection($('connection-label').textContent, ok);
     $('fetch-time').textContent = lastFetch ? 'آخر قراءة من Google Sheets '+time(lastFetch)+' · تحديث كل 30 ثانية' : '';
-    $('sheet-status').textContent = ok ? 'البيانات مقروءة من ملف المتابعات في Google Sheets. تتجدد أثناء فتح الشاشة.' : data?.connectionSource==='google-sheets' ? 'تعذرت القراءة الجديدة من Google Sheets؛ تُعرض آخر قراءة ناجحة لحين عودة الاتصال.' : 'إعداد الربط جاهز؛ لم تنجح القراءة المباشرة من Google Sheets بعد. البيانات الظاهرة نسخة محفوظة، وليست تأكيداً لنجاح الربط.';
+    $('sheet-status').textContent = ok ? 'البيانات مقروءة من ملف المتابعات في Google Sheets. تتجدد أثناء فتح الشاشة.' : data?.connectionSource==='google-sheets' ? 'تعذرت القراءة الجديدة من Google Sheets؛ تُعرض آخر قراءة ناجحة لحين نجاح التحديث.' : 'إعداد الربط جاهز؛ لم تنجح القراءة المباشرة من Google Sheets بعد. البيانات الظاهرة نسخة محفوظة، وليست تأكيداً لنجاح الربط.';
   }
   // وصف ما تغيّر فعلاً بين قراءتين، ليظهر كإشعارات بدل رسالة عامة.
   function describe(before,after){
@@ -258,7 +258,7 @@
       else if($('notice').classList.contains('error'))notice('');
     }catch(error){
       setConnection(false);
-      notice((data ? 'تعذر الاتصال الآن؛ ما زالت آخر نسخة محمّلة معروضة. ستُعاد المحاولة تلقائياً. ' : 'تعذر تحميل السجل. ')+(error.message==='invalid'?'بيانات Google Sheets غير صالحة.':error.message),true);
+      notice((data ? 'تعذر تحديث البيانات؛ ما زالت آخر نسخة محمّلة معروضة. ستُعاد المحاولة تلقائياً. ' : 'تعذر تحميل السجل. ')+(error.message==='invalid'?'بيانات Google Sheets غير صالحة.':error.message),true);
       if(!data)$('rows').innerHTML='<tr><td colspan="6" class="loading-cell">لا توجد نسخة محمّلة بعد.</td></tr>';
     }finally{fetching=false;$('refresh').disabled=false;}
   }
