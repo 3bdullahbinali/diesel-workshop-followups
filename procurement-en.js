@@ -1,5 +1,6 @@
 /* Interface labels only; operational translations remain in the connected sheet. */
 Object.assign(window.WorkshopEnglish, {
+  "بانتظار عروض الأسعار المعدّلة": "Awaiting revised quotations",
   "بانتظار LPO": "Awaiting LPO",
   "استلام جزئي": "Partially received",
   "مستلم بالكامل ومغلق": "Fully received and closed",
