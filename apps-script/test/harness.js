@@ -69,6 +69,6 @@ global.LockService = {getScriptLock:()=>({tryLock:()=>true,releaseLock(){}})};
 global.ContentService = {MimeType:{JSON:'json'}, createTextOutput:t=>({setMimeType(){return this;}, getContent:()=>t})};
 
 // تحميل السكربت
-const code = fs.readFileSync('/home/user/diesel-workshop-followups/apps-script/workshop-api.gs','utf8');
+const code = fs.readFileSync(require('path').join(__dirname, '..', 'workshop-api.gs'),'utf8');
 (0,eval)(code + '\n;globalThis.__api={setup,addUser:saveUser,resetPassword,doPost,doGet,addOperationalColumns,addLettersSheet,addEquipmentSheet,addJobsSheet,addAccounts,setAccounts:function(list){ACCOUNTS_TO_ADD=list;},fillOperationalValues,listUsers,renameUser,setUserActive,findUserRow,sheetByName,CONFIG,HEADERS,SOURCE_HEADERS};');
 module.exports = {book, Sheet, api: globalThis.__api};

@@ -9,35 +9,35 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
-  <link rel="icon" href="./favicon.svg?v=2026-10-12-0876" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css?v=2026-10-12-0876">
-  <link rel="stylesheet" href="./motion.css?v=2026-10-12-0876">
-  <link rel="stylesheet" href="./presentation.css?v=2026-10-12-0876">
-  <link rel="stylesheet" href="./admin.css?v=2026-10-12-0876">
-  <link rel="stylesheet" href="./statistics.css?v=2026-10-12-0876">
+  <link rel="icon" href="./favicon.svg?v=2026-10-28-0428" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css?v=2026-10-28-0428">
+  <link rel="stylesheet" href="./motion.css?v=2026-10-28-0428">
+  <link rel="stylesheet" href="./presentation.css?v=2026-10-28-0428">
+  <link rel="stylesheet" href="./admin.css?v=2026-10-28-0428">
+  <link rel="stylesheet" href="./statistics.css?v=2026-10-28-0428">
   <title>متابعات شعبة ورشة الديزل</title>
-  <script src="./translations-en.js?v=2026-10-12-0876" defer></script>
-  <script src="./procurement-en.js?v=2026-10-12-0876" defer></script>
-  <script src="./followup-en.js?v=2026-10-12-0876" defer></script>
-  <script src="./i18n.js?v=2026-10-12-0876" defer></script>
-  <script src="./record-time.js?v=2026-10-12-0876" defer></script>
-  <script src="./motion.js?v=2026-10-12-0876" defer></script>
-  <script src="./procurement-model.js?v=2026-10-12-0876" defer></script>
-  <script src="./purchase-orders.js?v=2026-10-12-0876" defer></script>
-  <script src="./kinetic.js?v=2026-10-12-0876" defer></script>
-  <script src="./presentation.js?v=2026-10-12-0876" defer></script>
-  <script src="./procurement.js?v=2026-10-12-0876" defer></script>
-  <script src="./sheets.js?v=2026-10-12-0876" defer></script>
-  <script src="./followup-model.js?v=2026-10-12-0876" defer></script>
-  <script src="./relations.js?v=2026-10-12-0876" defer></script>
-  <script src="./app.js?v=2026-10-12-0876" defer></script>
-  <script src="./notifications.js?v=2026-10-12-0876" defer></script>
-  <script src="./letters.js?v=2026-10-12-0876" defer></script>
-  <script src="./jobs.js?v=2026-10-12-0876" defer></script>
-  <script src="./archive.js?v=2026-10-12-0876" defer></script>
-  <script src="./statistics.js?v=2026-10-12-0876" defer></script>
-  <script src="./admin.js?v=2026-10-12-0876" defer></script>
-  <link rel="stylesheet" href="./followup-layout.css?v=2026-10-12-0876">
+  <script src="./translations-en.js?v=2026-10-28-0428" defer></script>
+  <script src="./procurement-en.js?v=2026-10-28-0428" defer></script>
+  <script src="./followup-en.js?v=2026-10-28-0428" defer></script>
+  <script src="./i18n.js?v=2026-10-28-0428" defer></script>
+  <script src="./record-time.js?v=2026-10-28-0428" defer></script>
+  <script src="./motion.js?v=2026-10-28-0428" defer></script>
+  <script src="./procurement-model.js?v=2026-10-28-0428" defer></script>
+  <script src="./purchase-orders.js?v=2026-10-28-0428" defer></script>
+  <script src="./kinetic.js?v=2026-10-28-0428" defer></script>
+  <script src="./presentation.js?v=2026-10-28-0428" defer></script>
+  <script src="./procurement.js?v=2026-10-28-0428" defer></script>
+  <script src="./sheets.js?v=2026-10-28-0428" defer></script>
+  <script src="./followup-model.js?v=2026-10-28-0428" defer></script>
+  <script src="./relations.js?v=2026-10-28-0428" defer></script>
+  <script src="./app.js?v=2026-10-28-0428" defer></script>
+  <script src="./notifications.js?v=2026-10-28-0428" defer></script>
+  <script src="./letters.js?v=2026-10-28-0428" defer></script>
+  <script src="./jobs.js?v=2026-10-28-0428" defer></script>
+  <script src="./archive.js?v=2026-10-28-0428" defer></script>
+  <script src="./statistics.js?v=2026-10-28-0428" defer></script>
+  <script src="./admin.js?v=2026-10-28-0428" defer></script>
+  <link rel="stylesheet" href="./followup-layout.css?v=2026-10-28-0428">
 </head>
 <body>
   <div class="ambient-background" aria-hidden="true"><div class="ambient-art"></div></div>
@@ -145,14 +145,18 @@
       </div>
     </section>
     <section id="procurement-panel" role="tabpanel" aria-labelledby="procurement-tab" hidden>
-      <div class="purchase-summary" aria-label="ملخص طلبات الشراء"><div><strong id="pr-numbered">—</strong><span>طلبات مرقمة قائمة</span></div><div><strong id="pr-unnumbered">—</strong><span>طلبات لم تُرقّم</span></div><div><strong id="pr-quotes">—</strong><span>بانتظار العروض</span></div><div><strong id="pr-received">—</strong><span>تحت التقييم</span></div></div>
+      <div id="pr-summary" class="purchase-summary" aria-label="ملخص طلبات الشراء والشراء المباشر"><div><strong id="pr-numbered">—</strong><span>طلبات مرقمة قائمة</span></div><div><strong id="pr-unnumbered">—</strong><span>طلبات لم تُرقّم</span></div><div><strong id="pr-quotes">—</strong><span>بانتظار العروض</span></div><div><strong id="pr-received">—</strong><span>تحت التقييم</span></div></div>
       <div class="records-section purchase-section">
-        <div class="records-heading"><h3>طلبات الشراء <span id="pr-count"></span></h3><span class="sort-hint">حسب الحالة ثم الأولوية</span></div>
-        <div class="toolbar"><div id="pr-filters" class="group-filters" role="group" aria-label="حالة طلب الشراء"></div><label class="search-field"><input id="pr-search" type="search" aria-label="البحث في طلبات الشراء" placeholder="رقم PR أو LPO أو موضوع الطلب"></label></div>
-        <p class="purchase-note">يمكن ربط أكثر من LPO بنفس PR. افتح تفاصيل الطلب لمتابعة كل أمر والكميات المستلمة والمتبقية لكل صنف.</p>
+        <div class="records-heading"><h3>معاملات الشراء <span id="pr-count" role="status" aria-live="polite"></span></h3><span class="sort-hint">حسب الحالة ثم الأولوية</span></div>
+        <div class="purchase-filters">
+          <div id="pr-type-filters" class="group-filters" role="group" aria-label="نوع المعاملة"></div>
+          <div id="pr-filters" class="group-filters" role="group" aria-label="مرحلة المعاملة"></div>
+        </div>
+        <div class="toolbar purchase-search-toolbar"><label class="search-field"><input id="pr-search" type="search" aria-label="البحث في طلبات الشراء" placeholder="رقم الطلب أو موضوع المعاملة"></label></div>
+        <p id="pr-order-note" class="purchase-note">يمكن ربط أكثر من LPO بنفس PR. افتح تفاصيل الطلب لمتابعة كل أمر والكميات المستلمة والمتبقية لكل صنف.</p>
         <div id="pr-records" class="purchase-records"><p class="loading-cell">جارٍ تحميل طلبات الشراء…</p></div>
-        <div class="secondary-statuses"><span>حالات أخرى</span><div id="pr-secondary-filters" class="group-filters" role="group" aria-label="حالات أخرى"></div></div>
-        <div id="pr-empty" class="empty-state" hidden><h4>لا توجد طلبات مطابقة</h4><button type="button" id="pr-clear" class="refresh-button">عرض جميع الطلبات</button></div>
+        <div id="pr-secondary-statuses" class="secondary-statuses"><span>حالات أخرى</span><div id="pr-secondary-filters" class="group-filters" role="group" aria-label="حالات أخرى"></div></div>
+        <div id="pr-empty" class="empty-state" hidden><h4>لا توجد معاملات مطابقة</h4><button type="button" id="pr-clear" class="refresh-button">عرض جميع المعاملات</button></div>
       </div>
     </section>
     <section id="closed-panel" role="tabpanel" aria-labelledby="closed-tab" hidden>
@@ -358,3 +362,4 @@
   <noscript><p class="noscript">يلزم تفعيل JavaScript لعرض السجل والتحديثات التلقائية.</p></noscript>
 </body>
 </html>
+

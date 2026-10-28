@@ -1,5 +1,22 @@
 /* Interface labels only; operational translations remain in the connected sheet. */
 Object.assign(window.WorkshopEnglish, {
+  "معاملات الشراء": "Procurement transactions",
+  "جميع المعاملات": "All transactions",
+  "عرض جميع المعاملات": "Show all transactions",
+  "نوع المعاملة": "Transaction type",
+  "مرحلة المعاملة": "Transaction stage",
+  "الشراء المباشر": "Direct purchase",
+  "العقود": "Contracts",
+  "النثريات": "Petty cash",
+  "جميع المراحل": "All stages",
+  "الإعداد": "Preparation",
+  "الموافقة": "Approval",
+  "التنفيذ والصرف": "Execution and payment",
+  "التسوية": "Settlement",
+  "الإغلاق": "Closure",
+  "رقم الطلب أو موضوع المعاملة": "Request number or transaction subject",
+  "لا توجد معاملات مطابقة": "No matching transactions",
+  "ملخص طلبات الشراء والشراء المباشر": "Purchase request and direct purchase summary",
   "بانتظار عروض الأسعار المعدّلة": "Awaiting revised quotations",
   "بانتظار LPO": "Awaiting LPO",
   "استلام جزئي": "Partially received",
@@ -26,3 +43,4 @@ Object.assign(window.WorkshopEnglish, {
   "إغلاق طلب PR يتطلب تأكيد اكتمال جميع أوامره؛ اكتمال LPO واحد لا يغلق الطلب.": "Closing a PR requires confirmation that all its orders are complete; completing one LPO does not close the PR.",
   "يمكن ربط أكثر من LPO بنفس PR. افتح تفاصيل الطلب لمتابعة كل أمر والكميات المستلمة والمتبقية لكل صنف.": "Multiple LPOs can be linked to one PR. Open the request details to track each order and the received and outstanding quantities for each item."
 });
+

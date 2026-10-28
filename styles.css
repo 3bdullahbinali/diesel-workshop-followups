@@ -31,6 +31,15 @@ html[dir=ltr] .reference[dir=ltr]{text-align:left}
 @media(max-width:600px){.masthead-inner{flex-wrap:wrap}.header-end{max-width:none;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:8px}.header-end time{text-align:start}.language-switch button{font-size:.875rem}.view-tabs button{font-size:.9375rem}.view-tabs{gap:3px}}
 
 .purchase-section .toolbar,.purchase-section .group-filters{flex-wrap:wrap}
+.purchase-filters{display:grid;gap:14px;padding:4px 24px 20px}
+.purchase-filters .group-filters{gap:8px}
+.purchase-filters .filter-button{border:1px solid #bdd0c7;border-radius:8px;padding:9px 14px;min-height:44px;color:var(--green);background:#fff;white-space:nowrap}
+.purchase-filters .filter-button:hover{background:var(--green-pale);border-color:var(--green)}
+.purchase-filters .filter-button.active{background:var(--green);border-color:var(--green);color:#fff}
+.purchase-filters .filter-count{display:inline}
+.purchase-search-toolbar{justify-content:flex-end}
+@media(max-width:900px){.purchase-filters{padding-inline:18px}}
+@media(max-width:600px){.purchase-filters{gap:12px}.purchase-filters .filter-button{padding:8px 10px}}
 
 .secondary-statuses{padding:16px 24px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line);color:var(--muted);font-size:.875rem}
 .record-updated { color: var(--green, #124e3e); font-size: 1rem; font-weight: 600; margin: 0 0 1rem; }
@@ -184,3 +193,4 @@ html[dir=rtl] .job-top .edit-button{margin:0 auto 0 0}
 }
 /* روابط تنقّل بهيئة أزرار: الرابط بين صفحتي الموقع ليس نصاً مسطراً. */
 a.admin-button{text-decoration:none}
+

@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "title": "شعبة ورشة الديزل",
   "subtitle": "بلدية مدينة الشارقة · إدارة الصرف الصحي",
-  "revision": "bandit-petty-cash-fallback-2026-10-28",
-  "updatedAt": "2026-10-28T06:45:41.000Z",
+  "revision": "procurement-types-petty-cash-2026-10-28",
+  "updatedAt": "2026-10-28T07:08:24.000Z",
   "compiledAt": "2026-09-14T12:59:31.987286+00:00",
   "baselineDate": "2026-08-27",
   "latestInformationDate": "2026-10-28",
@@ -2767,6 +2767,12 @@
           "locator": "تم تحويل الطلب إلى النثريات، وهو قيد الإعداد.",
           "date": "2026-10-28",
           "type": "sheet"
+        },
+        {
+          "title": "تصنيف المعاملة — 28/10/2026",
+          "locator": "تم تسجيل الطلب ضمن النثريات، في مرحلة الإعداد.",
+          "date": "2026-10-28",
+          "type": "sheet"
         }
       ],
       "history": [
@@ -2790,7 +2796,7 @@
       "notes": "بند الموازنة وفق ملف التخطيط المرفق؛ لا يوجد رقم PR مسجل.",
       "area": "procurement",
       "actionAt": "team",
-      "updatedAt": "2026-10-28T06:45:41.000Z",
+      "updatedAt": "2026-10-28T07:08:24.000Z",
       "procurement": {
         "linkedItemIds": [],
         "kind": "unregistered",
@@ -2800,7 +2806,9 @@
         "numberType": null,
         "lpoNumber": null,
         "amountAed": null,
-        "amountBasis": null
+        "amountBasis": null,
+        "transactionType": "petty_cash",
+        "transactionStage": "preparation"
       }
     }
   ],
@@ -2808,6 +2816,25 @@
     "تحديث عبدالله — 28/10/2026": "Abdulla's update — 28/10/2026",
     "تم تحويل الطلب إلى النثريات، وهو قيد الإعداد.": "The request has been transferred to petty cash and is under preparation.",
     "استكمال إعداد طلب النثريات للأصناف المطلوبة ومتابعة رفعه.": "Complete preparation of the petty cash request for the required items and follow up on its submission.",
-    "تحديث عبدالله — 28/10/2026 / توجيه عبدالله — 15/09/2026 / BUDGET 2027, PR STATUS (Auto w-s) 08-09-2026(2).xlsx": "Abdulla's update — 28/10/2026 / Abdullah's instruction — 15/09/2026 / BUDGET 2027, PR STATUS (Auto w-s) 08-09-2026(2).xlsx"
+    "تحديث عبدالله — 28/10/2026 / توجيه عبدالله — 15/09/2026 / BUDGET 2027, PR STATUS (Auto w-s) 08-09-2026(2).xlsx": "Abdulla's update — 28/10/2026 / Abdullah's instruction — 15/09/2026 / BUDGET 2027, PR STATUS (Auto w-s) 08-09-2026(2).xlsx",
+    "معاملات الشراء": "Procurement transactions",
+    "جميع المعاملات": "All transactions",
+    "عرض جميع المعاملات": "Show all transactions",
+    "نوع المعاملة": "Transaction type",
+    "مرحلة المعاملة": "Transaction stage",
+    "الشراء المباشر": "Direct purchase",
+    "العقود": "Contracts",
+    "النثريات": "Petty cash",
+    "جميع المراحل": "All stages",
+    "الإعداد": "Preparation",
+    "الموافقة": "Approval",
+    "التنفيذ والصرف": "Execution and payment",
+    "التسوية": "Settlement",
+    "الإغلاق": "Closure",
+    "رقم الطلب أو موضوع المعاملة": "Request number or transaction subject",
+    "لا توجد معاملات مطابقة": "No matching transactions",
+    "ملخص طلبات الشراء والشراء المباشر": "Purchase request and direct purchase summary",
+    "تصنيف المعاملة — 28/10/2026": "Transaction classification — 28/10/2026",
+    "تم تسجيل الطلب ضمن النثريات، في مرحلة الإعداد.": "The request has been classified as petty cash, at the preparation stage."
   }
 }

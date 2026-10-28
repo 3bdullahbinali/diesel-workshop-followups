@@ -8,6 +8,11 @@
   const areas={procurement:'المشتريات والموازنة',maintenance:'الصيانة والفحص والدعم الفني',rain:'جاهزية الأمطار والقطاعات',inventory:'المخزون والأصول',vehicles:'مركبات الإدارة والسائقون',admin:'الشؤون الإدارية والموظفون'};
   const actions={me:'عندي',team:'عند الفريق',external:'بانتظار جهة أخرى',unassigned:'لم يحدد'};
   const optionalHeaders=['المجال','الإجراء عند','العائق'];
+  // Optional read-through classification; the current write service preserves
+  // these columns without changing its legacy request-kind/stage contract.
+  const transactionHeaders=['نوع المعاملة','مرحلة المعاملة'];
+  const transactionTypes={pr:'طلبات الشراء',direct:'الشراء المباشر',contract:'العقود',petty_cash:'النثريات'};
+  const transactionStages={preparation:'الإعداد',approvals:'الموافقة',execution_payment:'التنفيذ والصرف',settlement:'التسوية',closure:'الإغلاق'};
   // المراسلات: ورقة اختيارية تُقرأ بالاسم، فلا تحتاج معرّفاً في الإعداد.
   const letterSheetName='المراسلات';
   const letterHeaders=['معرّف الكتاب','الاتجاه','الموضوع','رقم الكتاب','الجهة','معرّف المتابعة','آخر موقع','تاريخ التحقق','حالة العمل','حالة الرد','حالة الكتاب','الإجراء التالي','موعد المتابعة','رقم كتاب الرد','الملاحظات','آخر تعديل بتوقيت الإمارات'];
@@ -86,8 +91,9 @@
       // Import/display rounding must never change an existing record's timestamp.
       item.updatedAt=old?.updatedAt && edited && Math.floor(Date.parse(old.updatedAt)/60000)===Math.floor(Date.parse(edited)/60000)?old.updatedAt:edited;
       if(old && (item.informationDate!==old.informationDate||item.status!==old.status))item.evidence='sheet';
-      // أعمدة الشراء وحدها (17..22)؛ المدى يمتد إلى Z فلا يصح تركها مفتوحة.
-      if(row.slice(7,10).some(v=>v!=null&&v!=='')||row.slice(17,23).some(v=>v!=null&&v!=='')||old?.procurement){
+      // The explicit transaction type also establishes a procurement record.
+      // Operational columns X:Z alone must never do so.
+      if(row.slice(7,10).some(v=>v!=null&&v!=='')||row.slice(17,23).some(v=>v!=null&&v!=='')||text(row[26])||old?.procurement){
         const meta=old?.procurement?copy(old.procurement):{linkedItemIds:[]};
         const rawKind=text(row[17]);
         // خلية فارغة في بند شراء تُستنتج من أرقامه بدل أن تُسقط قراءة السجل كله.
@@ -103,6 +109,10 @@
         if(meta.amountAed!==null&&(!Number.isFinite(meta.amountAed)||meta.amountAed<0))return fail('قيمة مالية غير صالحة في بند '+id+'.');
         meta.amountBasis=text(row[21])?enumValue(row[21],bases,old?.procurement?.amountBasis,'أساس القيمة في بند '+id):null;
         if(text(row[22])||Object.hasOwn(meta,'amountNote'))meta.amountNote=text(row[22])||null;
+        // Missing columns preserve fallback metadata. Once the columns exist,
+        // their empty cells intentionally clear an earlier classification.
+        if(row.length>26){if(text(row[26]))meta.transactionType=enumValue(row[26],transactionTypes,null,'نوع المعاملة في بند '+id);else delete meta.transactionType;}
+        if(row.length>27){if(text(row[27]))meta.transactionStage=enumValue(row[27],transactionStages,null,'مرحلة المعاملة في بند '+id);else delete meta.transactionStage;}
         for(const key of Object.keys(meta))if(meta[key]===null&&old?.procurement&&!Object.hasOwn(old.procurement,key))delete meta[key];
         item.procurement=meta;
       }
@@ -180,9 +190,9 @@
       .catch(()=>null);
     const readOrders=config.orderSheetId==null?Promise.resolve([]):query(config.spreadsheetId,config.orderSheetId,'A1:K5001').then(r=>tableRows(r,root.WorkshopOrders.orderHeaders));
     const readLines=config.deliverySheetId==null?Promise.resolve([]):query(config.spreadsheetId,config.deliverySheetId,'A1:J20001').then(r=>tableRows(r,root.WorkshopOrders.lineHeaders));
-    // المدى يمتد إلى Z ليشمل أعمدة المجال والإجراء عند والعائق إن أُضيفت.
-    const [main,refs,english,orders,lines,letters,equipment,jobs]=await Promise.all([query(config.spreadsheetId,config.mainSheetId,'A1:Z5001'),query(config.spreadsheetId,config.sourceSheetId,'A1:E20001'),translations,readOrders,readLines,readLetters,readEquipment,readJobs]);
-    const result=root.WorkshopOrders.attach(merge(snapshot,tableRows(main,headers,optionalHeaders),tableRows(refs,sourceHeaders)),orders,lines);
+    // AA:AB add transaction type/phase; older sheets remain valid unchanged.
+    const [main,refs,english,orders,lines,letters,equipment,jobs]=await Promise.all([query(config.spreadsheetId,config.mainSheetId,'A1:AB5001'),query(config.spreadsheetId,config.sourceSheetId,'A1:E20001'),translations,readOrders,readLines,readLetters,readEquipment,readJobs]);
+    const result=root.WorkshopOrders.attach(merge(snapshot,tableRows(main,headers,[...optionalHeaders,...transactionHeaders]),tableRows(refs,sourceHeaders)),orders,lines);
     result.translations=english;
     result.letters=letters;
     result.lettersError=lettersError;
@@ -282,5 +292,6 @@
     }
     return Object.fromEntries(entries);
   }
-  root.WorkshopSheets={load,query,merge,tableRows,dateValue,translationEntries,letterEntries,headers,sourceHeaders,optionalHeaders,letterHeaders,letterSheetName,equipmentHeaders,equipmentSheetName,jobHeaders,jobSheetName,stages,areas,actions,directions,workStates,replyStates,closureStates,phases,handovers,equipmentEntries,parties,jobKinds,jobStates,jobEntries};
+  root.WorkshopSheets={load,query,merge,tableRows,dateValue,translationEntries,letterEntries,headers,sourceHeaders,optionalHeaders,transactionHeaders,transactionTypes,transactionStages,letterHeaders,letterSheetName,equipmentHeaders,equipmentSheetName,jobHeaders,jobSheetName,stages,areas,actions,directions,workStates,replyStates,closureStates,phases,handovers,equipmentEntries,parties,jobKinds,jobStates,jobEntries};
 })(globalThis);
+
