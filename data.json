@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "title": "شعبة ورشة الديزل",
   "subtitle": "بلدية مدينة الشارقة · إدارة الصرف الصحي",
-  "revision": "record-times-2026-09-14T15:06:35.129Z",
-  "updatedAt": "2026-09-14T12:59:32.000Z",
+  "revision": "bandit-petty-cash-fallback-2026-10-28",
+  "updatedAt": "2026-10-28T06:45:41.000Z",
   "compiledAt": "2026-09-14T12:59:31.987286+00:00",
   "baselineDate": "2026-08-27",
-  "latestInformationDate": "2026-09-14",
+  "latestInformationDate": "2026-10-28",
   "sourceBaselineCount": 36,
   "displayBaselineCount": 35,
   "sync": {
@@ -2756,6 +2756,58 @@
       },
       "area": "procurement",
       "actionAt": "external"
+    },
+    {
+      "id": "new-band-it-tools-strips",
+      "baseIds": [],
+      "kind": "new",
+      "sources": [
+        {
+          "title": "تحديث عبدالله — 28/10/2026",
+          "locator": "تم تحويل الطلب إلى النثريات، وهو قيد الإعداد.",
+          "date": "2026-10-28",
+          "type": "sheet"
+        }
+      ],
+      "history": [
+        {
+          "date": "2026-09-15",
+          "status": "قيد الإعداد، حسب توجيه عبدالله بتاريخ 15/09/2026."
+        }
+      ],
+      "evidence": "sheet",
+      "title": "أدوات وأشرطة Band-it",
+      "priority": "medium",
+      "stage": "preparation",
+      "action": "استكمال إعداد طلب النثريات للأصناف المطلوبة ومتابعة رفعه.",
+      "owner": "مصطفى",
+      "informationDate": "2026-10-28",
+      "status": "تم تحويل الطلب إلى النثريات، وهو قيد الإعداد.",
+      "followUpWith": "مصطفى",
+      "group": "purchase-action",
+      "dueDate": null,
+      "reference": "تحديث عبدالله — 28/10/2026 / توجيه عبدالله — 15/09/2026 / BUDGET 2027, PR STATUS (Auto w-s) 08-09-2026(2).xlsx",
+      "notes": "بند الموازنة وفق ملف التخطيط المرفق؛ لا يوجد رقم PR مسجل.",
+      "area": "procurement",
+      "actionAt": "team",
+      "updatedAt": "2026-10-28T06:45:41.000Z",
+      "procurement": {
+        "linkedItemIds": [],
+        "kind": "unregistered",
+        "stage": "preparation",
+        "prNumber": null,
+        "budgetCode": "222302",
+        "numberType": null,
+        "lpoNumber": null,
+        "amountAed": null,
+        "amountBasis": null
+      }
     }
-  ]
+  ],
+  "translations": {
+    "تحديث عبدالله — 28/10/2026": "Abdulla's update — 28/10/2026",
+    "تم تحويل الطلب إلى النثريات، وهو قيد الإعداد.": "The request has been transferred to petty cash and is under preparation.",
+    "استكمال إعداد طلب النثريات للأصناف المطلوبة ومتابعة رفعه.": "Complete preparation of the petty cash request for the required items and follow up on its submission.",
+    "تحديث عبدالله — 28/10/2026 / توجيه عبدالله — 15/09/2026 / BUDGET 2027, PR STATUS (Auto w-s) 08-09-2026(2).xlsx": "Abdulla's update — 28/10/2026 / Abdullah's instruction — 15/09/2026 / BUDGET 2027, PR STATUS (Auto w-s) 08-09-2026(2).xlsx"
+  }
 }
