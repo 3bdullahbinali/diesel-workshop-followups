@@ -1,5 +1,15 @@
 /* English display translations; Arabic records preserve their identity. */
 window.WorkshopEnglish = {
+  "الانتقال إلى الأرقام المرجعية": "Skip to reference figures",
+  "سجل الورشة الحالي": "Current workshop register",
+  "قطاعات الأمطار وإدارة التشغيل والمضخات المملوكة والإيجار والخراطيم.": "Rain sectors, Operations Department, owned pumps, rentals and hoses.",
+  "أرشيف المعدات": "Equipment archive",
+  "السجل المرجعي السابق": "Previous reference register",
+  "مرجع أعداد المعدات بتاريخ 5 يناير 2026. يشمل المولدات، وحالات المضخات ومواقعها فيه تجريبية.": "Equipment count reference dated 5 January 2026. Includes generators. Pump conditions and locations in this register are sample data.",
+  "العودة إلى السجل الحالي": "Back to the current register",
+  "فتح أرشيف المعدات والمولدات": "Open the equipment and generator archive",
+  "· مرجع أعداد المعدات بتاريخ 5 يناير 2026": "\u00b7 Equipment count reference dated 5 January 2026",
+  "العرض التلقائي للسجل المرجعي": "Reference register slideshow",
   "أعمال فنية قائمة": "Technical works in progress",
   "كما تعرضها صفحة الأعمال الفنية": "as shown on the technical works page",
   "سجلات في الأرشيف": "Records in the archive",

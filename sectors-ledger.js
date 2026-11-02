@@ -90,9 +90,25 @@
         deliveryReceived:hoseBalances.get(key+'|خرطوم طرد')?.qty??null,suctionReceived:hoseBalances.get(key+'|خرطوم سحب')?.qty??null};
     }),receipts,invalid};
   }
+  const departmentCodes=['Operations','STW','Civil','Town Drainage','Irrigation','Other'];
+  function departmentRequirements(rows){
+    const byCode=new Map();
+    for(const r of rows){
+      const code=str(r[0]);
+      if(!departmentCodes.includes(code)||byCode.has(code))throw new Error('جهة تشغيل غير معروفة أو مكررة');
+      const required=sizes.map((_,i)=>quantity(r[i+1]));
+      if(required.some(v=>v!==null&&!Number.isInteger(v)))throw new Error('عدد المضخات يجب أن يكون عدداً صحيحاً');
+      byCode.set(code,{code,required,source:str(r[8])});
+    }
+    if(byCode.size!==departmentCodes.length)throw new Error('قائمة جهات التشغيل غير مكتملة');
+    return departmentCodes.map(code=>byCode.get(code));
+  }
+  async function loadDepartments(id){
+    return departmentRequirements(await readSheet(id,'احتياجات إدارة التشغيل',['جهة التخصيص',...sizes,'المرجع'],100));
+  }
   async function load(id){
     const rows=await Promise.all([readSheet(id,'سجل مضخات الورشة',fleetHeader,1200),readSheet(id,'تغطية قطاعات الأمطار',planHeader,150),readSheet(id,'الحركات',movementHeader,5000)]);
     return build(...rows);
   }
-  root.WorkshopSectorLedger={load,build,sectorCodes,sizes};
+  root.WorkshopSectorLedger={load,build,loadDepartments,departmentRequirements,sectorCodes,sizes};
 })(typeof window==='undefined'?globalThis:window);

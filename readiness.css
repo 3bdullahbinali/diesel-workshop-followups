@@ -128,3 +128,6 @@
 .sector-note,.sector-alert{padding:10px 13px;border-inline-start:3px solid var(--green);background:#eff6f2;margin:12px 0}
 .sector-alert{border-color:#a37424;background:#fcf6e9}.sector-board .search-field{margin:14px 0}.sector-guide{margin-top:15px}.sector-guide p,.sector-guide li{line-height:1.8}
 @media(max-width:640px){.sector-board{padding:14px 10px}.sector-metrics{gap:4px}.sector-metrics>div{padding:8px}.sector-metrics strong{font-size:1.25rem}.sector-picks button,.sector-tabs button{padding:7px 9px}.sector-tabs{gap:4px}}
+
+html:not(.archive-mode) .archive-only,html.archive-mode .current-only{display:none!important}
+.archive-link{margin:22px 0;color:var(--muted);font-size:.875rem}.archive-link a{color:var(--green)}

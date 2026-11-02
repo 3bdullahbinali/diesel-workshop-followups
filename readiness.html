@@ -6,29 +6,34 @@
 <title>جاهزية المضخات والخراطيم — شعبة ورشة الديزل</title>
 <meta name="description" content="جاهزية مضخات الديزل والخراطيم وأماكنها وعهدتها، مقروءة من سجل مستقل.">
 <meta name="color-scheme" content="light">
+<script>
+  const readinessMode = new URLSearchParams(location.search);
+  if (readinessMode.get('archive') === '1' || readinessMode.get('display') === '1') document.documentElement.classList.add('archive-mode');
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
-<link rel="icon" href="./favicon.svg?v=2026-11-02-0972" type="image/svg+xml">
-<link rel="stylesheet" href="./styles.css?v=2026-11-02-0972">
-<link rel="stylesheet" href="./motion.css?v=2026-11-02-0972">
-<link rel="stylesheet" href="./admin.css?v=2026-11-02-0972">
-<link rel="stylesheet" href="./readiness.css?v=2026-11-02-0972">
-<link rel="stylesheet" href="./readiness-display.css?v=2026-11-02-0972">
-<script src="./translations-en.js?v=2026-11-02-0972" defer></script>
-<script src="./i18n.js?v=2026-11-02-0972" defer></script>
-<script src="./sheets.js?v=2026-11-02-0972" defer></script>
-<script src="./readiness-model.js?v=2026-11-02-0972" defer></script>
-<script src="./sectors-ledger.js?v=2026-11-02-0972" defer></script>
-<script src="./sectors-view.js?v=2026-11-02-0972" defer></script>
-<script src="./readiness.js?v=2026-11-02-0972" defer></script>
-<script src="./scene3d.js?v=2026-11-02-0972" defer></script>
-<script src="./display-engine.js?v=2026-11-02-0972" defer></script>
-<script src="./readiness-display.js?v=2026-11-02-0972" defer></script>
+<link rel="icon" href="./favicon.svg?v=2026-11-02-1014" type="image/svg+xml">
+<link rel="stylesheet" href="./styles.css?v=2026-11-02-1014">
+<link rel="stylesheet" href="./motion.css?v=2026-11-02-1014">
+<link rel="stylesheet" href="./admin.css?v=2026-11-02-1014">
+<link rel="stylesheet" href="./readiness.css?v=2026-11-02-1014">
+<link rel="stylesheet" href="./readiness-display.css?v=2026-11-02-1014">
+<script src="./translations-en.js?v=2026-11-02-1014" defer></script>
+<script src="./i18n.js?v=2026-11-02-1014" defer></script>
+<script src="./sheets.js?v=2026-11-02-1014" defer></script>
+<script src="./readiness-model.js?v=2026-11-02-1014" defer></script>
+<script src="./sectors-ledger.js?v=2026-11-02-1014" defer></script>
+<script src="./sectors-view.js?v=2026-11-02-1014" defer></script>
+<script src="./readiness.js?v=2026-11-02-1014" defer></script>
+<script src="./scene3d.js?v=2026-11-02-1014" defer></script>
+<script src="./display-engine.js?v=2026-11-02-1014" defer></script>
+<script src="./readiness-display.js?v=2026-11-02-1014" defer></script>
 </head>
 <body data-page="readiness">
   <div class="ambient-background" aria-hidden="true"><div class="ambient-art"></div></div>
-  <a href="#sector-board" class="skip-link">الانتقال إلى الأرقام</a>
+  <a href="#sector-board" class="skip-link current-only">الانتقال إلى الأرقام</a>
+  <a href="#rd-summary" class="skip-link archive-only">الانتقال إلى الأرقام المرجعية</a>
   <header class="masthead">
     <div class="masthead-inner">
       <div class="identity"><span class="identity-mark" aria-hidden="true" translate="no">د</span><div><div class="institution">بلدية مدينة الشارقة · إدارة الصرف الصحي</div><h1>شعبة ورشة الديزل</h1></div></div>
@@ -37,18 +42,21 @@
   </header>
   <main id="app">
     <section class="page-heading" aria-label="مقدمة الجاهزية">
-      <div><div class="eyebrow">سجل المعدات</div><h2>جاهزية المضخات والخراطيم</h2><p>احتياجات قطاعات الأمطار، وسجل مضخات الورشة، واستلامات الإيجار والخراطيم.</p></div>
+      <div class="current-only"><div class="eyebrow">سجل الورشة الحالي</div><h2>جاهزية المضخات والخراطيم</h2><p>قطاعات الأمطار وإدارة التشغيل والمضخات المملوكة والإيجار والخراطيم.</p></div>
+      <div class="archive-only"><div class="eyebrow">أرشيف المعدات</div><h2>السجل المرجعي السابق</h2><p>مرجع أعداد المعدات بتاريخ 5 يناير 2026. يشمل المولدات، وحالات المضخات ومواقعها فيه تجريبية.</p></div>
       <div class="page-actions">
         <a class="admin-button" href="./resources.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4Zm0 5 9 4 9-4M3 17l9 4 9-4"/></svg><span>الموارد</span></a>
         <a class="admin-button" href="./index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18M3 6h18M3 18h12"/></svg><span>سجل المتابعات</span></a>
-        <button class="admin-button admin-primary" id="rd-display-open" type="button" aria-haspopup="dialog" aria-controls="rdx"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="m10 8 5 3-5 3ZM8 21h8M12 17v4"/></svg><span>العرض التلقائي للسجل المرجعي</span></button>
+        <button class="admin-button archive-only" id="rd-display-open" type="button" aria-haspopup="dialog" aria-controls="rdx"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="m10 8 5 3-5 3ZM8 21h8M12 17v4"/></svg><span>العرض التلقائي للسجل المرجعي</span></button>
+        <a class="admin-button archive-only" href="./readiness.html">العودة إلى السجل الحالي</a>
         <button class="refresh-button" id="rd-refresh" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6.1 7a7 7 0 0 1 11.6-1L20 9M4 15l2.3 3A7 7 0 0 0 17.9 17"/></svg><span>تحديث العرض</span></button>
       </div>
     </section>
-    <section id="sector-board" class="records-section sector-board" aria-label="سجل قطاعات الأمطار">
+    <section id="sector-board" class="records-section sector-board current-only" aria-label="سجل الورشة الحالي">
       <div id="sector-content" translate="no"><p>جارٍ قراءة بيانات القطاعات…</p></div>
     </section>
-    <details class="sector-archive"><summary>السجل المرجعي السابق للمعدات والمولدات والخراطيم</summary>
+    <p class="current-only archive-link"><a href="?archive=1">فتح أرشيف المعدات والمولدات</a> · مرجع أعداد المعدات بتاريخ 5 يناير 2026</p>
+    <div class="archive-only">
     <p id="rd-lede" class="rd-hint"></p>
     <section id="readiness-panel" aria-label="جاهزية المضخات والخراطيم">
       <div class="records-section rd-shell">
@@ -92,7 +100,7 @@
         <p class="rd-source" id="rd-source"></p>
       </div>
     </section>
-    </details>
+    </div>
   </main>
   <footer>
     <p>سجل مستقل عن سجل المتابعات. الأرقام محسوبة من الشيت لحظة القراءة، ولا تُدخل يدوياً.</p>

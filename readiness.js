@@ -167,7 +167,7 @@
       ?`${s.unverified} من ${s.total} سجلاً لم يتحقق منه أحد ميدانياً (${[s.demo&&s.demo+' تجريبية',s.reference&&s.reference+' منقولة عن مصدر'].filter(Boolean).join(' و')}) — الأرقام أدناه ليست جاهزية تشغيلية معتمدة.`
       :'سجل مستقل عن سجل المتابعات. الخانة الفارغة تعني «لم تُدخل بعد» ولا تعني صفراً.';
     $('rd-source').innerHTML=`المصدر: <a href="${escape(config.readinessSpreadsheetUrl||'#')}" rel="noopener" target="_blank">سجل جاهزية المضخات والخراطيم</a>`+(data.readAt?` · آخر قراءة <bdi>${escape(new Intl.DateTimeFormat('ar-AE',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Dubai'}).format(data.readAt))}</bdi>`:'');
-    document.title=`جاهزية المضخات والخراطيم (${s.total}) — شعبة ورشة الديزل`;
+    document.title=`أرشيف المعدات (${s.total}) — شعبة ورشة الديزل`;
   }
 
   function failure(message){
@@ -225,6 +225,7 @@
 
   const today=$('today');
   if(today)today.textContent=new Intl.DateTimeFormat('ar-AE',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Dubai'}).format(new Date());
+  if(!document.documentElement.classList.contains('archive-mode'))return;
   $('rd-refresh')?.addEventListener('click',()=>{loaded=false;read();});
 
   $('readiness-panel').addEventListener('click',event=>{

@@ -8,6 +8,7 @@
  * لم يراجعها أحد.
  */
 (() => {
+  if(!document.documentElement.classList.contains('archive-mode'))return;
   const M = window.WorkshopReadinessModel;
   const D = window.WorkshopDisplay;
   const S3 = window.Scene3D;
