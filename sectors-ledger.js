@@ -104,7 +104,7 @@
     return departmentCodes.map(code=>byCode.get(code));
   }
   async function loadDepartments(id){
-    return departmentRequirements(await readSheet(id,'احتياجات إدارة التشغيل',['جهة التخصيص',...sizes,'المرجع'],100));
+    return departmentRequirements(await readSheet(id,'65027003',['جهة التخصيص',...sizes,'المرجع'],100));
   }
   async function load(id){
     const rows=await Promise.all([readSheet(id,'سجل مضخات الورشة',fleetHeader,1200),readSheet(id,'تغطية قطاعات الأمطار',planHeader,150),readSheet(id,'الحركات',movementHeader,5000)]);

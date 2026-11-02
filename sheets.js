@@ -150,7 +150,7 @@
     return result;
   }
   let requestNo=0;
-  function query(sheetId,tabId,range,timeout=25000){
+  function query(sheetId,tabId,range,timeout=25000,statement='select *'){
     return new Promise((resolve,reject)=>{
       const name='workshopSheetsResponse'+(++requestNo),script=document.createElement('script');
       let done=false;
@@ -163,7 +163,7 @@
       root[name]=response=>finish(null,response);
       const timer=setTimeout(()=>finish(new Error('تعذر الوصول إلى ملف Google Sheets.')),timeout);
       const url=new URL('https://docs.google.com/spreadsheets/d/'+encodeURIComponent(sheetId)+'/gviz/tq');
-      const params={headers:'1',range,tqx:'out:json;responseHandler:'+name,tq:'select *',_t:String(Date.now())};
+      const params={headers:'1',range,tqx:'out:json;responseHandler:'+name,tq:statement,_t:String(Date.now())};
       // رقم = معرّف ورقة، ونص = اسمها كما يظهر في الشيت.
       if(/^\d+$/.test(String(tabId)))params.gid=String(tabId);else params.sheet=String(tabId);
       url.search=new URLSearchParams(params);

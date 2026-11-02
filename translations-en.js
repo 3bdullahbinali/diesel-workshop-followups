@@ -2,7 +2,7 @@
 window.WorkshopEnglish = {
   "الانتقال إلى الأرقام المرجعية": "Skip to reference figures",
   "سجل الورشة الحالي": "Current workshop register",
-  "قطاعات الأمطار وإدارة التشغيل والمضخات المملوكة والإيجار والخراطيم.": "Rain sectors, Operations Department, owned pumps, rentals and hoses.",
+  "قطاعات الأمطار وجهات التشغيل والدعم والمضخات المملوكة والإيجار والخراطيم.": "Rain sectors, Operations and support groups, owned pumps, rentals and hoses.",
   "أرشيف المعدات": "Equipment archive",
   "السجل المرجعي السابق": "Previous reference register",
   "مرجع أعداد المعدات بتاريخ 5 يناير 2026. يشمل المولدات، وحالات المضخات ومواقعها فيه تجريبية.": "Equipment count reference dated 5 January 2026. Includes generators. Pump conditions and locations in this register are sample data.",
